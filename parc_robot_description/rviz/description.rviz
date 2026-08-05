@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
+        - /TF1/Frames1
       Splitter Ratio: 0.5
     Tree Height: 439
   - Class: rviz_common/Views
@@ -68,6 +69,10 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        bottom_camera_depth:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         bottom_camera_depth_optical_frame:
           Alpha: 1
           Show Axes: false
@@ -122,6 +127,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
         top_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        top_camera_depth:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -164,54 +173,58 @@ Visualization Manager:
       Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
-        All Enabled: true
+        All Enabled: false
         base_footprint:
-          Value: true
+          Value: false
         base_link:
-          Value: true
+          Value: false
         bottom_camera_color_frame:
-          Value: true
+          Value: false
         bottom_camera_color_optical_frame:
+          Value: false
+        bottom_camera_depth:
           Value: true
         bottom_camera_depth_optical_frame:
-          Value: true
+          Value: false
         bottom_camera_infra1_frame:
-          Value: true
+          Value: false
         bottom_camera_infra1_optical_frame:
-          Value: true
+          Value: false
         bottom_camera_infra2_frame:
-          Value: true
+          Value: false
         bottom_camera_infra2_optical_frame:
-          Value: true
+          Value: false
         bottom_camera_link:
-          Value: true
+          Value: false
         caster_wheel_link:
-          Value: true
+          Value: false
         imu_link:
-          Value: true
+          Value: false
         left_wheel_link:
-          Value: true
+          Value: false
         lidar_link:
-          Value: true
+          Value: false
         right_wheel_link:
           Value: true
         top_camera_color_frame:
-          Value: true
+          Value: false
         top_camera_color_optical_frame:
+          Value: false
+        top_camera_depth:
           Value: true
         top_camera_depth_optical_frame:
-          Value: true
+          Value: false
         top_camera_infra1_frame:
-          Value: true
+          Value: false
         top_camera_infra1_optical_frame:
-          Value: true
+          Value: false
         top_camera_infra2_frame:
-          Value: true
+          Value: false
         top_camera_infra2_optical_frame:
-          Value: true
+          Value: false
         top_camera_link:
-          Value: true
-      Marker Scale: 1
+          Value: false
+      Marker Scale: 0.20000000298023224
       Name: TF
       Show Arrows: false
       Show Axes: false
@@ -223,8 +236,9 @@ Visualization Manager:
               bottom_camera_color_frame:
                 bottom_camera_color_optical_frame:
                   {}
-              bottom_camera_depth_optical_frame:
-                {}
+              bottom_camera_depth:
+                bottom_camera_depth_optical_frame:
+                  {}
               bottom_camera_infra1_frame:
                 bottom_camera_infra1_optical_frame:
                   {}
@@ -245,8 +259,9 @@ Visualization Manager:
               top_camera_color_frame:
                 top_camera_color_optical_frame:
                   {}
-              top_camera_depth_optical_frame:
-                {}
+              top_camera_depth:
+                top_camera_depth_optical_frame:
+                  {}
               top_camera_infra1_frame:
                 top_camera_infra1_optical_frame:
                   {}
@@ -301,25 +316,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.7599307298660278
+      Distance: 2.8211710453033447
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.8964605927467346
-        Y: -1.216883659362793
-        Z: 1.29079008102417
-      Focal Shape Fixed Size: false
+        X: 0.07966773957014084
+        Y: 0.3115254044532776
+        Z: 0.32258737087249756
+      Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4680635333061218
+      Pitch: 0.6247968673706055
       Target Frame: <Fixed Frame>
-      Value: Orbit (rviz)
-      Yaw: 5.218430042266846
+      Value: Orbit (rviz_default_plugins)
+      Yaw: 5.21738338470459
     Saved: ~
 Window Geometry:
   Displays:

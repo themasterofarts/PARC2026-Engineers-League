@@ -27,25 +27,25 @@
   direction: GZ_TO_ROS
 
 # # gz topic published by Sensors plugin (Base Bumper Contact)
-# - ros_topic_name: "base_collisions"
-#   gz_topic_name: "base_collisions"
-#   ros_type_name: "ros_gz_interfaces/msg/Contacts"
-#   gz_type_name: "gz.msgs.Contacts"
-#   direction: GZ_TO_ROS
-#
+- ros_topic_name: "base_collisions"
+  gz_topic_name: "base_collisions"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
+
 # # gz topic published by Sensors plugin (Left Wheel Bumper Contact)
-# - ros_topic_name: "left_collisions"
-#   gz_topic_name: "eft_collisions"
-#   ros_type_name: "ros_gz_interfaces/msg/Contacts"
-#   gz_type_name: "gz.msgs.Contacts"
-#   direction: GZ_TO_ROS
-#
-# # gz topic published by Sensors plugin (Right Wheel Bumper Contact)
-# - ros_topic_name: "right_collisions"
-#   gz_topic_name: "right_collisions"
-#   ros_type_name: "ros_gz_interfaces/msg/Contacts"
-#   gz_type_name: "gz.msgs.Contacts"
-#   direction: GZ_TO_ROS
+- ros_topic_name: "left_wheel_collisions"
+  gz_topic_name: "left_wheel_collisions"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
+
+# gz topic published by Sensors plugin (Right Wheel Bumper Contact)
+- ros_topic_name: "right_wheel_collisions"
+  gz_topic_name: "right_wheel_collisions"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
 
 # gz topic published by Sensors plugin (Top Camera Color)
 - ros_topic_name: "top_camera_color/camera_info"
@@ -57,34 +57,6 @@
 # gz topic published by Sensors plugin (Bottom Camera Color)
 - ros_topic_name: "bottom_camera_color/camera_info"
   gz_topic_name: "bottom_camera_color/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
-  direction: GZ_TO_ROS
-
-# gz topic published by Sensors plugin (Top Camera Infrared1)
-- ros_topic_name: "top_camera_infra1/camera_info"
-  gz_topic_name: "top_camera_infra1/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
-  direction: GZ_TO_ROS
-
-# gz topic published by Sensors plugin (Bottom Camera Infrared1)
-- ros_topic_name: "bottom_camera_infra1/camera_info"
-  gz_topic_name: "bottom_camera_infra1/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
-  direction: GZ_TO_ROS
-
-# gz topic published by Sensors plugin (Top Camera Infrared2)
-- ros_topic_name: "top_camera_infra2/camera_info"
-  gz_topic_name: "top_camera_infra2/camera_info"
-  ros_type_name: "sensor_msgs/msg/CameraInfo"
-  gz_type_name: "gz.msgs.CameraInfo"
-  direction: GZ_TO_ROS
-
-# gz topic published by Sensors plugin (Bottom Camera Infrared2)
-- ros_topic_name: "bottom_camera_infra2/camera_info"
-  gz_topic_name: "bottom_camera_infra2/camera_info"
   ros_type_name: "sensor_msgs/msg/CameraInfo"
   gz_type_name: "gz.msgs.CameraInfo"
   direction: GZ_TO_ROS
@@ -104,15 +76,15 @@
   direction: GZ_TO_ROS
 
 # gz topic published for Sensors plugin (Top depth camera point cloud)
-- ros_topic_name: "top_camera/points"
-  gz_topic_name: "top_camera/points"
+- ros_topic_name: "top_camera_depth/points"
+  gz_topic_name: "top_camera_depth/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
 
 # gz topic published for Sensors plugin (Bottom depth camera point cloud)
-- ros_topic_name: "bottom_camera/points"
-  gz_topic_name: "bottom_camera/points"
+- ros_topic_name: "bottom_camera_depth/points"
+  gz_topic_name: "bottom_camera_depth/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
   gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS

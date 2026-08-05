@@ -17,7 +17,7 @@
 
         <!-- Control gains and limits (optional) -->
         <!-- <max_velocity>3.0</max_velocity>  -->
-        <max_velocity>1.0</max_velocity>
+        <max_velocity>0.5</max_velocity>
         <max_linear_acceleration>1</max_linear_acceleration>
         <min_linear_acceleration>-1</min_linear_acceleration>
         <max_angular_acceleration>2</max_angular_acceleration>
@@ -43,7 +43,7 @@
         <joint_name>right_wheel_joint</joint_name>
     </plugin>
 
-    <!-- Pose publisher publishes the pose on gz topic /parc_robot/pose
+    <!-- Pose publisher publishes the pose on gz topic /sitoe_robot/pose
     Confirm by listing topics with gz topic -l. Bridge topic data with ROS in
     the gz_bridge.yaml file -->
     <plugin

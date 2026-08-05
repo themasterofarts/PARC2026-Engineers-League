@@ -1,0 +1,360 @@
+<?xml version="1.0"?>
+<sdf version='1.10'>
+  <world name='world1'>
+    <!-- <physics name='1ms' type='ignored'> -->
+    <!--   <max_step_size>0.001</max_step_size> -->
+    <!--   <real_time_factor>1</real_time_factor> -->
+    <!--   <real_time_update_rate>1000</real_time_update_rate> -->
+    <!-- </physics> -->
+    <!-- <plugin name='gz::sim::systems::Physics' filename='gz-sim-physics-system'/> -->
+    <!-- <plugin name='gz::sim::systems::UserCommands' filename='gz-sim-user-commands-system'/> -->
+    <!-- <plugin name='gz::sim::systems::SceneBroadcaster' filename='gz-sim-scene-broadcaster-system'/> -->
+    <!-- <plugin name='gz::sim::systems::Contact' filename='gz-sim-contact-system'/> -->
+    <!-- Change max step size to increase the simulation speed but decrease the accuracy. -->
+    <!-- <physics name="10ms" type="ignored"> -->
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.01</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin
+      filename="gz-sim-physics-system"
+      name="gz::sim::systems::Physics">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-user-commands-system"
+      name="gz::sim::systems::UserCommands">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-scene-broadcaster-system"
+      name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-sensors-system"
+      name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+
+    <plugin
+      filename="gz-sim-imu-system"
+      name="gz::sim::systems::Imu">
+    </plugin>
+
+    <plugin
+      filename="gz-sim-contact-system"
+      name="gz::sim::systems::Contact">
+    </plugin>
+
+    <!-- <scene> -->
+    <!--   <ambient>0 0 0</ambient> -->
+    <!--   <grid>false</grid> -->
+    <!--   <sky></sky> -->
+    <!-- </scene> -->
+
+    <light type="spot" name="spot_grid">
+      <pose>-3 0.5 2.7 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>1 1 1 1</specular>
+      <intensity>1</intensity>
+      <attenuation>
+        <range>12</range>
+        <linear>0.3</linear>
+        <constant>0.2</constant>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>2.5</outer_angle>
+        <falloff>1</falloff>
+      </spot>
+      <cast_shadows>true</cast_shadows>
+      <visualize>false</visualize>
+    </light>
+
+    <light type="spot" name="spot_middle">
+      <pose>4 1.8 2.5 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>1 1 1 1</specular>
+      <intensity>1</intensity>
+      <attenuation>
+        <range>12</range>
+        <linear>0.3</linear>
+        <constant>0.2</constant>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>2.5</outer_angle>
+        <falloff>1</falloff>
+      </spot>
+      <cast_shadows>true</cast_shadows>
+      <visualize>false</visualize>
+    </light>
+
+    <light type="spot" name="spot_longtable">
+      <pose>9 1 2.75 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>1 1 1 1</specular>
+      <intensity>1</intensity>
+      <attenuation>
+        <range>12</range>
+        <linear>0.3</linear>
+        <constant>0.2</constant>
+        <quadratic>0.0</quadratic>
+      </attenuation>
+      <direction>0 0 -1</direction>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>2.5</outer_angle>
+        <falloff>1</falloff>
+      </spot>
+      <cast_shadows>true</cast_shadows>
+      <visualize>false</visualize>
+    </light>
+
+    <light type="point" name="point_column_01">
+      <pose>0 1.75 1.75 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>1 1 1 1</specular>
+      <intensity>1</intensity>
+      <attenuation>
+        <range>20</range>
+        <linear>0.2</linear>
+        <constant>0.8</constant>
+        <quadratic>0.5</quadratic>
+      </attenuation>
+      <cast_shadows>false</cast_shadows>
+      <visualize>false</visualize>
+    </light>
+
+    <light type="point" name="point_column_02">
+      <pose>7.4 3.4 1.71 0 0 0</pose>
+      <diffuse>1 1 1 1</diffuse>
+      <specular>1 1 1 1</specular>
+      <intensity>1</intensity>
+      <attenuation>
+        <range>20</range>
+        <linear>0.2</linear>
+        <constant>0.8</constant>
+        <quadratic>0.5</quadratic>
+      </attenuation>
+      <cast_shadows>false</cast_shadows>
+      <visualize>false</visualize>
+    </light>
+
+    <include>
+      <name>Interior</name>
+      <uri>model://ionic_interior</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>base_link</parent_link>
+        <child_model>steak_set</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <!--
+        bullet-featherstone auto-deactivation demo.
+
+        Run the demo with bullet-featherstone physics plugin
+
+        Detach joints to make the breakfast_menu and steak_set meshes dynamic:
+
+            gz topic -t "/food/detach" -m gz.msgs.Empty -p "unused: true"
+
+        These models will become dynamic, which impacts physics
+        and causes RTF to drop (change max_step_size to 0.001 to make the
+        effect more evidient). After the collisions settle, the RTF should
+        come back up.
+    -->
+
+    <include>
+      <static>false</static>
+      <name>steak_set</name>
+      <pose>7.35 0.05 0.864 0 0 0.0</pose>
+      <uri>model://steak_set</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>link_0</parent_link>
+        <child_model>steak_set_2</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <include>
+      <static>false</static>
+      <name>steak_set_2</name>
+      <pose>7.85 0.05 0.864 0 0 0.0</pose>
+      <uri>model://steak_set</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>link_0</parent_link>
+        <child_model>steak_set_3</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <include>
+      <static>false</static>
+      <name>steak_set_3</name>
+      <pose>8.35 0.05 0.864 0 0 0.0</pose>
+      <uri>model://steak_set</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>link_0</parent_link>
+        <child_model>steak_set_4</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <include>
+      <static>false</static>
+      <name>steak_set_4</name>
+      <pose>8.85 0.05 0.864 0 0 0.0</pose>
+      <uri>model://steak_set</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>link_0</parent_link>
+        <child_model>steak_set_5</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <include>
+      <static>false</static>
+      <name>steak_set_5</name>
+      <pose>9.35 0.05 0.864 0 0 0.0</pose>
+      <uri>model://steak_set</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>link_0</parent_link>
+        <child_model>steak_set_6</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <include>
+      <static>false</static>
+      <name>steak_set_6</name>
+      <pose>7.85 0.40 0.864 0 0 3.14</pose>
+      <uri>model://steak_set</uri>
+      <plugin filename="gz-sim-detachable-joint-system"
+          name="gz::sim::systems::DetachableJoint">
+        <parent_link>link_0</parent_link>
+        <child_model>steak_set_7</child_model>
+        <child_link>link_0</child_link>
+        <detach_topic>/food/detach</detach_topic>
+        <attach_topic>/food/attach</attach_topic>
+      </plugin>
+    </include>
+
+    <!-- <include> -->
+    <!--   <static>false</static> -->
+    <!--   <name>steak_set_7</name> -->
+    <!--   <pose>8.35 0.40 0.864 0 0 3.14</pose> -->
+    <!--   <uri>model://steak_set</uri> -->
+    <!--   <plugin filename="gz-sim-detachable-joint-system" -->
+    <!--       name="gz::sim::systems::DetachableJoint"> -->
+    <!--     <parent_link>link_0</parent_link> -->
+    <!--     <child_model>steak_set_8</child_model> -->
+    <!--     <child_link>link_0</child_link> -->
+    <!--     <detach_topic>/food/detach</detach_topic> -->
+    <!--     <attach_topic>/food/attach</attach_topic> -->
+    <!--   </plugin> -->
+    <!-- </include> -->
+    <!---->
+    <!-- <include> -->
+    <!--   <static>false</static> -->
+    <!--   <name>steak_set_8</name> -->
+    <!--   <pose>8.85 0.4 0.862 0 0 3.14</pose> -->
+    <!--   <uri>model://steak_set</uri> -->
+    <!--   <plugin filename="gz-sim-detachable-joint-system" -->
+    <!--       name="gz::sim::systems::DetachableJoint"> -->
+    <!--     <parent_link>link_0</parent_link> -->
+    <!--     <child_model>steak_set_9</child_model> -->
+    <!--     <child_link>link_0</child_link> -->
+    <!--     <detach_topic>/food/detach</detach_topic> -->
+    <!--     <attach_topic>/food/attach</attach_topic> -->
+    <!--   </plugin> -->
+    <!-- </include> -->
+
+    <!-- <include> -->
+    <!--   <static>false</static> -->
+    <!--   <name>steak_set_9</name> -->
+    <!--   <pose>9.35 0.4 0.862 0 0 3.14</pose> -->
+    <!--   <uri>model://steak_set</uri> -->
+    <!--   <plugin filename="gz-sim-detachable-joint-system" -->
+    <!--       name="gz::sim::systems::DetachableJoint"> -->
+    <!--     <parent_link>link_0</parent_link> -->
+    <!--     <child_model>breakfast_menu</child_model> -->
+    <!--     <child_link>link_0</child_link> -->
+    <!--     <detach_topic>/food/detach</detach_topic> -->
+    <!--     <attach_topic>/food/attach</attach_topic> -->
+    <!--   </plugin> -->
+    <!-- </include> -->
+
+    <!-- breakfast menus - 1 original, 1 convex decomposed, and
+         1 convex decomposed (low res) -->
+
+    <!-- <include> -->
+    <!--   <static>false</static> -->
+    <!--   <name>breakfast_menu</name> -->
+    <!--   <pose>-2.14 2.623 0.751 0 0 0.0</pose> -->
+    <!--   <uri>model://breakfast_menu</uri> -->
+    <!--   <plugin filename="gz-sim-detachable-joint-system" -->
+    <!--       name="gz::sim::systems::DetachableJoint"> -->
+    <!--     <parent_link>link_0</parent_link> -->
+    <!--     <child_model>breakfast_menu_decomposed</child_model> -->
+    <!--     <child_link>link_0</child_link> -->
+    <!--     <detach_topic>/food/detach</detach_topic> -->
+    <!--     <attach_topic>/food/attach</attach_topic> -->
+    <!--   </plugin> -->
+    <!---->
+    <!-- </include> -->
+
+    <!-- <include> -->
+    <!--   <static>false</static> -->
+    <!--   <name>breakfast_menu_decomposed</name> -->
+    <!--   <pose>-1.73 2.623 0.751 0 0 0.0</pose> -->
+    <!--   <uri>model://breakfast_menu</uri> -->
+    <!--   <plugin filename="gz-sim-detachable-joint-system" -->
+    <!--       name="gz::sim::systems::DetachableJoint"> -->
+    <!--     <parent_link>link_0</parent_link> -->
+    <!--     <child_model>breakfast_menu_convex_hull</child_model> -->
+    <!--     <child_link>link_0</child_link> -->
+    <!--     <detach_topic>/food/detach</detach_topic> -->
+    <!--     <attach_topic>/food/attach</attach_topic> -->
+    <!--   </plugin> -->
+    <!-- </include> -->
+    <!---->
+    <!-- <include> -->
+    <!--   <static>false</static> -->
+    <!--   <uri>model://breakfast_menu</uri> -->
+    <!--   <pose>-1.73 2.85 0.751 0 0 0.0</pose> -->
+    <!--   <uri>breakfast_menu_convex_hull</uri> -->
+    <!-- </include> -->
+
+    <!-- <include> -->
+    <!--   <name>Ionic Mascot</name> -->
+    <!--   <pose>3.67 0.35 1.18 0 0 3.14</pose> -->
+    <!--   <uri>model://ionic_mascot</uri> -->
+    <!-- </include> -->
+  </world>
+</sdf>

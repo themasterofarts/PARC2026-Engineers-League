@@ -1,0 +1,13 @@
+/**:
+  ros__parameters:
+
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    yaw: 0.0
+
+    goal_x: 1.05
+    goal_y: 3.81
+    goal_z: 0.35
+
+    world: 'world1'

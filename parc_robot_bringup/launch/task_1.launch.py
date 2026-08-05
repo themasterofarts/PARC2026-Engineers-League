@@ -62,7 +62,7 @@ def generate_launch_description():
     # Start robot state publisher
     start_robot_state_publisher_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [os.path.join(pkg_description, "launch", "robot_state_publisher_launch.py")]
+            [os.path.join(pkg_description, "launch", "robot_state_publisher.launch.py")]
         ),
         launch_arguments={"use_sim_time": use_sim_time}.items(),
     )
@@ -218,33 +218,20 @@ def generate_launch_description():
         output="screen",
     )
     # Start Gazebo ROS Top Camera Depth Image bridge
-    start_gazebo_ros_top_depth_image_bridge_cmd = Node(
-        package="ros_gz_image",
-        executable="image_bridge",
-        arguments=["/top_camera_depth_to_color/image_raw"],
-        output="screen",
-    )
+    # start_gazebo_ros_top_depth_image_bridge_cmd = Node(
+    #     package="ros_gz_image",
+    #     executable="image_bridge",
+    #     arguments=["/top_camera_depth_to_color/image_raw"],
+    #     output="screen",
+    # )
 
     # Start Gazebo ROS Bottom Camera Depth Image bridge
-    start_gazebo_ros_bottom_depth_image_bridge_cmd = Node(
-        package="ros_gz_image",
-        executable="image_bridge",
-        arguments=["/bottom_camera_depth_to_color/image_raw"],
-        output="screen",
-    )
-
-    # Relay node to republish /camera/camera_info to /camera/image/camera_info
-    relay_camera_info_node = Node(
-        package="topic_tools",
-        executable="relay",
-        name="relay_camera_info",
-        output="screen",
-        # arguments=['camera/camera_info', 'camera/image/camera_info'],
-        arguments=["left_camera/camera_info", "left_camera/image_raw/camera_info"],
-        # parameters=[
-        #     {'use_sim_time': LaunchConfiguration('use_sim_time')},
-        # ]
-    )
+    # start_gazebo_ros_bottom_depth_image_bridge_cmd = Node(
+    #     package="ros_gz_image",
+    #     executable="image_bridge",
+    #     arguments=["/bottom_camera_depth_to_color/image_raw"],
+    #     output="screen",
+    # )
 
     # Launch RViz
     start_rviz_cmd = Node(
@@ -272,13 +259,14 @@ def generate_launch_description():
     ld.add_action(set_env_vars_resources)
 
     # Add any actions
-    ld.add_action(start_rviz_cmd)
-    ld.add_action(start_teleop_cmd)
+    # ld.add_action(start_rviz_cmd)
+    # ld.add_action(start_teleop_cmd)
     ld.add_action(OpaqueFunction(function=spawn_gazebo_entities))
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(start_gazebo_ros_bridge_cmd)
     ld.add_action(start_gazebo_ros_top_camera_color_image_bridge_cmd)
     ld.add_action(start_gazebo_ros_bottom_camera_color_image_bridge_cmd)
-    ld.add_action(start_gazebo_ros_top_depth_image_bridge_cmd)
-    ld.add_action(start_gazebo_ros_bottom_depth_image_bridge_cmd)
+    # ld.add_action(start_gazebo_ros_top_depth_image_bridge_cmd)
+    # ld.add_action(start_gazebo_ros_bottom_depth_image_bridge_cmd)
+
     return ld
