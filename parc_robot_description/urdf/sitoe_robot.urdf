@@ -4,48 +4,76 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="sitoe_robot">
+  <!-- Base footprint -->
   <link name="base_footprint"/>
   <joint name="base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
     <origin rpy="0 0 1.5707963267948966" xyz="0.0 0.0 0.0381"/>
   </joint>
-  <!-- Robot chassis -->
+  <!-- Base link/bottom chassis -->
   <link name="base_link">
     <visual>
       <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://parc_robot_description/meshes/sitoe_chassis.dae"/>
+        <mesh filename="package://parc_robot_description/meshes/sitoe_chassis_bottom.dae"/>
       </geometry>
     </visual>
     <collision>
-      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0454341 0.67537"/>
+      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0 0.0535"/>
       <geometry>
-        <box size="0.4437 1.2714 0.4858"/>
+        <box size="0.4437 0.03785 0.3737"/>
       </geometry>
     </collision>
     <inertial>
-      <origin rpy="0 0 0" xyz="0.105 0 0.0175"/>
-      <mass value="15.0"/>
-      <inertia ixx="2.3155745000000003" ixy="0.0" ixz="0.0" iyy="0.5410891625" iyz="0.0" izz="2.2666595625"/>
+      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0 0.0535"/>
+      <mass value="7.5"/>
+      <inertia ixx="0.0881776953125" ixy="0.0" ixz="0.0" iyy="0.2103258625" iyz="0.0" izz="0.12393894531249999"/>
     </inertial>
   </link>
-  <!-- Base bumper -->
-  <!-- <gazebo reference="base_link"> -->
-  <!--   <sensor name="base_collision_sensor" type="contact"> -->
-  <!--     <contact> -->
-  <!--       <collision>base_footprint_fixed_joint_lump__base_link_collision</collision> -->
-  <!--       <topic>base_collisions</topic> -->
-  <!--     </contact> -->
-  <!--     <always_on>true</always_on> -->
-  <!--     <update_rate>5</update_rate> -->
-  <!--   </sensor> -->
-  <!-- </gazebo> -->
+  <!-- Top chassis -->
+  <link name="top_chassis_link">
+    <visual>
+      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0 0.0"/>
+      <geometry>
+        <mesh filename="package://parc_robot_description/meshes/sitoe_chassis_top.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0454341 0.68679"/>
+      <geometry>
+        <box size="0.4437 1.248 0.4858"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="1.5707963267948966 0 0" xyz="0.0 0.0454341 0.68679"/>
+      <mass value="7.5"/>
+      <inertia ixx="1.120941025" ixy="0.0" ixz="0.0" iyy="0.27054458125" iyz="0.0" izz="1.09648355625"/>
+    </inertial>
+  </link>
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="top_chassis_link"/>
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+  </joint>
+  <!-- Change bumpers? -->
+  <!-- Robot chassis bumper -->
+  <gazebo reference="base_link">
+    <sensor name="base_collision_sensor" type="contact">
+      <contact>
+        <collision>base_footprint_fixed_joint_lump__base_link_collision</collision>
+        <topic>base_collisions</topic>
+      </contact>
+      <always_on>true</always_on>
+      <update_rate>5</update_rate>
+    </sensor>
+  </gazebo>
   <!-- Right wheel -->
   <link name="right_wheel_link">
     <visual>
-      <origin rpy="0 -1.5707963267948966 0" xyz="0.0956 -0.0435 0.1965"/>
+      <origin rpy="0 -1.5707963267948966 0" xyz="0.0956 -0.0435 0.19096"/>
       <!-- up, forward, sideways-->
+      <!-- <origin rpy="0 -${pi/2} 0" xyz="0.0956 -0.0435 0.1965"/> -->
       <geometry>
         <mesh filename="package://parc_robot_description/meshes/right_wheel.dae"/>
       </geometry>
@@ -62,6 +90,17 @@
       <inertia ixx="0.004432479333333334" ixy="0.0" ixz="0.0" iyy="0.004432479333333334" iyz="0.0" izz="0.0081356"/>
     </inertial>
   </link>
+  <!-- Right wheel bumper -->
+  <gazebo reference="right_wheel_link">
+    <sensor name="right_wheel_collision_sensor" type="contact">
+      <contact>
+        <collision>right_wheel_link_collision</collision>
+        <topic>right_wheel_collisions</topic>
+      </contact>
+      <always_on>true</always_on>
+      <update_rate>5</update_rate>
+    </sensor>
+  </gazebo>
   <joint name="right_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child link="right_wheel_link"/>
@@ -73,7 +112,10 @@
   <link name="left_wheel_link">
     <visual>
       <!-- MAKE SURE IT COINCIDES WITH THE RIGHT WHEEL VALUES -->
-      <origin rpy="0 1.5707963267948966 0" xyz="-0.0935 -0.044 0.1965"/>
+      <origin rpy="0 1.5707963267948966 0" xyz="-0.0956 -0.0435 0.19096"/>
+      <!-- up, forward, sideways-->
+      <!-- <origin rpy="0 ${pi/2} 0" xyz="-0.0956 -0.0435 0.1965"/> -->
+      <!-- <origin rpy="0 ${pi/2} 0" xyz="-0.0935 -0.044 0.1965"/> -->
       <geometry>
         <mesh filename="package://parc_robot_description/meshes/left_wheel.dae"/>
       </geometry>
@@ -90,6 +132,17 @@
       <inertia ixx="0.004432479333333334" ixy="0.0" ixz="0.0" iyy="0.004432479333333334" iyz="0.0" izz="0.0081356"/>
     </inertial>
   </link>
+  <!-- Left wheel bumper -->
+  <gazebo reference="left_wheel_link">
+    <sensor name="left_wheel_collision_sensor" type="contact">
+      <contact>
+        <collision>left_wheel_link_collision</collision>
+        <topic>left_wheel_collisions</topic>
+      </contact>
+      <always_on>true</always_on>
+      <update_rate>5</update_rate>
+    </sensor>
+  </gazebo>
   <joint name="left_wheel_joint" type="continuous">
     <parent link="base_link"/>
     <child link="left_wheel_link"/>
@@ -100,6 +153,7 @@
   <link name="caster_wheel_link">
     <visual>
       <origin rpy="1.5707963267948966 0 1.5707963267948966" xyz="0.133 0.0 0.0"/>
+      <!-- <origin rpy="${pi/2} 0 ${pi/2}" xyz="0.133 0.0 -0.00554"/> -->
       <geometry>
         <mesh filename="package://parc_robot_description/meshes/caster_wheel.dae"/>
       </geometry>
@@ -121,7 +175,27 @@
     <child link="caster_wheel_link"/>
     <origin rpy="0 0 -1.5707963267948966" xyz="0.0 0.133 0.0"/>
   </joint>
-  <!-- Add friction for gazebo -->
+  <!-- Friction -->
+  <gazebo reference="base_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+  </gazebo>
+  <gazebo reference="right_wheel_link">
+    <mu1>0.9</mu1>
+    <mu2>0.7</mu2>
+    <kp>10000000.0</kp>
+    <kd>0.0</kd>
+    <kd>1.0</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
+  <gazebo reference="left_wheel_link">
+    <mu1>0.9</mu1>
+    <mu2>0.7</mu2>
+    <kp>10000000.0</kp>
+    <kd>0.0</kd>
+    <kd>1.0</kd>
+    <minDepth>0.001</minDepth>
+  </gazebo>
   <gazebo>
     <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <!-- Topic for the command input -->
@@ -134,7 +208,7 @@
       <wheel_radius>0.08565</wheel_radius>
       <!-- Control gains and limits (optional) -->
       <!-- <max_velocity>3.0</max_velocity>  -->
-      <max_velocity>1.0</max_velocity>
+      <max_velocity>0.5</max_velocity>
       <max_linear_acceleration>1</max_linear_acceleration>
       <min_linear_acceleration>-1</min_linear_acceleration>
       <max_angular_acceleration>2</max_angular_acceleration>
@@ -155,7 +229,7 @@
       <joint_name>left_wheel_joint</joint_name>
       <joint_name>right_wheel_joint</joint_name>
     </plugin>
-    <!-- Pose publisher publishes the pose on gz topic /parc_robot/pose
+    <!-- Pose publisher publishes the pose on gz topic /sitoe_robot/pose
     Confirm by listing topics with gz topic -l. Bridge topic data with ROS in
     the gz_bridge.yaml file -->
     <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
@@ -177,17 +251,24 @@
   </link>
   <!-- D435 camera joint -->
   <joint name="top_camera_joint" type="fixed">
-    <parent link="base_link"/>
+    <parent link="top_chassis_link"/>
     <child link="top_camera_link"/>
     <origin rpy="0 0 -1.5707963267948966" xyz="0.0 0.0525 0.9745"/>
   </joint>
-  <!-- D435 optical link -->
+  <!-- D435 camera depth link and joint -->
+  <link name="top_camera_depth"/>
+  <joint name="top_camera_depth_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="top_camera_link"/>
+    <child link="top_camera_depth"/>
+  </joint>
+  <!-- D435 depth optical link and joint -->
   <link name="top_camera_depth_optical_frame"/>
   <!-- D435 camera optical joint -->
-  <joint name="top_camera_depth_joint" type="fixed">
-    <parent link="top_camera_link"/>
-    <child link="top_camera_depth_optical_frame"/>
+  <joint name="top_camera_depth_optical_joint" type="fixed">
     <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0 0.0 0.0"/>
+    <parent link="top_camera_depth"/>
+    <child link="top_camera_depth_optical_frame"/>
   </joint>
   <!-- Camera left IR joints and links -->
   <link name="top_camera_infra1_frame"/>
@@ -198,7 +279,7 @@
   </joint>
   <link name="top_camera_infra1_optical_frame"/>
   <joint name="top_camera_infra1_optical_joint" type="fixed">
-    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"/>
+    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0 0.0 0.0"/>
     <parent link="top_camera_infra1_frame"/>
     <child link="top_camera_infra1_optical_frame"/>
   </joint>
@@ -211,11 +292,11 @@
   </joint>
   <link name="top_camera_infra2_optical_frame"/>
   <joint name="top_camera_infra2_optical_joint" type="fixed">
-    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"/>
+    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0 0.0 0.0"/>
     <parent link="top_camera_infra2_frame"/>
     <child link="top_camera_infra2_optical_frame"/>
   </joint>
-  <!-- Camera color joints and links -->
+  <!-- Camera color joint and link -->
   <link name="top_camera_color_frame"/>
   <joint name="top_camera_color_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.015 0"/>
@@ -228,15 +309,21 @@
     <parent link="top_camera_color_frame"/>
     <child link="top_camera_color_optical_frame"/>
   </joint>
-  <gazebo reference="top_camera">
+  <!-- Gazebo color frame link reference -->
+  <gazebo reference="top_camera_color_frame">
     <sensor name="top_camera_color" type="camera">
-      <camera name="top_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>30.0</update_rate>
+      <topic>top_camera_color/image_raw</topic>
+      <gz_frame_id>top_camera_color_optical_frame</gz_frame_id>
+      <camera name="top_camera_color">
         <camera_info_topic>top_camera_color/camera_info</camera_info_topic>
         <horizontal_fov>1.57</horizontal_fov>
         <image>
-          <width>1280</width>
-          <height>720</height>
-          <format>RGB_INT8</format>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
         </image>
         <clip>
           <near>0.1</near>
@@ -248,70 +335,23 @@
           <stddev>0.007</stddev>
         </noise>
       </camera>
-      <always_on>true</always_on>
-      <visualize>true</visualize>
-      <update_rate>30</update_rate>
-      <topic>top_camera_color/image_raw</topic>
-      <gz_frame_id>top_camera_color_optical_frame</gz_frame_id>
     </sensor>
-    <sensor name="top_camera_infra1" type="camera">
-      <camera name="top_camera">
-        <camera_info_topic>top_camera_infra1/camera_info</camera_info_topic>
-        <horizontal_fov>1.57</horizontal_fov>
-        <image>
-          <width>640</width>
-          <height>480</height>
-          <format>L_INT8</format>
-        </image>
-        <clip>
-          <near>0.1</near>
-          <far>100</far>
-        </clip>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.05</stddev>
-        </noise>
-      </camera>
-      <always_on>false</always_on>
-      <visualize>false</visualize>
-      <update_rate>30</update_rate>
-      <topic>top_camera_infra1/image_raw</topic>
-      <gz_frame_id>top_camera_infra1_optical_frame</gz_frame_id>
-    </sensor>
-    <sensor name="top_camera_infra2" type="camera">
-      <camera name="top_camera">
-        <camera_info_topic>top_camera_infra2/camera_info</camera_info_topic>
-        <horizontal_fov>1.57</horizontal_fov>
-        <image>
-          <width>640</width>
-          <height>480</height>
-          <format>L_INT8</format>
-        </image>
-        <clip>
-          <near>0.1</near>
-          <far>100</far>
-        </clip>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.05</stddev>
-        </noise>
-      </camera>
-      <always_on>false</always_on>
-      <visualize>false</visualize>
-      <update_rate>30</update_rate>
-      <topic>top_camera_infra1/image_raw</topic>
-      <gz_frame_id>top_camera_infra2_optical_frame</gz_frame_id>
-    </sensor>
-    <!-- <sensor name="${name}_depth" type="depth"> -->
+  </gazebo>
+  <!-- Gazebo depth camera link reference -->
+  <gazebo reference="top_camera_depth">
     <sensor name="top_camera_depth" type="rgbd_camera">
-      <camera name="top_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>15.0</update_rate>
+      <topic>top_camera_depth</topic>
+      <gz_frame_id>top_camera_depth</gz_frame_id>
+      <camera name="top_camera_depth">
         <camera_info_topic>top_camera_depth/camera_info</camera_info_topic>
         <horizontal_fov>1.57</horizontal_fov>
         <image>
-          <width>1280</width>
-          <height>720</height>
+          <width>640</width>
+          <height>480</height>
+          <format>B8G8R8</format>
         </image>
         <clip>
           <near>0.1</near>
@@ -323,11 +363,6 @@
           <stddev>0.100</stddev>
         </noise>
       </camera>
-      <always_on>true</always_on>
-      <update_rate>30</update_rate>
-      <visualize>false</visualize>
-      <topic>top_camera_depth_to_color/image_raw</topic>
-      <gz_frame_id>top_camera_depth_optical_frame</gz_frame_id>
     </sensor>
   </gazebo>
   <!-- D435 camera link -->
@@ -345,13 +380,20 @@
     <child link="bottom_camera_link"/>
     <origin rpy="0 1.0471975511965976 -1.5707963267948966" xyz="0.0 -0.077 0.545"/>
   </joint>
-  <!-- D435 optical link -->
+  <!-- D435 camera depth link and joint -->
+  <link name="bottom_camera_depth"/>
+  <joint name="bottom_camera_depth_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="bottom_camera_link"/>
+    <child link="bottom_camera_depth"/>
+  </joint>
+  <!-- D435 depth optical link and joint -->
   <link name="bottom_camera_depth_optical_frame"/>
   <!-- D435 camera optical joint -->
-  <joint name="bottom_camera_depth_joint" type="fixed">
-    <parent link="bottom_camera_link"/>
-    <child link="bottom_camera_depth_optical_frame"/>
+  <joint name="bottom_camera_depth_optical_joint" type="fixed">
     <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0 0.0 0.0"/>
+    <parent link="bottom_camera_depth"/>
+    <child link="bottom_camera_depth_optical_frame"/>
   </joint>
   <!-- Camera left IR joints and links -->
   <link name="bottom_camera_infra1_frame"/>
@@ -362,7 +404,7 @@
   </joint>
   <link name="bottom_camera_infra1_optical_frame"/>
   <joint name="bottom_camera_infra1_optical_joint" type="fixed">
-    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"/>
+    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0 0.0 0.0"/>
     <parent link="bottom_camera_infra1_frame"/>
     <child link="bottom_camera_infra1_optical_frame"/>
   </joint>
@@ -375,11 +417,11 @@
   </joint>
   <link name="bottom_camera_infra2_optical_frame"/>
   <joint name="bottom_camera_infra2_optical_joint" type="fixed">
-    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0"/>
+    <origin rpy="-1.5707963267948966 0 -1.5707963267948966" xyz="0.0 0.0 0.0"/>
     <parent link="bottom_camera_infra2_frame"/>
     <child link="bottom_camera_infra2_optical_frame"/>
   </joint>
-  <!-- Camera color joints and links -->
+  <!-- Camera color joint and link -->
   <link name="bottom_camera_color_frame"/>
   <joint name="bottom_camera_color_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0.015 0"/>
@@ -392,15 +434,21 @@
     <parent link="bottom_camera_color_frame"/>
     <child link="bottom_camera_color_optical_frame"/>
   </joint>
-  <gazebo reference="bottom_camera">
+  <!-- Gazebo color frame link reference -->
+  <gazebo reference="bottom_camera_color_frame">
     <sensor name="bottom_camera_color" type="camera">
-      <camera name="bottom_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>30.0</update_rate>
+      <topic>bottom_camera_color/image_raw</topic>
+      <gz_frame_id>bottom_camera_color_optical_frame</gz_frame_id>
+      <camera name="bottom_camera_color">
         <camera_info_topic>bottom_camera_color/camera_info</camera_info_topic>
         <horizontal_fov>1.57</horizontal_fov>
         <image>
-          <width>1280</width>
-          <height>720</height>
-          <format>RGB_INT8</format>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
         </image>
         <clip>
           <near>0.1</near>
@@ -412,70 +460,23 @@
           <stddev>0.007</stddev>
         </noise>
       </camera>
-      <always_on>true</always_on>
-      <visualize>true</visualize>
-      <update_rate>30</update_rate>
-      <topic>bottom_camera_color/image_raw</topic>
-      <gz_frame_id>bottom_camera_color_optical_frame</gz_frame_id>
     </sensor>
-    <sensor name="bottom_camera_infra1" type="camera">
-      <camera name="bottom_camera">
-        <camera_info_topic>bottom_camera_infra1/camera_info</camera_info_topic>
-        <horizontal_fov>1.57</horizontal_fov>
-        <image>
-          <width>640</width>
-          <height>480</height>
-          <format>L_INT8</format>
-        </image>
-        <clip>
-          <near>0.1</near>
-          <far>100</far>
-        </clip>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.05</stddev>
-        </noise>
-      </camera>
-      <always_on>false</always_on>
-      <visualize>false</visualize>
-      <update_rate>30</update_rate>
-      <topic>bottom_camera_infra1/image_raw</topic>
-      <gz_frame_id>bottom_camera_infra1_optical_frame</gz_frame_id>
-    </sensor>
-    <sensor name="bottom_camera_infra2" type="camera">
-      <camera name="bottom_camera">
-        <camera_info_topic>bottom_camera_infra2/camera_info</camera_info_topic>
-        <horizontal_fov>1.57</horizontal_fov>
-        <image>
-          <width>640</width>
-          <height>480</height>
-          <format>L_INT8</format>
-        </image>
-        <clip>
-          <near>0.1</near>
-          <far>100</far>
-        </clip>
-        <noise>
-          <type>gaussian</type>
-          <mean>0.0</mean>
-          <stddev>0.05</stddev>
-        </noise>
-      </camera>
-      <always_on>false</always_on>
-      <visualize>false</visualize>
-      <update_rate>30</update_rate>
-      <topic>bottom_camera_infra1/image_raw</topic>
-      <gz_frame_id>bottom_camera_infra2_optical_frame</gz_frame_id>
-    </sensor>
-    <!-- <sensor name="${name}_depth" type="depth"> -->
+  </gazebo>
+  <!-- Gazebo depth camera link reference -->
+  <gazebo reference="bottom_camera_depth">
     <sensor name="bottom_camera_depth" type="rgbd_camera">
-      <camera name="bottom_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <update_rate>15.0</update_rate>
+      <topic>bottom_camera_depth</topic>
+      <gz_frame_id>bottom_camera_depth</gz_frame_id>
+      <camera name="bottom_camera_depth">
         <camera_info_topic>bottom_camera_depth/camera_info</camera_info_topic>
         <horizontal_fov>1.57</horizontal_fov>
         <image>
-          <width>1280</width>
-          <height>720</height>
+          <width>640</width>
+          <height>480</height>
+          <format>B8G8R8</format>
         </image>
         <clip>
           <near>0.1</near>
@@ -487,11 +488,6 @@
           <stddev>0.100</stddev>
         </noise>
       </camera>
-      <always_on>true</always_on>
-      <update_rate>30</update_rate>
-      <visualize>false</visualize>
-      <topic>bottom_camera_depth_to_color/image_raw</topic>
-      <gz_frame_id>bottom_camera_depth_optical_frame</gz_frame_id>
     </sensor>
   </gazebo>
   <link name="imu_link"/>
@@ -599,13 +595,12 @@
   </joint>
   <gazebo reference="lidar_link">
     <sensor name="rplidar_c1" type="gpu_lidar">
-      <pose>0 0 0 0 0 0</pose>
+      <pose>0 0 0.01 0 -0.04363323129985824 0</pose>
       <always_on>true</always_on>
-      <visualize>false</visualize>
+      <visualize>true</visualize>
       <update_rate>10</update_rate>
       <topic>scan</topic>
       <gz_frame_id>lidar_link</gz_frame_id>
-      <!-- <lidar> -->
       <ray>
         <scan>
           <horizontal>
@@ -625,7 +620,6 @@
           <stddev>0.01</stddev>
         </noise>
       </ray>
-      <!-- </lidar> -->
     </sensor>
   </gazebo>
 </robot>

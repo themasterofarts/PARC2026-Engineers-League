@@ -26,14 +26,21 @@
   gz_type_name: "gz.msgs.Pose"
   direction: GZ_TO_ROS
 
-# # gz topic published by Sensors plugin (Base Bumper Contact)
+# gz topic published by Sensors plugin (Base Bumper Contact)
 - ros_topic_name: "base_collisions"
   gz_topic_name: "base_collisions"
   ros_type_name: "ros_gz_interfaces/msg/Contacts"
   gz_type_name: "gz.msgs.Contacts"
   direction: GZ_TO_ROS
 
-# # gz topic published by Sensors plugin (Left Wheel Bumper Contact)
+# gz topic published by Sensors plugin (Top Chassis Bumper Contact)
+- ros_topic_name: "top_chassis_collisions"
+  gz_topic_name: "top_chassis_collisions"
+  ros_type_name: "ros_gz_interfaces/msg/Contacts"
+  gz_type_name: "gz.msgs.Contacts"
+  direction: GZ_TO_ROS
+
+# gz topic published by Sensors plugin (Left Wheel Bumper Contact)
 - ros_topic_name: "left_wheel_collisions"
   gz_topic_name: "left_wheel_collisions"
   ros_type_name: "ros_gz_interfaces/msg/Contacts"

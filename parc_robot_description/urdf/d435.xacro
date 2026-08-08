@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="d435" params="name *origin *mesh">
+  <xacro:macro name="d435" params="name parent *origin *mesh">
 
   <!-- D435 camera sensor offsets -->
   <xacro:property name="d435_cam_depth_to_infra1_offset" value="0.0"/>
@@ -20,7 +20,7 @@
 
     <!-- D435 camera joint -->
     <joint name="${name}_joint" type="fixed">
-      <parent link="base_link"/>
+      <parent link="${parent}"/>
       <child link="${name}_link"/>
       <xacro:if value="${name=='top_camera'}">
         <origin rpy="0 0 -${pi/2}" xyz="0.0 0.0525 0.9745"/>

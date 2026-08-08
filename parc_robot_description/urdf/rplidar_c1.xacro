@@ -28,9 +28,9 @@
 
   <gazebo reference="lidar_link">
     <sensor name="rplidar_c1" type="gpu_lidar">
-      <pose>0 0 0 0 0 0</pose>
+      <pose>0 0 0.01 0 -${pi/72} 0</pose>
       <always_on>true</always_on>
-      <visualize>false</visualize>
+      <visualize>true</visualize>
       <update_rate>10</update_rate>
       <topic>scan</topic>
       <gz_frame_id>lidar_link</gz_frame_id>
