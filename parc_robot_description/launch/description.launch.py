@@ -49,7 +49,7 @@ def generate_launch_description():
 
     declare_use_joint_state_publisher_gui_cmd = DeclareLaunchArgument(
         name="use_gui",
-        default_value="True",  # False,
+        default_value="False",
         description="Flag to enable joint_state_publisher_gui",
     )
 

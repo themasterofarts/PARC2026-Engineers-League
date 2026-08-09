@@ -28,7 +28,6 @@ def generate_launch_description():
     pkg_ros_gz_sim = FindPackageShare(package="ros_gz_sim").find("ros_gz_sim")
 
     bridge_params = os.path.join(pkg_path, "config/gz_bridge.yaml")
-    ekf_params_file = os.path.join(pkg_path, "config/ekf.yaml")
     rviz_config_file = os.path.join(pkg_path, "rviz/task1.rviz")
     goal_location_sdf = os.path.join(pkg_path, "models/goal_location/model.sdf")
     set_env_vars_resources = AppendEnvironmentVariable(
@@ -44,12 +43,6 @@ def generate_launch_description():
         name="use_sim_time",
         default_value="true",
         description="Use simulation (Gazebo) clock if true",
-    )
-
-    declare_use_robot_localization_cmd = DeclareLaunchArgument(
-        name="use_robot_localization",
-        default_value="False",
-        description="Use robot_localization package if true",
     )
 
     declare_world_cmd = DeclareLaunchArgument(
@@ -205,6 +198,7 @@ def generate_launch_description():
     # Start Gazebo ROS Top Camera Color Image bridge
     start_gazebo_ros_top_camera_color_image_bridge_cmd = Node(
         package="ros_gz_image",
+        namespace="top_camera",
         executable="image_bridge",
         arguments=["/top_camera_color/image_raw"],
         output="screen",
@@ -213,6 +207,7 @@ def generate_launch_description():
     # Start Gazebo ROS Bottom Camera Color Image bridge
     start_gazebo_ros_bottom_camera_color_image_bridge_cmd = Node(
         package="ros_gz_image",
+        namespace="bottom_camera",
         executable="image_bridge",
         arguments=["/bottom_camera_color/image_raw"],
         output="screen",
@@ -220,6 +215,7 @@ def generate_launch_description():
     # Start Gazebo ROS Top Camera Depth Image bridge
     # start_gazebo_ros_top_depth_image_bridge_cmd = Node(
     #     package="ros_gz_image",
+    #     namespace="top_camera",
     #     executable="image_bridge",
     #     arguments=["/top_camera_depth_to_color/image_raw"],
     #     output="screen",
@@ -228,6 +224,7 @@ def generate_launch_description():
     # Start Gazebo ROS Bottom Camera Depth Image bridge
     # start_gazebo_ros_bottom_depth_image_bridge_cmd = Node(
     #     package="ros_gz_image",
+    #     namespace="bottom_camera",
     #     executable="image_bridge",
     #     arguments=["/bottom_camera_depth_to_color/image_raw"],
     #     output="screen",
@@ -255,11 +252,10 @@ def generate_launch_description():
     # Declare the launch options
     ld.add_action(declare_world_cmd)
     ld.add_action(declare_use_sim_time_cmd)
-    ld.add_action(declare_use_robot_localization_cmd)
     ld.add_action(set_env_vars_resources)
 
     # Add any actions
-    # ld.add_action(start_rviz_cmd)
+    ld.add_action(start_rviz_cmd)
     # ld.add_action(start_teleop_cmd)
     ld.add_action(OpaqueFunction(function=spawn_gazebo_entities))
     ld.add_action(start_robot_state_publisher_cmd)
