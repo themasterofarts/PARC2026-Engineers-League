@@ -6,10 +6,13 @@ from launch import LaunchDescription
 from launch.actions import (
     AppendEnvironmentVariable,
     DeclareLaunchArgument,
+    ExecuteProcess,
     IncludeLaunchDescription,
     OpaqueFunction,
+    RegisterEventHandler,
 )
 
+from launch.event_handlers import OnProcessStart
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -28,14 +31,14 @@ def generate_launch_description():
     pkg_ros_gz_sim = FindPackageShare(package="ros_gz_sim").find("ros_gz_sim")
 
     bridge_params = os.path.join(pkg_path, "config/gz_bridge.yaml")
-    rviz_config_file = os.path.join(pkg_path, "rviz/task1.rviz")
+    rviz_config_file = os.path.join(pkg_path, "rviz/task_1.rviz")
     goal_location_sdf = os.path.join(pkg_path, "models/goal_location/model.sdf")
+    world_file = os.path.join(pkg_path, "worlds/task_1_world.sdf")
     set_env_vars_resources = AppendEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH", os.path.join(pkg_path, "models")
     )
 
     # Launch configuration variables
-    world = LaunchConfiguration("world")
     use_sim_time = LaunchConfiguration("use_sim_time")
 
     # Declare launch arguments
@@ -43,13 +46,6 @@ def generate_launch_description():
         name="use_sim_time",
         default_value="true",
         description="Use simulation (Gazebo) clock if true",
-    )
-
-    declare_world_cmd = DeclareLaunchArgument(
-        name="world",
-        default_value="world1",
-        description="World model to load",
-        choices=["world1", "world2", "world3"],
     )
 
     # Start robot state publisher
@@ -63,24 +59,18 @@ def generate_launch_description():
     # Function to launch Gazebo and the SITO-E robot dependent on the world file chosen
     def spawn_gazebo_entities(context):
 
-        nonlocal world, goal_location_sdf
+        nonlocal world_file, goal_location_sdf
 
         # List of actions to be added to the launch description later
         actions = []
 
-        # Set path to world parameter yaml file
+        # Set path to the task 1 parameter yaml file
         params_file = os.path.join(
             pkg_path,
-            "config/",
-            context.launch_configurations["world"] + "_params.yaml",
+            "config/task_1_params.yaml",
         )
 
-        # Set path to world file
-        world_file = os.path.join(
-            pkg_path, "worlds", context.launch_configurations["world"] + ".sdf"
-        )
-
-        # Open world specific yaml file
+        # Open task 1 parameter yaml file
         if os.path.exists(params_file):
             with open(params_file, "r") as f:
                 params = yaml.safe_load(f)
@@ -93,37 +83,6 @@ def generate_launch_description():
                 goal_y_val = str(params["/**"]["ros__parameters"]["goal_y"])
                 goal_z_val = str(params["/**"]["ros__parameters"]["goal_z"])
 
-                # Launch configuration variables for world params file and world path
-                world_params_file = LaunchConfiguration("world_params_file")
-                world_path = LaunchConfiguration("world_path_file")
-
-                # Declare world params file launch argument
-                actions.append(
-                    DeclareLaunchArgument(
-                        name="world_params_file",
-                        default_value=params_file,
-                        description="Full path to the parameter file of the respective loaded world",
-                    )
-                )
-
-                # Declare world path file launch argument
-                actions.append(
-                    DeclareLaunchArgument(
-                        name="world_path_file",
-                        default_value=world_file,
-                        description="Full path to the world model to load",
-                    )
-                )
-
-                # Load world parameters file
-                actions.append(
-                    Node(
-                        package="parc_robot_bringup",
-                        executable="load_task_params.py",
-                        parameters=[world_params_file],
-                    )
-                )
-
                 # Launch Gazebo
                 actions.append(
                     IncludeLaunchDescription(
@@ -131,7 +90,7 @@ def generate_launch_description():
                             [os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")]
                         ),
                         launch_arguments={
-                            "gz_args": ["-r -v4 ", world_path],
+                            "gz_args": ["-r -v4 ", world_file],
                             "on_exit_shutdown": "true",
                         }.items(),
                     )
@@ -212,23 +171,6 @@ def generate_launch_description():
         arguments=["/bottom_camera_color/image_raw"],
         output="screen",
     )
-    # Start Gazebo ROS Top Camera Depth Image bridge
-    # start_gazebo_ros_top_depth_image_bridge_cmd = Node(
-    #     package="ros_gz_image",
-    #     namespace="top_camera",
-    #     executable="image_bridge",
-    #     arguments=["/top_camera_depth_to_color/image_raw"],
-    #     output="screen",
-    # )
-
-    # Start Gazebo ROS Bottom Camera Depth Image bridge
-    # start_gazebo_ros_bottom_depth_image_bridge_cmd = Node(
-    #     package="ros_gz_image",
-    #     namespace="bottom_camera",
-    #     executable="image_bridge",
-    #     arguments=["/bottom_camera_depth_to_color/image_raw"],
-    #     output="screen",
-    # )
 
     # Launch RViz
     start_rviz_cmd = Node(
@@ -239,30 +181,19 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
     )
 
-    # Start teleop node
-    start_teleop_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [os.path.join(pkg_path, "launch", "teleop.launch.py")]
-        )
-    )
-
     # Create the launch description and populate
     ld = LaunchDescription()
 
     # Declare the launch options
-    ld.add_action(declare_world_cmd)
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(set_env_vars_resources)
 
     # Add any actions
     ld.add_action(start_rviz_cmd)
-    # ld.add_action(start_teleop_cmd)
     ld.add_action(OpaqueFunction(function=spawn_gazebo_entities))
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(start_gazebo_ros_bridge_cmd)
     ld.add_action(start_gazebo_ros_top_camera_color_image_bridge_cmd)
     ld.add_action(start_gazebo_ros_bottom_camera_color_image_bridge_cmd)
-    # ld.add_action(start_gazebo_ros_top_depth_image_bridge_cmd)
-    # ld.add_action(start_gazebo_ros_bottom_depth_image_bridge_cmd)
 
     return ld
