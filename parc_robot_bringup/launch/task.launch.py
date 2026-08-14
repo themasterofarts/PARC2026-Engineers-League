@@ -10,9 +10,11 @@ from launch.actions import (
     IncludeLaunchDescription,
     OpaqueFunction,
     RegisterEventHandler,
+    TimerAction,
 )
 
-from launch.event_handlers import OnProcessStart
+# from launch.event_handlers import OnProcessStart
+from launch.event_handlers import OnExecutionComplete
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -31,9 +33,9 @@ def generate_launch_description():
     pkg_ros_gz_sim = FindPackageShare(package="ros_gz_sim").find("ros_gz_sim")
 
     bridge_params = os.path.join(pkg_path, "config/gz_bridge.yaml")
-    rviz_config_file = os.path.join(pkg_path, "rviz/task_1.rviz")
+    rviz_config_file = os.path.join(pkg_path, "rviz/task.rviz")
     goal_location_sdf = os.path.join(pkg_path, "models/goal_location/model.sdf")
-    world_file = os.path.join(pkg_path, "worlds/task_1_world.sdf")
+    world_file = os.path.join(pkg_path, "worlds/task_world.sdf")
     set_env_vars_resources = AppendEnvironmentVariable(
         "GZ_SIM_RESOURCE_PATH", os.path.join(pkg_path, "models")
     )
@@ -67,7 +69,7 @@ def generate_launch_description():
         # Set path to the task 1 parameter yaml file
         params_file = os.path.join(
             pkg_path,
-            "config/task_1_params.yaml",
+            "config/task_params.yaml",
         )
 
         # Open task 1 parameter yaml file
@@ -172,6 +174,29 @@ def generate_launch_description():
         output="screen",
     )
 
+    # Adjust default Gazebo camera view
+    set_gazebo_camera_view_cmd = ExecuteProcess(
+        cmd=[
+            "gz",
+            "service",
+            "-s",
+            "/gui/move_to/pose",
+            "--reqtype",
+            "gz.msgs.GUICamera",
+            "--reptype",
+            "gz.msgs.Boolean",
+            "--timeout",
+            "2000",
+            "--req",
+            "pose: {position: {x: -0.2599, y: -9.7375, z: 3.8379} orientation: {x: -0.20186, y: 0.2022, z: 0.6772, w: 0.6780}}",
+        ],
+        output="screen",
+    )
+
+    delayed_camera_adjustment = TimerAction(
+        period=7.0, actions=[set_gazebo_camera_view_cmd]  # Delay in seconds
+    )
+
     # Launch RViz
     start_rviz_cmd = Node(
         package="rviz2",
@@ -190,6 +215,7 @@ def generate_launch_description():
 
     # Add any actions
     ld.add_action(start_rviz_cmd)
+    ld.add_action(delayed_camera_adjustment)
     ld.add_action(OpaqueFunction(function=spawn_gazebo_entities))
     ld.add_action(start_robot_state_publisher_cmd)
     ld.add_action(start_gazebo_ros_bridge_cmd)

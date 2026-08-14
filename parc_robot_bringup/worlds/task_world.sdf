@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <sdf version='1.10'>
-  <world name='task1'>
+  <world name='task'>
     <physics name="1ms" type="ignored">
       <max_step_size>0.01</max_step_size>
       <real_time_factor>1.0</real_time_factor>
@@ -36,17 +36,6 @@
       filename="gz-sim-contact-system"
       name="gz::sim::systems::Contact">
     </plugin>
-
-   <!-- <actor name="actor_walking"> -->
-   <!--  <skin> -->
-   <!--      <filename>https://fuel.gazebosim.org/1.0/Mingfei/models/actor/tip/files/meshes/walk.dae</filename> -->
-   <!--      <scale>1.0</scale> -->
-   <!--  </skin> -->
-   <!--  <animation name="walk"> -->
-   <!--      <filename>https://fuel.gazebosim.org/1.0/Mingfei/models/actor/tip/files/meshes/walk.dae</filename> -->
-   <!--      <interpolate_x>true</interpolate_x> -->
-   <!--  </animation> -->
-   <!--  </actor> -->
 
     <model name='ground_plane'>
         <static>true</static>
