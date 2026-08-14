@@ -3,7 +3,7 @@ Pan-African Robotics Competition (PARC) Engineers League 2026 project developmen
 
 ## Package Overview
 
-- [`parc_robot_bringup`](./parc_robot_bringup/) : Contains config, world, scripts and launch files to bringup the CAYTU SITO-E robot for the different tasks.
+- [`parc_robot_bringup`](./parc_robot_bringup/) : Contains config, world, scripts and launch files to bringup the CAYTU SITO-E robot.
 - [`parc_robot_description`](./parc_robot_description/) : Contains the URDF description files for the CAYTU SITO-E and launch files for the robot state publisher and description.
 
 ## References
