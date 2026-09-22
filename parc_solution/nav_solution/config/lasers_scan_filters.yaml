@@ -1,0 +1,14 @@
+scan_to_scan_filter_chain:
+  ros__parameters:
+    filter1:
+      name: robot_footprint_filter
+      type: laser_filters/LaserScanBoxFilter
+      params:
+        box_frame: "base_link"
+        max_x: 0.25
+        min_x: -0.25
+        max_y: 0.20
+        min_y: -0.20
+        max_z: 0.20
+        min_z: -0.20
+        invert: false ### suprime, tous rayon a l'interieur de la boite invisible

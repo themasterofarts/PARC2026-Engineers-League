@@ -1,0 +1,38 @@
+ekf_filter_node:
+    ros__parameters:
+
+        frequency: 20.0
+        use_sim_time: true
+
+        two_d_mode: true
+        odom_frame: odom
+        base_link_frame: base_footprint
+        world_frame: odom
+
+        publish_acceleration: true
+        publish_tf: true
+
+        # --- ODOM des roues---
+        odom0: /odom
+        # On garde X, Y, et la vitesse d'avancement Vx. 
+        odom0_config: [false,  false,  false,
+                       false, false, false,
+                       true,  false, false,
+                       false, false, true,
+                       false, false, false]
+        
+        odom0_queue_size: 10
+        odom0_differential: false
+
+        # --- CAPTEUR IMU ---
+        imu0: /imu
+        #Yaw absolu et Vitesse Yaw)
+        imu0_config: [false, false, false,
+                      false, false, true,
+                      false, false, false,
+                      false, false, true,
+                      false, false, false]
+        
+        imu0_queue_size: 10
+        imu0_differential: false
+        imu0_remove_gravitational_acceleration: true
