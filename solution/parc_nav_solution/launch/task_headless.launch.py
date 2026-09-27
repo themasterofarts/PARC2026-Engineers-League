@@ -1,0 +1,159 @@
+"""Headless variant of parc_robot_bringup's task.launch.py, for fast local
+iteration only — the actual submission/grading always uses the official
+`ros2 launch parc_robot_bringup task.launch.py`, unmodified.
+
+Differences from the original: Gazebo runs server-only (`-s`, no GUI), and
+RViz plus the one-off GUI-camera-view service call are dropped, since
+neither does anything useful without a display. Everything else (world,
+robot spawn, goal marker, gz bridge, camera bridges) is identical.
+"""
+import os
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import (
+    AppendEnvironmentVariable,
+    DeclareLaunchArgument,
+    IncludeLaunchDescription,
+    OpaqueFunction,
+)
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+import yaml
+
+
+def generate_launch_description():
+    pkg_path = FindPackageShare(package="parc_robot_bringup").find("parc_robot_bringup")
+    pkg_description = FindPackageShare(package="parc_robot_description").find(
+        "parc_robot_description"
+    )
+    pkg_ros_gz_sim = FindPackageShare(package="ros_gz_sim").find("ros_gz_sim")
+
+    bridge_params = os.path.join(pkg_path, "config/gz_bridge.yaml")
+    goal_location_sdf = os.path.join(pkg_path, "models/goal_location/model.sdf")
+    world_file = os.path.join(pkg_path, "worlds/task_world.sdf")
+    set_env_vars_resources = AppendEnvironmentVariable(
+        "GZ_SIM_RESOURCE_PATH", os.path.join(pkg_path, "models")
+    )
+
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    declare_use_sim_time_cmd = DeclareLaunchArgument(
+        name="use_sim_time",
+        default_value="true",
+        description="Use simulation (Gazebo) clock if true",
+    )
+
+    start_robot_state_publisher_cmd = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [os.path.join(pkg_description, "launch", "robot_state_publisher.launch.py")]
+        ),
+        launch_arguments={"use_sim_time": use_sim_time}.items(),
+    )
+
+    def spawn_gazebo_entities(context):
+        actions = []
+        params_file = os.path.join(pkg_path, "config/task_params.yaml")
+
+        if os.path.exists(params_file):
+            with open(params_file, "r") as f:
+                params = yaml.safe_load(f)
+
+                spawn_x_val = str(params["/**"]["ros__parameters"]["x"])
+                spawn_y_val = str(params["/**"]["ros__parameters"]["y"])
+                spawn_z_val = str(params["/**"]["ros__parameters"]["z"])
+                spawn_yaw_val = str(params["/**"]["ros__parameters"]["yaw"])
+                goal_x_val = str(params["/**"]["ros__parameters"]["goal_x"])
+                goal_y_val = str(params["/**"]["ros__parameters"]["goal_y"])
+                goal_z_val = str(params["/**"]["ros__parameters"]["goal_z"])
+
+                actions.append(
+                    IncludeLaunchDescription(
+                        PythonLaunchDescriptionSource(
+                            [os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")]
+                        ),
+                        launch_arguments={
+                            "gz_args": ["-s -r -v4 ", world_file],
+                            "on_exit_shutdown": "true",
+                        }.items(),
+                    )
+                )
+
+                actions.append(
+                    Node(
+                        package="ros_gz_sim",
+                        executable="create",
+                        output="screen",
+                        arguments=[
+                            "-topic",
+                            "robot_description",
+                            "-name",
+                            "sitoe_robot",
+                            "-x",
+                            spawn_x_val,
+                            "-y",
+                            spawn_y_val,
+                            "-z",
+                            spawn_z_val,
+                            "-Y",
+                            spawn_yaw_val,
+                        ],
+                    )
+                )
+
+                actions.append(
+                    Node(
+                        package="ros_gz_sim",
+                        executable="create",
+                        output="screen",
+                        arguments=[
+                            "-file",
+                            goal_location_sdf,
+                            "-name",
+                            "goal_location",
+                            "-x",
+                            goal_x_val,
+                            "-y",
+                            goal_y_val,
+                            "-z",
+                            goal_z_val,
+                        ],
+                    )
+                )
+
+        return actions
+
+    start_gazebo_ros_bridge_cmd = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=["--ros-args", "-p", f"config_file:={bridge_params}"],
+        output="screen",
+    )
+
+    start_gazebo_ros_top_camera_color_image_bridge_cmd = Node(
+        package="ros_gz_image",
+        namespace="top_camera",
+        executable="image_bridge",
+        arguments=["/top_camera_color/image_raw"],
+        output="screen",
+    )
+
+    start_gazebo_ros_bottom_camera_color_image_bridge_cmd = Node(
+        package="ros_gz_image",
+        namespace="bottom_camera",
+        executable="image_bridge",
+        arguments=["/bottom_camera_color/image_raw"],
+        output="screen",
+    )
+
+    ld = LaunchDescription()
+    ld.add_action(declare_use_sim_time_cmd)
+    ld.add_action(set_env_vars_resources)
+    ld.add_action(OpaqueFunction(function=spawn_gazebo_entities))
+    ld.add_action(start_robot_state_publisher_cmd)
+    ld.add_action(start_gazebo_ros_bridge_cmd)
+    ld.add_action(start_gazebo_ros_top_camera_color_image_bridge_cmd)
+    ld.add_action(start_gazebo_ros_bottom_camera_color_image_bridge_cmd)
+
+    return ld

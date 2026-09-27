@@ -1,0 +1,19 @@
+# Overrides on top of slam_toolbox's built-in defaults for building the cafe
+# map (see build_map.py). Only values that differ from the defaults are set.
+slam_toolbox:
+  ros__parameters:
+    use_sim_time: true
+    mode: mapping
+    # IMU-heading-corrected odometry (see imu_odom_corrector.py); raw
+    # wheel odometry overestimates turns by ~30% and breaks scan matching.
+    odom_frame: odom_imu
+    map_frame: map
+    base_frame: base_footprint
+    scan_topic: /scan
+    resolution: 0.05
+    # The RPLIDAR C1 sees the robot's own chassis out to ~0.29m (see the
+    # obstacle_min_range comment in nav2_params.yaml); without this those
+    # returns get baked into the map along the whole driven path.
+    min_laser_range: 0.35
+    max_laser_range: 12.0
+    map_update_interval: 2.0
