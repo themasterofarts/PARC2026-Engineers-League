@@ -89,6 +89,17 @@ def to_dot(graph, flow_only, keep=None):
     """keep: if given, draw only these topics/actions (and the nodes on them)."""
     q = lambda s: '"' + s.replace('"', '\\"') + '"'
     graph = {n: i for n, i in graph.items() if not n.startswith(EXCLUDED_NODE_PREFIXES)}
+    if keep:
+        # bt_navigator runs its behavior trees in helper nodes (/bt_navigator_navigate_*_rclcpp_node);
+        # they are what calls the planner/controller actions. Fold them into /bt_navigator so the
+        # overview shows those links without the clutter.
+        merged = {}
+        for n, info in graph.items():
+            target = "/bt_navigator" if n.startswith("/bt_navigator_") and n.endswith("_rclcpp_node") else n
+            m = merged.setdefault(target, {k: [] for k in info})
+            for k, pairs in info.items():
+                m[k] = sorted({tuple(x) for x in m[k]} | {tuple(x) for x in pairs})
+        graph = merged
 
     pubs, subs, types = {}, {}, {}
     clients, servers, action_types = {}, {}, {}
