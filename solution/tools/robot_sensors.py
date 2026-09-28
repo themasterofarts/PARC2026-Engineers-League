@@ -20,7 +20,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(os.path
 SURFACE, INK, INK2, GRID = "#ffffff", "#0b0b0b", "#52514e", "#e4e3df"
 STATUS = {  # colour + text tag: identity is never colour alone
     "used": ("#1a8f5f", "✓ utilisé / used"),
-    "camera": ("#c77c0e", "◐ mode --camera"),
+    "camera": ("#c77c0e", "◐ option, désactivée par défaut / off by default"),
     "unused": ("#7a7975", "○ non utilisé / not used"),
 }
 
@@ -32,25 +32,23 @@ TOP_CAM = (-0.035, 1.013)
 BOTTOM_CAM = (0.085, 0.583)
 CHASSIS = (-0.12, 0.80)
 
-CALLOUTS = [  # (anchor, box centre, status, title, lines)
-    (TOP_CAM, (0.78, 1.22), "camera", "RealSense D435 (haut / top)",
+CALLOUTS = [  # (anchor, box centre, status, title, lines) — plain words: this is an intro slide
+    (TOP_CAM, (0.78, 1.22), "camera", "Caméra 3D du haut / Top 3D camera",
      ["1,01 m, vers l'avant / 1.01 m, facing forward",
       "Voit plateaux et personnes / sees tabletops, people"]),
-    (BOTTOM_CAM, (0.78, 0.74), "unused", "RealSense D435 (bas / bottom)",
-     ["0,58 m, incliné 60° vers le sol", "0.58 m, tilted 60° down"]),
-    (WHEEL, (0.78, 0.26), "used", "Roues / Wheels (odométrie / odometry)",
-     ["Distance parcourue / distance travelled",
-      "Virages surestimés de 31 % / turns +31 %"]),
+    (BOTTOM_CAM, (0.78, 0.74), "unused", "Caméra 3D du bas / Bottom 3D camera",
+     ["0,58 m, tournée vers le sol", "0.58 m, facing the floor"]),
+    (WHEEL, (0.78, 0.26), "used", "Roues / Wheels",
+     ["Distance parcourue / distance travelled"]),
     (CHASSIS, (-0.98, 1.02), "unused", "Capteurs de contact / Contact sensors",
-     ["Châssis, base, roues / chassis, base, wheels",
-      "Score des essais seulement / run scoring only"]),
-    (IMU, (-0.98, 0.56), "used", "IMU",
-     ["Direction du robot → repère odom_imu",
-      "Robot heading → odom_imu frame"]),
-    (LIDAR, (-0.98, 0.14), "used", "LiDAR RPLIDAR C1",
-     ["~5 cm du sol, 2,5° vers le haut / ~5 cm up, 2.5° up",
-      "Obstacles → costmaps ; aveugle aux plateaux",
-      "Obstacles → costmaps; blind to tabletops"]),
+     ["Pas par le robot : servent seulement à noter les essais",
+      "Not by the robot: only used to score the runs"]),
+    (IMU, (-0.98, 0.56), "used", "IMU (centrale inertielle)",
+     ["Direction du robot / robot direction"]),
+    (LIDAR, (-0.98, 0.14), "used", "LiDAR (laser)",
+     ["À ~5 cm du sol / ~5 cm off the floor",
+      "Détecte les obstacles / detects obstacles",
+      "Ne voit pas les plateaux / can't see tabletops"]),
 ]
 
 
@@ -115,8 +113,8 @@ def main():
         ax.plot([ax_, ex], [az, ez], color=color, lw=1.6, zorder=9)
         ax.plot(*anchor, "o", ms=9, mfc=color, mec="white", mew=2, zorder=11)
 
-    fig.text(0.5, 0.03, "Vue de côté à l'échelle, positions issues de l'URDF · "
-             "Side view to scale, positions from the URDF (parc_robot_description)",
+    fig.text(0.5, 0.03, "Vue de côté à l'échelle, d'après le modèle officiel du robot · "
+             "Side view to scale, from the official robot model",
              ha="center", fontsize=11, color=INK2)
     fig.savefig(OUT, dpi=150, facecolor=SURFACE, bbox_inches="tight", pad_inches=0.12)
     print("wrote", OUT)
