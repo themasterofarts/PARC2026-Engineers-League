@@ -1,0 +1,18 @@
+# Scan pre-filter for building the map (see build_map.py): drops the RPLIDAR's
+# returns off the robot's own chassis and wheels (out to ~0.29 m, see the
+# obstacle_min_range comment in nav2_params.yaml). slam_toolbox's own
+# min_laser_range didn't keep them out of the map: every scan stamped the
+# robot's wheels as obstacles, leaving a trail of dots along the driven path
+# that blocked that very corridor for the planner.
+scan_filter:
+  ros__parameters:
+    use_sim_time: true
+    filter1:
+      name: self_hits
+      type: laser_filters/LaserScanRangeFilter
+      params:
+        use_message_range_limits: false
+        lower_threshold: 0.35
+        upper_threshold: 12.0
+        lower_replacement_value: .inf
+        upper_replacement_value: .inf

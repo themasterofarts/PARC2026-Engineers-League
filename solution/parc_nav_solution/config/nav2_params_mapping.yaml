@@ -1,0 +1,17 @@
+# Mapping mode (nav2_bringup.launch.py mode:=mapping, used by tools/build_map.py),
+# loaded on top of nav2_params.yaml: there is no map yet, so slam_toolbox builds
+# one while Nav2 plans in the odometry frame with rolling costmaps, fed by the
+# LiDAR only. map_server and AMCL are not started in this mode.
+
+bt_navigator:
+  ros__parameters:
+    global_frame: odom_imu
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      global_frame: odom_imu
+      rolling_window: true
+      width: 20
+      height: 20
+      plugins: ["obstacle_layer", "inflation_layer"]

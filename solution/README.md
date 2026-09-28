@@ -16,33 +16,43 @@ way, within a 10-minute limit.
 ## Dependencies
 
 * `nav2` / `nav2-bringup` / `nav2-simple-commander`: navigation stack used to
-  plan and follow a path to the goal.
+  localize on our map (`map_server` + AMCL) and plan and follow a path to the goal.
 
     * `$ sudo apt-get install ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-nav2-simple-commander`
 
+* To rebuild the map only (`tools/build_map.py`): `slam_toolbox` and `laser_filters`.
+
+    * `$ sudo apt-get install ros-jazzy-slam-toolbox ros-jazzy-laser-filters`
+
 ## Task
 
-This solution (`parc_nav_solution`) brings up a **mapless** Nav2 stack —
-no `map_server`/AMCL, since `task.launch.py` provides no static map. Both
-costmaps run as rolling windows in an odometry frame, fed by `/scan` for
-obstacle detection. That frame is `odom_imu` rather than the simulator's
-`odom`: the robot's wheel odometry misjudges every turn by ~30%, so
-`imu_odom_corrector` combines the IMU's heading with the wheels' distance
-travelled and publishes the corrected frame (see Challenges Faced).
+This solution (`parc_nav_solution`) navigates with Nav2 on **our own map of
+the cafe** (`maps/cafe.yaml`), as the Engineers League coordinator requires
+(build your own map and navigate with it). `map_server` loads the map, AMCL
+localizes the robot on it with the LiDAR, the global costmap plans on it
+(static layer, plus the live LiDAR and a wide margin around obstacles), and
+the local costmap follows the robot in its odometry frame.
 
-The goal coordinates from `parc_robot_bringup`'s `task_params.yaml` are
-given in Gazebo's world frame, so the node transforms them into the
-odometry frame using the inverse of the robot's known spawn pose (also in
-`task_params.yaml`) — confirmed empirically that the DiffDrive plugin
-initializes `odom` at identity relative to the robot's actual spawn pose,
-the standard wheel-odometry convention, and `odom_imu` coincides with
-`odom` until the robot moves — then sends the transformed goal to Nav2's
-`BasicNavigator`.
+That odometry frame is `odom_imu` rather than the simulator's `odom`: the
+robot's wheel odometry misjudges every turn by ~31%, so `imu_odom_corrector`
+combines the IMU's heading with the wheels' distance travelled and publishes
+the corrected frame. The frame chain is `map → odom_imu → odom →
+base_footprint` (AMCL, `imu_odom_corrector`, the simulator).
 
-In local testing (11 consecutive runs, 3 headless and 8 with the official
-`task.launch.py`), every run reached the goal in 50–64 s (median 55 s) with
-no contact between the robot and any furniture, stopping ~0.12 m from the
-goal marker's centre (measured against Gazebo ground truth).
+The map was built with `tools/build_map.py` (`slam_toolbox` over
+`odom_imu`), starting at the robot's spawn pose, so the map's origin is the
+spawn pose. The goal coordinates from `parc_robot_bringup`'s
+`task_params.yaml` are in Gazebo's world frame; the node transforms them into
+the map frame using the inverse of the spawn pose (also in
+`task_params.yaml`), gives AMCL the initial pose (0, 0, 0), and sends the goal
+to Nav2's `BasicNavigator`.
+
+In local testing with the official `task.launch.py` (4 consecutive runs with
+the final configuration), every run reached the goal in 60–63 s with no
+contact between the robot and any furniture, driving the same 10.2 m route
+each time and stopping 0.08–0.19 m from the goal marker's centre (Gazebo
+ground truth). The earlier map-free version (18 of 18 runs without contact,
+50–64 s, ~12 m route) is in the git history.
 
 The controller drives the robot directly; there is deliberately no
 `velocity_smoother` (see Challenges Faced).
@@ -86,16 +96,19 @@ contact sensors — a run can report SUCCEEDED and still have pushed a table.
 
 `logs/` and `bags/` are gitignored (regenerated every run) and should be
 excluded from the submission zip too — only the `README.md` and
-`parc_nav_solution/` package are meant to ship. `tools/build_map.py` (build
-a SLAM map of the cafe) is a dev-only experiment the current solution
-doesn't use. `tools/ros_graph.py` captures the live ROS graph during a run
+`parc_nav_solution/` package are meant to ship (the map is in the package,
+`parc_nav_solution/maps/`). `tools/build_map.py` rebuilds that map (see
+Challenges Faced); it also prints a drift check against Gazebo ground truth.
+`tools/ros_graph.py` captures the live ROS graph during a run
 and renders it to `docs/` (`ros_graph_overview` is the readable summary;
 `--from-json docs/ros_graph.json` re-renders without a running stack).
 
 ## Challenges Faced
 
-* No static map is provided, so a mapless costmap-only Nav2 configuration
-  was used instead of the usual map_server + AMCL setup.
+* No map is provided: `task.launch.py` has no `map_server`. A map-free
+  configuration (rolling costmaps only) came first; the coordinator then
+  clarified that teams must build their own map and navigate with it, hence
+  `tools/build_map.py` and the `map_server` + AMCL setup.
 * The `/sitoe_robot/pose` ground-truth topic is advertised but never
   actually publishes in this world — an earlier version of this node used
   it to calibrate the world→odom transform at runtime; that was dropped in
@@ -137,26 +150,56 @@ and renders it to `docs/` (`ros_graph_overview` is the readable summary;
   untouched); all Nav2 frames use `odom_imu`. Checked against ground truth
   after a spin–drive–spin–drive sequence: `odom` was off by 0.66 m, while
   `odom_imu` was within 2 cm and 0°.
-* A SLAM map (`slam_toolbox`, via `tools/build_map.py`) was tried as a way
-  to make the route consistent from run to run. It came out unusable —
-  walls rotated ~40° and drawn twice — because of the odometry drift above:
-  scan matching can't absorb a ~30% error on every turn. It hasn't been
-  retried since the `odom_imu` fix: the mapless solution already succeeds
-  consistently, and the cafe tables are movable in the simulator (the robot
-  pushed one during tuning), so a map recorded ahead of time could go stale.
-* The LiDAR scans ~4 cm above the floor, so of each cafe table it only sees
+* Building the map (`tools/build_map.py`) took several fixes:
+    * The first SLAM map, made before the `odom_imu` fix, was unusable (walls
+      rotated ~40° and drawn twice): scan matching can't absorb a ~30% error
+      on every turn.
+    * A loop into the cafe's corners got the robot stuck; its wheels kept
+      spinning, wheel odometry "drove" it through a wall, and half the map
+      was garbage. Even stops along the usual route stranded it between
+      tables (the controller doesn't pivot in place). The map is now built
+      on exactly the benchmark drive (spawn → goal, one goal), and the tool
+      stops at the first failure.
+    * `slam_toolbox`'s scan matching made the map worse: a drift check at
+      the end of a build put its pose 2.91 m / 17.5° off Gazebo ground truth,
+      while `odom_imu` was 0.00 m / 0.5° off, and the cafe came out tilted.
+      With scan matching off (each scan placed at the `odom_imu` pose), the
+      map is 0.01 m / 0.7° off and axis-aligned.
+    * Every scan stamped the robot's own wheels into the map
+      (`slam_toolbox`'s `min_laser_range` didn't keep them out): the robot
+      appeared parked at the spawn (so Nav2 saw it starting inside an
+      obstacle and couldn't plan) and left a trail of dots along the driven
+      route, which blocked that corridor, so the planner detoured and clipped
+      `cafe_table_1`. The scan is now pre-filtered (`laser_filters`, returns
+      under 0.35 m dropped) and the footprint at the spawn is cleared.
+    * Result: every table is within 0.02–0.15 m of its true position in the
+      map. The tables can be pushed in the simulator, so the map assumes the
+      static phase 1 environment.
+* `BasicNavigator` runs on wall-clock time by default while the rest of the
+  stack runs on simulation time: AMCL silently discarded the initial pose
+  (stamped ~1.8e9 s ahead of its clock) and never reported a pose, so the
+  navigator waited forever. It now uses simulation time and stamps the
+  initial pose 0 ("latest").
+* With AMCL's default motion noise (`alpha1`–`alpha4` = 0.2), its correction
+  wandered up to 0.95 m with 100+ jumps per run, shifting the path under the
+  robot, which then weaved (up to 22.7 m driven for a 12 m route).
+  `odom_imu` is already accurate, so AMCL now trusts it (`alpha` 0.05) and
+  updates less often; its correction stays within ~0.15 m.
+* The LiDAR scans ~5 cm above the floor, so of each cafe table it only sees
   the 0.56 m base plate; the 0.913 m tabletop overhangs that by ~0.18 m at
   the height of the robot's upper chassis. The costmap footprint was set to
   the chassis' true width (0.49 m: its URDF collision box is rotated 90°, so
   its "height" is actually its width) and the global costmap's inflation
   widened (`inflation_radius` 1.1 m, `cost_scaling_factor` 1.5) so the
   planned path keeps clear of the tabletops.
-* A 0.15 rad yaw goal tolerance made the robot circle the goal
-  indefinitely (it reached the position repeatedly but never settled on the
-  heading while avoiding a nearby table); the tolerance is 0.1 m / 0.4 rad.
-  Tightening xy to 0.07 m brought the robot only ~2 cm closer (0.076–0.097
-  m from the marker vs 0.097–0.105 m, Gazebo ground truth) — within
-  run-to-run spread — so it stays at 0.1 m.
+* Goal heading: the task only gives a goal position, but Nav2 goals carry
+  an orientation, and the controller doesn't pivot in place, so a robot
+  arriving at the wrong angle loops around the goal to re-approach. 0.15
+  rad circled every time; 0.4 rad was enough on the map-free route but
+  still looped on the map route, which arrives at a different angle. The
+  yaw tolerance is now ~π (any heading), with 0.1 m in position.
+  Tightening the position to 0.07 m (map-free version) brought the robot
+  only ~2 cm closer to the marker, within run-to-run spread.
 * `velocity_smoother` was silently bypassed: a group-level `SetRemap` of
   `cmd_vel` to the robot's drive topic is matched before each node's own
   `cmd_vel → cmd_vel_nav` rule, so the controller published straight to the
@@ -168,7 +211,8 @@ and renders it to `docs/` (`ros_graph_overview` is the readable summary;
   — its acceleration limiting makes the robot lag the controller and cut
   that corner. So the smoother was removed, and the controller and behavior
   server publish straight to `/robot_base_controller/cmd_vel_unstamped`.
-* People: the world's three visitors are static models, none on the route.
+* People (tested with the map-free version): the world's three visitors are
+  static models, none on the route.
   A test visitor placed standing on the floor in the robot's usual gap was
   avoided (the robot took the other side of `cafe_table_1`), and one that
   appears 3 m ahead mid-run was avoided too, though the robot hesitated
@@ -176,7 +220,8 @@ and renders it to `docs/` (`ros_graph_overview` is the readable summary;
   z = 0.378 while the floor is at ~0.22, so her collision box floats 16 cm
   up — above the LiDAR's scan plane: a visitor placed like that on the route
   is invisible to the LiDAR, and the robot drove into her.
-* Camera (`--camera`, experimental): the top depth camera sees that visitor
+* Camera (`--camera`, experimental, tested with the map-free version): the
+  top depth camera sees that visitor
   and the tabletops. The raw cloud is too heavy and full of `inf`s, so
   `depth_obstacles` thins it; the costmaps use a 3D `VoxelLayer` so camera
   rays can clear stale marks without erasing the LiDAR's; and nothing below

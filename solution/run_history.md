@@ -82,3 +82,17 @@ fix, suggesting the sim isn't fully deterministic run-to-run.
 | 20260928_040835 | SUCCEEDED | 0m 56s | logs/run_20260928_040835.log | bags/run_20260928_040835 |
 | 20260928_040959 | SUCCEEDED | 0m 54s | logs/run_20260928_040959.log | bags/run_20260928_040959 |
 | 20260928_041117 | SUCCEEDED | 0m 56s | logs/run_20260928_041117.log | bags/run_20260928_041117 |
+| 20260928_191709 | FAILED (map dev: navigator on wall-clock time, AMCL ignored the initial pose) | 0m 45s | logs/run_20260928_191709.log | bags/run_20260928_191709 |
+| 20260928_192213 | FAILED (map dev: robot's own footprint in the map, no plan from the start) | 0m 46s | logs/run_20260928_192213.log | bags/run_20260928_192213 |
+| 20260928_192600 | FAILED (map dev: self-hit trail in the map, detoured into cafe_table_1) | 1m 56s | logs/run_20260928_192600.log | bags/run_20260928_192600 |
+| 20260928_193334 | SUCCEEDED (map, AMCL defaults) | 1m 34s | logs/run_20260928_193334.log | bags/run_20260928_193334 |
+| 20260928_193543 | SUCCEEDED (map, AMCL defaults) | 3m 57s | logs/run_20260928_193543.log | bags/run_20260928_193543 |
+| 20260928_194007 | SUCCEEDED (map, AMCL defaults) | 2m 42s | logs/run_20260928_194007.log | bags/run_20260928_194007 |
+| 20260928_194314 | SUCCEEDED (map, AMCL defaults) | 1m 8s | logs/run_20260928_194314.log | bags/run_20260928_194314 |
+| 20260928_194629 | SUCCEEDED (map, AMCL tuned, yaw tol 0.4 (circled the goal)) | 2m 25s | logs/run_20260928_194629.log | bags/run_20260928_194629 |
+| 20260928_194919 | SUCCEEDED (map, AMCL tuned, yaw tol 0.4) | 1m 5s | logs/run_20260928_194919.log | bags/run_20260928_194919 |
+| 20260928_195052 | SUCCEEDED (map, AMCL tuned, yaw tol 0.4) | 0m 59s | logs/run_20260928_195052.log | bags/run_20260928_195052 |
+| 20260928_195333 | SUCCEEDED (map, final config) | 1m 0s | logs/run_20260928_195333.log | bags/run_20260928_195333 |
+| 20260928_195457 | SUCCEEDED (map, final config) | 1m 1s | logs/run_20260928_195457.log | bags/run_20260928_195457 |
+| 20260928_195623 | SUCCEEDED (map, final config) | 1m 1s | logs/run_20260928_195623.log | bags/run_20260928_195623 |
+| 20260928_195748 | SUCCEEDED (map, final config) | 1m 3s | logs/run_20260928_195748.log | bags/run_20260928_195748 |

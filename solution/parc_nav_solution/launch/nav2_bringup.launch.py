@@ -8,6 +8,11 @@ needed for basic point-to-point navigation and some of which (collision
 _monitor) crash without additional required parameters we don't set here.
 velocity_smoother is left out too: see the note above load_nodes.
 
+mode:=map (default) navigates on our map (maps/cafe.yaml): it also starts
+map_server and AMCL. mode:=mapping (tools/build_map.py) loads
+config/nav2_params_mapping.yaml on top instead: no map yet, rolling costmaps in
+odom_imu, while slam_toolbox builds the map.
+
 use_camera:=true (task_solution.py --camera) also starts depth_obstacles and
 loads config/nav2_params_camera.yaml on top, adding the top depth camera to
 both costmaps; see that file for why it isn't the default.
@@ -27,6 +32,9 @@ def launch_setup(context):
     pkg_share = get_package_share_directory("parc_nav_solution")
     params_file = os.path.join(pkg_share, "config", "nav2_params.yaml")
     use_camera = LaunchConfiguration("use_camera").perform(context).lower() == "true"
+    mode = LaunchConfiguration("mode").perform(context).lower()
+    if mode not in ("map", "mapping"):
+        raise ValueError(f"mode must be 'map' or 'mapping', not {mode!r}")
 
     lifecycle_nodes = [
         "controller_server",
@@ -47,11 +55,39 @@ def launch_setup(context):
         ),
         allow_substs=True,
     )
-    # The costmaps live in controller_server (local) and planner_server
-    # (global); a later params file overrides the keys it repeats.
-    costmap_params = [configured_params]
+    # Overlays on top of nav2_params.yaml: a later params file overrides the
+    # keys it repeats.
+    params = [configured_params]
+    if mode == "mapping":
+        params.append(ParameterFile(os.path.join(pkg_share, "config", "nav2_params_mapping.yaml")))
     if use_camera:
-        costmap_params.append(ParameterFile(os.path.join(pkg_share, "config", "nav2_params_camera.yaml")))
+        params.append(ParameterFile(os.path.join(pkg_share, "config", "nav2_params_camera.yaml")))
+
+    localization_nodes = [
+        Node(
+            package="nav2_map_server",
+            executable="map_server",
+            name="map_server",
+            output="screen",
+            parameters=params + [{"yaml_filename": os.path.join(pkg_share, "maps", "cafe.yaml")}],
+            remappings=remappings,
+        ),
+        Node(
+            package="nav2_amcl",
+            executable="amcl",
+            name="amcl",
+            output="screen",
+            parameters=params,
+            remappings=remappings,
+        ),
+        Node(
+            package="nav2_lifecycle_manager",
+            executable="lifecycle_manager",
+            name="lifecycle_manager_localization",
+            output="screen",
+            parameters=[{"autostart": True, "node_names": ["map_server", "amcl"]}],
+        ),
+    ] if mode == "map" else []
 
     # controller_server and behavior_server publish straight to the robot's
     # drive topic; there is no velocity_smoother. (It used to be launched but
@@ -75,8 +111,9 @@ def launch_setup(context):
         [
             SetParameter("use_sim_time", True),
             *camera_nodes,
-            # Publishes odom_imu -> odom (IMU-corrected heading); every Nav2
-            # frame in nav2_params.yaml is odom_imu, so this must run first.
+            *localization_nodes,
+            # Publishes odom_imu -> odom (IMU-corrected heading), which AMCL
+            # (map -> odom_imu) and the local costmap build on.
             Node(
                 package="parc_nav_solution",
                 executable="imu_odom_corrector",
@@ -87,7 +124,7 @@ def launch_setup(context):
                 package="nav2_controller",
                 executable="controller_server",
                 output="screen",
-                parameters=costmap_params,
+                parameters=params,
                 remappings=remappings + [drive],
             ),
             Node(
@@ -95,7 +132,7 @@ def launch_setup(context):
                 executable="planner_server",
                 name="planner_server",
                 output="screen",
-                parameters=costmap_params,
+                parameters=params,
                 remappings=remappings,
             ),
             Node(
@@ -103,7 +140,7 @@ def launch_setup(context):
                 executable="behavior_server",
                 name="behavior_server",
                 output="screen",
-                parameters=[configured_params],
+                parameters=params,
                 remappings=remappings + [drive],
             ),
             Node(
@@ -111,7 +148,7 @@ def launch_setup(context):
                 executable="bt_navigator",
                 name="bt_navigator",
                 output="screen",
-                parameters=[configured_params],
+                parameters=params,
                 remappings=remappings,
             ),
             Node(
@@ -119,7 +156,7 @@ def launch_setup(context):
                 executable="waypoint_follower",
                 name="waypoint_follower",
                 output="screen",
-                parameters=[configured_params],
+                parameters=params,
                 remappings=remappings,
             ),
             Node(
@@ -137,6 +174,8 @@ def launch_setup(context):
 
 def generate_launch_description():
     return LaunchDescription([
+        DeclareLaunchArgument("mode", default_value="map",
+                              description="map: navigate on maps/cafe.yaml (AMCL); mapping: no map, for tools/build_map.py"),
         DeclareLaunchArgument("use_camera", default_value="false",
                               description="add the top depth camera to the costmaps (experimental)"),
         OpaqueFunction(function=launch_setup),

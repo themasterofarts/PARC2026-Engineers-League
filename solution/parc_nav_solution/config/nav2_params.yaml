@@ -1,16 +1,25 @@
-# Mapless Nav2 configuration for the PARC 2026 navigation task.
+# Nav2 configuration for the PARC 2026 navigation task: navigation on our own
+# map of the cafe (maps/cafe.yaml, built with tools/build_map.py), as the
+# Engineers League coordinator requires.
 #
-# No map_server/AMCL: task.launch.py provides no static map, so both
-# costmaps run as rolling windows in an odometry frame instead of a "map"
-# frame. That frame is odom_imu, not the simulator's odom: wheel odometry
-# overestimates every turn by ~30%, so imu_odom_corrector (launched in
-# nav2_bringup.launch.py) publishes odom_imu -> odom using the IMU's heading.
-# /odom is still used as the velocity source (odom_topic), which is accurate.
+# Frame chain: map -> odom_imu -> odom -> base_footprint.
+#  - map -> odom_imu: AMCL, localizing the LiDAR scan against the map.
+#  - odom_imu -> odom: imu_odom_corrector. Wheel odometry overestimates every
+#    turn by ~31%, so the IMU's heading replaces it (see imu_odom_corrector.py);
+#    AMCL then only has to absorb small errors.
+#  - odom -> base_footprint: the simulator's wheel odometry.
+# The map's origin is the robot's spawn pose (slam_toolbox starts its map
+# frame there), so task_solution.py converts the world-frame goal with the
+# inverse spawn pose and sends it in "map".
+# /odom is still the velocity source (odom_topic): its speeds are accurate.
+#
+# nav2_params_mapping.yaml overrides the map-dependent parts when building the
+# map (no map yet: rolling costmaps in odom_imu, slam_toolbox instead of AMCL).
 
 bt_navigator:
   ros__parameters:
     use_sim_time: true
-    global_frame: odom_imu
+    global_frame: map
     robot_base_frame: base_footprint
     odom_topic: /odom
     bt_loop_duration: 10
@@ -40,7 +49,12 @@ controller_server:
     goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.1
-      yaw_goal_tolerance: 0.4
+      # The task only gives a goal position (goal_x/goal_y), no orientation,
+      # so any final heading is fine. Requiring one made the robot circle the
+      # goal: the controller doesn't pivot in place, so when it arrives at the
+      # wrong angle it loops around to re-approach (0.15 rad circled every
+      # time; 0.4 rad still looped when the map route arrived at a new angle).
+      yaw_goal_tolerance: 3.14
       stateful: true
 
     # Tuned for speed after measuring the robot directly: commanding
@@ -113,14 +127,16 @@ global_costmap:
   global_costmap:
     ros__parameters:
       use_sim_time: true
-      global_frame: odom_imu
+      global_frame: map
       robot_base_frame: base_footprint
-      rolling_window: true
-      width: 20
-      height: 20
+      # Sized by the map (static_layer), not a rolling window.
+      rolling_window: false
       resolution: 0.05
       footprint: "[[0.25, 0.245], [0.25, -0.245], [-0.25, -0.245], [-0.25, 0.245]]"
-      plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: true
@@ -180,3 +196,43 @@ waypoint_follower:
     use_sim_time: true
     loop_rate: 20
     stop_on_failure: false
+
+map_server:
+  ros__parameters:
+    use_sim_time: true
+    # yaml_filename is set by nav2_bringup.launch.py (the installed maps/cafe.yaml).
+
+amcl:
+  ros__parameters:
+    use_sim_time: true
+    global_frame_id: map
+    # AMCL corrects on top of the IMU-corrected odometry, so it publishes
+    # map -> odom_imu rather than map -> odom.
+    odom_frame_id: odom_imu
+    base_frame_id: base_footprint
+    scan_topic: /scan
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
+    laser_model_type: "likelihood_field"
+    # Same reason as obstacle_min_range: the LiDAR sees the robot's own
+    # chassis out to ~0.29 m.
+    laser_min_range: 0.35
+    laser_max_range: 12.0
+    max_beams: 60
+    min_particles: 500
+    max_particles: 2000
+    # odom_imu is already accurate (< 1 deg / ~1 % over the route), so tell
+    # AMCL to trust it: with the default motion noise (alpha 0.2) its
+    # correction wandered up to 0.95 m with 100+ jumps per run, shifting the
+    # path under the robot, which then weaved (up to 22.7 m driven for a 12 m
+    # route). Fewer, better-grounded updates too.
+    alpha1: 0.05
+    alpha2: 0.05
+    alpha3: 0.05
+    alpha4: 0.05
+    update_min_d: 0.2
+    update_min_a: 0.2
+    transform_tolerance: 1.0
+    tf_broadcast: true
+    # The map's origin is the spawn pose, where the robot starts.
+    set_initial_pose: true
+    initial_pose: {x: 0.0, y: 0.0, z: 0.0, yaw: 0.0}

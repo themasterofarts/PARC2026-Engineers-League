@@ -1,27 +1,16 @@
 #!/usr/bin/env python3
 """PARC 2026 Navigation Task solution entry point.
 
-Brings up a mapless Nav2 stack (see config/nav2_params.yaml) and drives the
-robot to the competition goal defined in parc_robot_bringup's
-task_params.yaml.
+Brings up Nav2 on our own map of the cafe (see config/nav2_params.yaml and
+maps/cafe.yaml, built with tools/build_map.py) and drives the robot to the
+competition goal defined in parc_robot_bringup's task_params.yaml.
 
 task_params.yaml gives the robot's spawn pose and the goal position in
-Gazebo's WORLD frame, but Nav2 here has no map — both costmaps run in the
-"odom_imu" frame instead (IMU-heading-corrected odometry; see
-imu_odom_corrector.py). odom_imu coincides with odom until the robot moves,
-so the goal computed below is valid in either. Empirically (checked via
-`ros2 topic echo /odom --once` against the running sim), the DiffDrive
-plugin initializes odom at identity — (0, 0, yaw=0) — relative to the
-robot's actual spawn pose, which is the standard wheel-odometry convention:
-odom always starts at the robot's own body frame, with no knowledge of true
-world orientation. So the world->odom transform is just the inverse of the
-known spawn pose, and the goal can be computed directly from
-task_params.yaml with no live calibration step needed.
-
-(An earlier version of this node calibrated that transform at runtime from
-the `/sitoe_robot/pose` ground-truth topic instead — dropped after
-confirming that topic is advertised but never actually publishes in this
-world.)
+Gazebo's WORLD frame. Our map's origin is the spawn pose (slam_toolbox starts
+its map frame where the robot starts), so world -> map is just the inverse of
+the spawn pose, and the robot's initial pose on the map is (0, 0, 0). AMCL
+localizes the robot on the map from there, on top of the IMU-corrected
+odometry (odom_imu, see imu_odom_corrector.py).
 
 `--camera` (experimental) adds the top depth camera to the costmaps; see
 config/nav2_params_camera.yaml.
@@ -35,6 +24,8 @@ import threading
 import time
 
 import rclpy
+import rclpy.parameter
+import rclpy.time
 import yaml
 from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import PoseStamped
@@ -141,30 +132,38 @@ def main():
     spawn_pose_world = (params["x"], params["y"], params["yaw"])
     goal_world = (params["goal_x"], params["goal_y"], 0.0)
 
-    world_to_odom = _invert(spawn_pose_world)
-    goal_x_odom, goal_y_odom = _compose(world_to_odom, goal_world)
+    world_to_map = _invert(spawn_pose_world)
+    goal_x_map, goal_y_map = _compose(world_to_map, goal_world)
 
     nav2_process = start_nav2(use_camera="--camera" in sys.argv[1:])
 
     rclpy.init()
     try:
         navigator = BasicNavigator()
+        # Run on simulation time like the rest of the stack: BasicNavigator
+        # defaults to wall-clock time, and AMCL silently discards an initial
+        # pose stamped ~1.8e9 s ahead of its sim clock (it can't look up the
+        # robot's motion "since" then), so amcl_pose never arrives.
+        navigator.set_parameters([rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)])
         navigator.get_logger().info("Waiting for Nav2 to become active...")
-        # 'robot_localization' is the sentinel value nav2_simple_commander uses
-        # to skip waiting on a localizer lifecycle node entirely (see its
-        # source: only this exact string bypasses both the activation and
-        # initial-pose checks) — we don't run AMCL or robot_localization here.
-        navigator.waitUntilNav2Active(localizer="robot_localization")
+        # The robot starts at the map's origin (see the module docstring).
+        initial_pose = PoseStamped()
+        initial_pose.header.frame_id = "map"
+        # Stamp 0 = "use the latest transform": the robot hasn't moved yet.
+        initial_pose.header.stamp = rclpy.time.Time().to_msg()
+        initial_pose.pose.orientation.w = 1.0
+        navigator.setInitialPose(initial_pose)
+        navigator.waitUntilNav2Active(localizer="amcl")
 
         goal_pose = PoseStamped()
-        goal_pose.header.frame_id = "odom_imu"
+        goal_pose.header.frame_id = "map"
         goal_pose.header.stamp = navigator.get_clock().now().to_msg()
-        goal_pose.pose.position.x = goal_x_odom
-        goal_pose.pose.position.y = goal_y_odom
+        goal_pose.pose.position.x = goal_x_map
+        goal_pose.pose.position.y = goal_y_map
         goal_pose.pose.orientation.w = 1.0
 
         navigator.get_logger().info(
-            f"Navigating to goal (odom frame): ({goal_x_odom:.2f}, {goal_y_odom:.2f})"
+            f"Navigating to goal (map frame): ({goal_x_map:.2f}, {goal_y_map:.2f})"
         )
         navigator.goToPose(goal_pose)
 
