@@ -45,12 +45,13 @@ GROUPS = {
 }
 OURS = {"/basic_navigator", "/imu_odom_corrector", "/depth_obstacles"}
 NAV2_NAMES = ("controller_server", "planner_server", "behavior_server", "bt_navigator",
-              "waypoint_follower", "velocity_smoother", "lifecycle_manager", "costmap")
+              "waypoint_follower", "velocity_smoother", "lifecycle_manager", "costmap",
+              "map_server", "amcl")
 SIM_PREFIXES = ("/ros_gz", "/robot_state_publisher", "/top_camera", "/bottom_camera")
 
-# Sensors in, goal -> plan -> velocity commands out.
+# Sensors in, map + localization, goal -> plan -> velocity commands out.
 OVERVIEW = {"/scan", "/odom", "/imu", "/tf", "/joint_states", "/robot_base_controller/cmd_vel_unstamped",
-            "/navigate_to_pose", "/compute_path_to_pose", "/follow_path"}
+            "/map", "/amcl_pose", "/navigate_to_pose", "/compute_path_to_pose", "/follow_path"}
 
 
 def group_of(node):

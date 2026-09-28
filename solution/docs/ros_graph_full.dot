@@ -3,6 +3,7 @@ digraph ros_graph {
   node [fontname="Helvetica", fontsize=11]; edge [color="#8a8984", arrowsize=0.6];
   labelloc=t; fontname="Helvetica"; fontsize=16;
   label="Graphe ROS 2 / ROS 2 graph — complet / full: tous les topics / every topic\nEllipses = nœuds / nodes · rectangles = topics (type) · hexagones = actions (tirets / dashed)\nMasqués / hidden: /rosout, /parameter_events, /clock (tous les nœuds / every node), transform_listener_impl_*, rosbag2_recorder (banc de test / test harness)";
+  "/amcl" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/basic_navigator" [shape=ellipse, style=filled, fillcolor="#d6e6f9", color="#2a78d6", penwidth=2];
   "/behavior_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/bottom_camera/ros_gz_image" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
@@ -12,14 +13,17 @@ digraph ros_graph {
   "/controller_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/global_costmap/global_costmap" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/imu_odom_corrector" [shape=ellipse, style=filled, fillcolor="#d6e6f9", color="#2a78d6", penwidth=2];
+  "/lifecycle_manager_localization" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/lifecycle_manager_navigation" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/local_costmap/local_costmap" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
+  "/map_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/planner_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/robot_state_publisher" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/ros_gz_bridge" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
-  "/rviz2" [shape=ellipse, style=filled, fillcolor="#eeeeec", color="#8a8984", penwidth=2];
   "/top_camera/ros_gz_image" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/waypoint_follower" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
+  "/amcl/transition_event" [shape=box, style=rounded, fontsize=10, label="/amcl/transition_event
+lifecycle_msgs/msg/TransitionEvent"];
   "/amcl_pose" [shape=box, style=rounded, fontsize=10, label="/amcl_pose
 geometry_msgs/msg/PoseWithCovarianceStamped"];
   "/base_collisions" [shape=box, style=rounded, fontsize=10, label="/base_collisions
@@ -48,8 +52,6 @@ sensor_msgs/msg/CameraInfo"];
 sensor_msgs/msg/PointCloud2"];
   "/bt_navigator/transition_event" [shape=box, style=rounded, fontsize=10, label="/bt_navigator/transition_event
 lifecycle_msgs/msg/TransitionEvent"];
-  "/clicked_point" [shape=box, style=rounded, fontsize=10, label="/clicked_point
-geometry_msgs/msg/PointStamped"];
   "/controller_selector" [shape=box, style=rounded, fontsize=10, label="/controller_selector
 std_msgs/msg/String"];
   "/controller_server/transition_event" [shape=box, style=rounded, fontsize=10, label="/controller_server/transition_event
@@ -80,6 +82,14 @@ nav2_msgs/msg/CostmapUpdate"];
 map_msgs/msg/OccupancyGridUpdate"];
   "/global_costmap/published_footprint" [shape=box, style=rounded, fontsize=10, label="/global_costmap/published_footprint
 geometry_msgs/msg/PolygonStamped"];
+  "/global_costmap/static_layer" [shape=box, style=rounded, fontsize=10, label="/global_costmap/static_layer
+nav_msgs/msg/OccupancyGrid"];
+  "/global_costmap/static_layer_raw" [shape=box, style=rounded, fontsize=10, label="/global_costmap/static_layer_raw
+nav2_msgs/msg/Costmap"];
+  "/global_costmap/static_layer_raw_updates" [shape=box, style=rounded, fontsize=10, label="/global_costmap/static_layer_raw_updates
+nav2_msgs/msg/CostmapUpdate"];
+  "/global_costmap/static_layer_updates" [shape=box, style=rounded, fontsize=10, label="/global_costmap/static_layer_updates
+map_msgs/msg/OccupancyGridUpdate"];
   "/goal_pose" [shape=box, style=rounded, fontsize=10, label="/goal_pose
 geometry_msgs/msg/PoseStamped"];
   "/imu" [shape=box, style=rounded, fontsize=10, label="/imu
@@ -118,8 +128,14 @@ geometry_msgs/msg/PolygonStamped"];
 nav_msgs/msg/Path"];
   "/lookahead_point" [shape=box, style=rounded, fontsize=10, label="/lookahead_point
 geometry_msgs/msg/PointStamped"];
+  "/map" [shape=box, style=rounded, fontsize=10, label="/map
+nav_msgs/msg/OccupancyGrid"];
+  "/map_server/transition_event" [shape=box, style=rounded, fontsize=10, label="/map_server/transition_event
+lifecycle_msgs/msg/TransitionEvent"];
   "/odom" [shape=box, style=rounded, fontsize=10, label="/odom
 nav_msgs/msg/Odometry"];
+  "/particle_cloud" [shape=box, style=rounded, fontsize=10, label="/particle_cloud
+nav2_msgs/msg/ParticleCloud"];
   "/plan" [shape=box, style=rounded, fontsize=10, label="/plan
 nav_msgs/msg/Path"];
   "/planner_selector" [shape=box, style=rounded, fontsize=10, label="/planner_selector
@@ -194,26 +210,33 @@ nav2_msgs/action/Spin"];
 nav2_msgs/action/UndockRobot"];
   "action:/wait" [shape=hexagon, style=dashed, fontsize=10, label="/wait
 nav2_msgs/action/Wait"];
+  "/amcl" -> "/amcl/transition_event";
+  "/amcl" -> "/amcl_pose";
   "/amcl_pose" -> "/basic_navigator";
   "/ros_gz_bridge" -> "/base_collisions";
   "/behavior_server" -> "/behavior_server/transition_event";
   "/bt_navigator_navigate_to_pose_rclcpp_node" -> "/behavior_tree_log";
   "/bt_navigator_navigate_through_poses_rclcpp_node" -> "/behavior_tree_log";
+  "/bt_navigator" -> "/bond";
+  "/controller_server" -> "/bond";
+  "/amcl" -> "/bond";
+  "/planner_server" -> "/bond";
+  "/map_server" -> "/bond";
+  "/behavior_server" -> "/bond";
   "/waypoint_follower" -> "/bond";
   "/lifecycle_manager_navigation" -> "/bond";
-  "/controller_server" -> "/bond";
-  "/behavior_server" -> "/bond";
-  "/bt_navigator" -> "/bond";
-  "/planner_server" -> "/bond";
+  "/lifecycle_manager_localization" -> "/bond";
+  "/bond" -> "/bt_navigator";
+  "/bond" -> "/controller_server";
+  "/bond" -> "/amcl";
+  "/bond" -> "/planner_server";
+  "/bond" -> "/map_server";
+  "/bond" -> "/behavior_server";
   "/bond" -> "/waypoint_follower";
   "/bond" -> "/lifecycle_manager_navigation";
-  "/bond" -> "/controller_server";
-  "/bond" -> "/behavior_server";
-  "/bond" -> "/bt_navigator";
-  "/bond" -> "/planner_server";
+  "/bond" -> "/lifecycle_manager_localization";
   "/ros_gz_bridge" -> "/bottom_camera_color/camera_info";
   "/bottom_camera/ros_gz_image" -> "/bottom_camera_color/image_raw";
-  "/bottom_camera_color/image_raw" -> "/rviz2";
   "/bottom_camera/ros_gz_image" -> "/bottom_camera_color/image_raw/compressed";
   "/bottom_camera/ros_gz_image" -> "/bottom_camera_color/image_raw/compressedDepth";
   "/bottom_camera/ros_gz_image" -> "/bottom_camera_color/image_raw/theora";
@@ -221,12 +244,12 @@ nav2_msgs/action/Wait"];
   "/ros_gz_bridge" -> "/bottom_camera_depth/camera_info";
   "/ros_gz_bridge" -> "/bottom_camera_depth/points";
   "/bt_navigator" -> "/bt_navigator/transition_event";
-  "/rviz2" -> "/clicked_point";
   "/controller_selector" -> "/bt_navigator_navigate_to_pose_rclcpp_node";
   "/controller_selector" -> "/bt_navigator_navigate_through_poses_rclcpp_node";
   "/controller_server" -> "/controller_server/transition_event";
   "/controller_server" -> "/curvature_lookahead_point";
   "/lifecycle_manager_navigation" -> "/diagnostics";
+  "/lifecycle_manager_localization" -> "/diagnostics";
   "/global_costmap/global_costmap" -> "/global_costmap/costmap";
   "/global_costmap/global_costmap" -> "/global_costmap/costmap_raw";
   "/global_costmap/global_costmap" -> "/global_costmap/costmap_raw_updates";
@@ -238,12 +261,15 @@ nav2_msgs/action/Wait"];
   "/global_costmap/global_costmap" -> "/global_costmap/obstacle_layer_raw_updates";
   "/global_costmap/global_costmap" -> "/global_costmap/obstacle_layer_updates";
   "/global_costmap/global_costmap" -> "/global_costmap/published_footprint";
-  "/rviz2" -> "/goal_pose";
+  "/global_costmap/global_costmap" -> "/global_costmap/static_layer";
+  "/global_costmap/global_costmap" -> "/global_costmap/static_layer_raw";
+  "/global_costmap/global_costmap" -> "/global_costmap/static_layer_raw_updates";
+  "/global_costmap/global_costmap" -> "/global_costmap/static_layer_updates";
   "/goal_pose" -> "/bt_navigator";
   "/ros_gz_bridge" -> "/imu";
   "/imu" -> "/imu_odom_corrector";
-  "/rviz2" -> "/initialpose";
   "/basic_navigator" -> "/initialpose";
+  "/initialpose" -> "/amcl";
   "/controller_server" -> "/is_rotating_to_heading";
   "/ros_gz_bridge" -> "/joint_states";
   "/joint_states" -> "/robot_state_publisher";
@@ -264,10 +290,15 @@ nav2_msgs/action/Wait"];
   "/local_costmap/published_footprint" -> "/behavior_server";
   "/controller_server" -> "/lookahead_collision_arc";
   "/controller_server" -> "/lookahead_point";
+  "/map_server" -> "/map";
+  "/map" -> "/amcl";
+  "/map" -> "/global_costmap/global_costmap";
+  "/map_server" -> "/map_server/transition_event";
   "/ros_gz_bridge" -> "/odom";
-  "/odom" -> "/imu_odom_corrector";
-  "/odom" -> "/controller_server";
   "/odom" -> "/bt_navigator";
+  "/odom" -> "/controller_server";
+  "/odom" -> "/imu_odom_corrector";
+  "/amcl" -> "/particle_cloud";
   "/planner_server" -> "/plan";
   "/planner_selector" -> "/bt_navigator_navigate_to_pose_rclcpp_node";
   "/planner_selector" -> "/bt_navigator_navigate_through_poses_rclcpp_node";
@@ -278,31 +309,31 @@ nav2_msgs/action/Wait"];
   "/behavior_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/robot_base_controller/cmd_vel_unstamped" -> "/ros_gz_bridge";
   "/robot_state_publisher" -> "/robot_description";
-  "/robot_description" -> "/rviz2";
   "/ros_gz_bridge" -> "/scan";
-  "/scan" -> "/rviz2";
   "/scan" -> "/local_costmap/local_costmap";
+  "/scan" -> "/amcl";
   "/scan" -> "/global_costmap/global_costmap";
   "/ros_gz_bridge" -> "/sitoe_robot/pose";
   "/speed_limit" -> "/controller_server";
+  "/amcl" -> "/tf";
+  "/robot_state_publisher" -> "/tf";
   "/imu_odom_corrector" -> "/tf";
   "/ros_gz_bridge" -> "/tf";
-  "/robot_state_publisher" -> "/tf";
-  "/tf" -> "/behavior_server";
   "/tf" -> "/bt_navigator";
+  "/tf" -> "/amcl";
+  "/tf" -> "/behavior_server";
   "/robot_state_publisher" -> "/tf_static";
-  "/tf_static" -> "/behavior_server";
   "/tf_static" -> "/bt_navigator";
+  "/tf_static" -> "/amcl";
+  "/tf_static" -> "/behavior_server";
   "/ros_gz_bridge" -> "/top_camera_color/camera_info";
   "/top_camera/ros_gz_image" -> "/top_camera_color/image_raw";
-  "/top_camera_color/image_raw" -> "/rviz2";
   "/top_camera/ros_gz_image" -> "/top_camera_color/image_raw/compressed";
   "/top_camera/ros_gz_image" -> "/top_camera_color/image_raw/compressedDepth";
   "/top_camera/ros_gz_image" -> "/top_camera_color/image_raw/theora";
   "/top_camera/ros_gz_image" -> "/top_camera_color/image_raw/zstd";
   "/ros_gz_bridge" -> "/top_camera_depth/camera_info";
   "/ros_gz_bridge" -> "/top_camera_depth/points";
-  "/top_camera_depth/points" -> "/rviz2";
   "/ros_gz_bridge" -> "/top_chassis_collisions";
   "/waypoint_follower" -> "/waypoint_follower/transition_event";
   "/basic_navigator" -> "action:/assisted_teleop" [style=dashed];
@@ -328,8 +359,8 @@ nav2_msgs/action/Wait"];
   "action:/follow_waypoints" -> "/waypoint_follower" [style=dashed];
   "/basic_navigator" -> "action:/navigate_through_poses" [style=dashed];
   "action:/navigate_through_poses" -> "/bt_navigator" [style=dashed];
-  "/waypoint_follower" -> "action:/navigate_to_pose" [style=dashed];
   "/bt_navigator" -> "action:/navigate_to_pose" [style=dashed];
+  "/waypoint_follower" -> "action:/navigate_to_pose" [style=dashed];
   "/basic_navigator" -> "action:/navigate_to_pose" [style=dashed];
   "action:/navigate_to_pose" -> "/bt_navigator" [style=dashed];
   "/basic_navigator" -> "action:/smooth_path" [style=dashed];

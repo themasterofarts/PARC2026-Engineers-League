@@ -3,31 +3,31 @@ digraph ros_graph {
   node [fontname="Helvetica", fontsize=11]; edge [color="#8a8984", arrowsize=0.6];
   labelloc=t; fontname="Helvetica"; fontsize=16;
   label="Graphe ROS 2 / ROS 2 graph — flux de données : topics avec publieur et abonné, + actions / data flow: topics with a publisher and a subscriber, + actions\nEllipses = nœuds / nodes · rectangles = topics (type) · hexagones = actions (tirets / dashed)\nMasqués / hidden: /rosout, /parameter_events, /clock (tous les nœuds / every node), transform_listener_impl_*, rosbag2_recorder (banc de test / test harness)";
+  "/amcl" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/basic_navigator" [shape=ellipse, style=filled, fillcolor="#d6e6f9", color="#2a78d6", penwidth=2];
   "/behavior_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
-  "/bottom_camera/ros_gz_image" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/bt_navigator" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/bt_navigator_navigate_through_poses_rclcpp_node" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/bt_navigator_navigate_to_pose_rclcpp_node" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/controller_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/global_costmap/global_costmap" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/imu_odom_corrector" [shape=ellipse, style=filled, fillcolor="#d6e6f9", color="#2a78d6", penwidth=2];
+  "/lifecycle_manager_localization" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/lifecycle_manager_navigation" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/local_costmap/local_costmap" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
+  "/map_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/planner_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/robot_state_publisher" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/ros_gz_bridge" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
-  "/rviz2" [shape=ellipse, style=filled, fillcolor="#eeeeec", color="#8a8984", penwidth=2];
-  "/top_camera/ros_gz_image" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/waypoint_follower" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
+  "/amcl_pose" [shape=box, style=rounded, fontsize=10, label="/amcl_pose
+geometry_msgs/msg/PoseWithCovarianceStamped"];
   "/bond" [shape=box, style=rounded, fontsize=10, label="/bond
 bond/msg/Status"];
-  "/bottom_camera_color/image_raw" [shape=box, style=rounded, fontsize=10, label="/bottom_camera_color/image_raw
-sensor_msgs/msg/Image"];
-  "/goal_pose" [shape=box, style=rounded, fontsize=10, label="/goal_pose
-geometry_msgs/msg/PoseStamped"];
   "/imu" [shape=box, style=rounded, fontsize=10, label="/imu
 sensor_msgs/msg/Imu"];
+  "/initialpose" [shape=box, style=rounded, fontsize=10, label="/initialpose
+geometry_msgs/msg/PoseWithCovarianceStamped"];
   "/joint_states" [shape=box, style=rounded, fontsize=10, label="/joint_states
 sensor_msgs/msg/JointState"];
   "/local_costmap/costmap_raw" [shape=box, style=rounded, fontsize=10, label="/local_costmap/costmap_raw
@@ -36,22 +36,18 @@ nav2_msgs/msg/Costmap"];
 nav2_msgs/msg/CostmapUpdate"];
   "/local_costmap/published_footprint" [shape=box, style=rounded, fontsize=10, label="/local_costmap/published_footprint
 geometry_msgs/msg/PolygonStamped"];
+  "/map" [shape=box, style=rounded, fontsize=10, label="/map
+nav_msgs/msg/OccupancyGrid"];
   "/odom" [shape=box, style=rounded, fontsize=10, label="/odom
 nav_msgs/msg/Odometry"];
   "/robot_base_controller/cmd_vel_unstamped" [shape=box, style=rounded, fontsize=10, label="/robot_base_controller/cmd_vel_unstamped
 geometry_msgs/msg/Twist"];
-  "/robot_description" [shape=box, style=rounded, fontsize=10, label="/robot_description
-std_msgs/msg/String"];
   "/scan" [shape=box, style=rounded, fontsize=10, label="/scan
 sensor_msgs/msg/LaserScan"];
   "/tf" [shape=box, style=rounded, fontsize=10, label="/tf
 tf2_msgs/msg/TFMessage"];
   "/tf_static" [shape=box, style=rounded, fontsize=10, label="/tf_static
 tf2_msgs/msg/TFMessage"];
-  "/top_camera_color/image_raw" [shape=box, style=rounded, fontsize=10, label="/top_camera_color/image_raw
-sensor_msgs/msg/Image"];
-  "/top_camera_depth/points" [shape=box, style=rounded, fontsize=10, label="/top_camera_depth/points
-sensor_msgs/msg/PointCloud2"];
   "action:/backup" [shape=hexagon, style=dashed, fontsize=10, label="/backup
 nav2_msgs/action/BackUp"];
   "action:/compute_path_through_poses" [shape=hexagon, style=dashed, fontsize=10, label="/compute_path_through_poses
@@ -72,24 +68,30 @@ nav2_msgs/action/NavigateToPose"];
 nav2_msgs/action/Spin"];
   "action:/wait" [shape=hexagon, style=dashed, fontsize=10, label="/wait
 nav2_msgs/action/Wait"];
+  "/amcl" -> "/amcl_pose";
+  "/amcl_pose" -> "/basic_navigator";
+  "/bt_navigator" -> "/bond";
+  "/controller_server" -> "/bond";
+  "/amcl" -> "/bond";
+  "/planner_server" -> "/bond";
+  "/map_server" -> "/bond";
+  "/behavior_server" -> "/bond";
   "/waypoint_follower" -> "/bond";
   "/lifecycle_manager_navigation" -> "/bond";
-  "/controller_server" -> "/bond";
-  "/behavior_server" -> "/bond";
-  "/bt_navigator" -> "/bond";
-  "/planner_server" -> "/bond";
+  "/lifecycle_manager_localization" -> "/bond";
+  "/bond" -> "/bt_navigator";
+  "/bond" -> "/controller_server";
+  "/bond" -> "/amcl";
+  "/bond" -> "/planner_server";
+  "/bond" -> "/map_server";
+  "/bond" -> "/behavior_server";
   "/bond" -> "/waypoint_follower";
   "/bond" -> "/lifecycle_manager_navigation";
-  "/bond" -> "/controller_server";
-  "/bond" -> "/behavior_server";
-  "/bond" -> "/bt_navigator";
-  "/bond" -> "/planner_server";
-  "/bottom_camera/ros_gz_image" -> "/bottom_camera_color/image_raw";
-  "/bottom_camera_color/image_raw" -> "/rviz2";
-  "/rviz2" -> "/goal_pose";
-  "/goal_pose" -> "/bt_navigator";
+  "/bond" -> "/lifecycle_manager_localization";
   "/ros_gz_bridge" -> "/imu";
   "/imu" -> "/imu_odom_corrector";
+  "/basic_navigator" -> "/initialpose";
+  "/initialpose" -> "/amcl";
   "/ros_gz_bridge" -> "/joint_states";
   "/joint_states" -> "/robot_state_publisher";
   "/local_costmap/local_costmap" -> "/local_costmap/costmap_raw";
@@ -98,31 +100,31 @@ nav2_msgs/action/Wait"];
   "/local_costmap/costmap_raw_updates" -> "/behavior_server";
   "/local_costmap/local_costmap" -> "/local_costmap/published_footprint";
   "/local_costmap/published_footprint" -> "/behavior_server";
+  "/map_server" -> "/map";
+  "/map" -> "/amcl";
+  "/map" -> "/global_costmap/global_costmap";
   "/ros_gz_bridge" -> "/odom";
-  "/odom" -> "/imu_odom_corrector";
-  "/odom" -> "/controller_server";
   "/odom" -> "/bt_navigator";
+  "/odom" -> "/controller_server";
+  "/odom" -> "/imu_odom_corrector";
   "/controller_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/behavior_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/robot_base_controller/cmd_vel_unstamped" -> "/ros_gz_bridge";
-  "/robot_state_publisher" -> "/robot_description";
-  "/robot_description" -> "/rviz2";
   "/ros_gz_bridge" -> "/scan";
-  "/scan" -> "/rviz2";
   "/scan" -> "/local_costmap/local_costmap";
+  "/scan" -> "/amcl";
   "/scan" -> "/global_costmap/global_costmap";
+  "/amcl" -> "/tf";
+  "/robot_state_publisher" -> "/tf";
   "/imu_odom_corrector" -> "/tf";
   "/ros_gz_bridge" -> "/tf";
-  "/robot_state_publisher" -> "/tf";
-  "/tf" -> "/behavior_server";
   "/tf" -> "/bt_navigator";
+  "/tf" -> "/amcl";
+  "/tf" -> "/behavior_server";
   "/robot_state_publisher" -> "/tf_static";
-  "/tf_static" -> "/behavior_server";
   "/tf_static" -> "/bt_navigator";
-  "/top_camera/ros_gz_image" -> "/top_camera_color/image_raw";
-  "/top_camera_color/image_raw" -> "/rviz2";
-  "/ros_gz_bridge" -> "/top_camera_depth/points";
-  "/top_camera_depth/points" -> "/rviz2";
+  "/tf_static" -> "/amcl";
+  "/tf_static" -> "/behavior_server";
   "/bt_navigator_navigate_to_pose_rclcpp_node" -> "action:/backup" [style=dashed];
   "/bt_navigator_navigate_through_poses_rclcpp_node" -> "action:/backup" [style=dashed];
   "/basic_navigator" -> "action:/backup" [style=dashed];
@@ -143,8 +145,8 @@ nav2_msgs/action/Wait"];
   "action:/follow_waypoints" -> "/waypoint_follower" [style=dashed];
   "/basic_navigator" -> "action:/navigate_through_poses" [style=dashed];
   "action:/navigate_through_poses" -> "/bt_navigator" [style=dashed];
-  "/waypoint_follower" -> "action:/navigate_to_pose" [style=dashed];
   "/bt_navigator" -> "action:/navigate_to_pose" [style=dashed];
+  "/waypoint_follower" -> "action:/navigate_to_pose" [style=dashed];
   "/basic_navigator" -> "action:/navigate_to_pose" [style=dashed];
   "action:/navigate_to_pose" -> "/bt_navigator" [style=dashed];
   "/bt_navigator_navigate_to_pose_rclcpp_node" -> "action:/spin" [style=dashed];

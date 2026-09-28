@@ -47,12 +47,16 @@ the map frame using the inverse of the spawn pose (also in
 `task_params.yaml`), gives AMCL the initial pose (0, 0, 0), and sends the goal
 to Nav2's `BasicNavigator`.
 
-In local testing with the official `task.launch.py` (4 consecutive runs with
-the final configuration), every run reached the goal in 60–63 s with no
-contact between the robot and any furniture, driving the same 10.2 m route
-each time and stopping 0.08–0.19 m from the goal marker's centre (Gazebo
-ground truth). The earlier map-free version (18 of 18 runs without contact,
-50–64 s, ~12 m route) is in the git history.
+In local testing with the final configuration (11 runs: 9 with the official
+`task.launch.py`, one of them and one more screen-recorded, plus 1 headless),
+every run reached the goal in 57–84 s (median 63 s, including ~16 s for AMCL
+to confirm the initial pose), driving the same ~10.2 m route and stopping
+0.04–0.19 m from the goal marker's centre (Gazebo ground truth). 10 of the 11
+had no contact with any furniture; one screen-recorded run, slower than the
+rest, brushed `cafe_table_7` (18 contact messages): the route passes ~0.4 m
+from that tabletop, the margin to widen next. The earlier map-free version
+(solution 1: 18 of 18 runs without contact, 50–64 s, ~12 m route) is in the
+git history.
 
 The controller drives the robot directly; there is deliberately no
 `velocity_smoother` (see Challenges Faced).

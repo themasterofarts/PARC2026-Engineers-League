@@ -3,6 +3,7 @@ digraph ros_graph {
   node [fontname="Helvetica", fontsize=16]; edge [color="#8a8984", arrowsize=0.6];
   labelloc=t; fontname="Helvetica"; fontsize=16;
   label="Graphe ROS 2 / ROS 2 graph — vue d'ensemble : chaîne principale / overview: main pipeline\nEllipses = nœuds / nodes · rectangles = topics (type) · hexagones = actions (tirets / dashed)";
+  "/amcl" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/basic_navigator" [shape=ellipse, style=filled, fillcolor="#d6e6f9", color="#2a78d6", penwidth=2];
   "/behavior_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/bt_navigator" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
@@ -10,15 +11,19 @@ digraph ros_graph {
   "/global_costmap/global_costmap" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/imu_odom_corrector" [shape=ellipse, style=filled, fillcolor="#d6e6f9", color="#2a78d6", penwidth=2];
   "/local_costmap/local_costmap" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
+  "/map_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/planner_server" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/robot_state_publisher" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/ros_gz_bridge" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
-  "/rviz2" [shape=ellipse, style=filled, fillcolor="#eeeeec", color="#8a8984", penwidth=2];
   "/waypoint_follower" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
+  "/amcl_pose" [shape=box, style=rounded, fontsize=15, label="/amcl_pose
+geometry_msgs/msg/PoseWithCovarianceStamped"];
   "/imu" [shape=box, style=rounded, fontsize=15, label="/imu
 sensor_msgs/msg/Imu"];
   "/joint_states" [shape=box, style=rounded, fontsize=15, label="/joint_states
 sensor_msgs/msg/JointState"];
+  "/map" [shape=box, style=rounded, fontsize=15, label="/map
+nav_msgs/msg/OccupancyGrid"];
   "/odom" [shape=box, style=rounded, fontsize=15, label="/odom
 nav_msgs/msg/Odometry"];
   "/robot_base_controller/cmd_vel_unstamped" [shape=box, style=rounded, fontsize=15, label="/robot_base_controller/cmd_vel_unstamped
@@ -33,34 +38,41 @@ nav2_msgs/action/ComputePathToPose"];
 nav2_msgs/action/FollowPath"];
   "action:/navigate_to_pose" [shape=hexagon, style=dashed, fontsize=15, label="/navigate_to_pose
 nav2_msgs/action/NavigateToPose"];
+  "/amcl" -> "/amcl_pose";
+  "/amcl_pose" -> "/basic_navigator";
   "/ros_gz_bridge" -> "/imu";
   "/imu" -> "/imu_odom_corrector";
   "/ros_gz_bridge" -> "/joint_states";
   "/joint_states" -> "/robot_state_publisher";
+  "/map_server" -> "/map";
+  "/map" -> "/amcl";
+  "/map" -> "/global_costmap/global_costmap";
   "/ros_gz_bridge" -> "/odom";
-  "/odom" -> "/imu_odom_corrector";
-  "/odom" -> "/controller_server";
   "/odom" -> "/bt_navigator";
+  "/odom" -> "/controller_server";
+  "/odom" -> "/imu_odom_corrector";
   "/controller_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/behavior_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/robot_base_controller/cmd_vel_unstamped" -> "/ros_gz_bridge";
   "/ros_gz_bridge" -> "/scan";
-  "/scan" -> "/rviz2";
   "/scan" -> "/local_costmap/local_costmap";
+  "/scan" -> "/amcl";
   "/scan" -> "/global_costmap/global_costmap";
+  "/amcl" -> "/tf";
+  "/robot_state_publisher" -> "/tf";
   "/imu_odom_corrector" -> "/tf";
   "/ros_gz_bridge" -> "/tf";
-  "/robot_state_publisher" -> "/tf";
-  "/tf" -> "/behavior_server";
   "/tf" -> "/bt_navigator";
+  "/tf" -> "/amcl";
+  "/tf" -> "/behavior_server";
   "/bt_navigator" -> "action:/compute_path_to_pose" [style=dashed];
   "/basic_navigator" -> "action:/compute_path_to_pose" [style=dashed];
   "action:/compute_path_to_pose" -> "/planner_server" [style=dashed];
   "/bt_navigator" -> "action:/follow_path" [style=dashed];
   "/basic_navigator" -> "action:/follow_path" [style=dashed];
   "action:/follow_path" -> "/controller_server" [style=dashed];
-  "/waypoint_follower" -> "action:/navigate_to_pose" [style=dashed];
   "/bt_navigator" -> "action:/navigate_to_pose" [style=dashed];
+  "/waypoint_follower" -> "action:/navigate_to_pose" [style=dashed];
   "/basic_navigator" -> "action:/navigate_to_pose" [style=dashed];
   "action:/navigate_to_pose" -> "/bt_navigator" [style=dashed];
   subgraph cluster_legend { label="Légende / Legend"; fontsize=12; style=dashed; color="#8a8984";

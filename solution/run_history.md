@@ -96,3 +96,10 @@ fix, suggesting the sim isn't fully deterministic run-to-run.
 | 20260928_195457 | SUCCEEDED (map, final config) | 1m 1s | logs/run_20260928_195457.log | bags/run_20260928_195457 |
 | 20260928_195623 | SUCCEEDED (map, final config) | 1m 1s | logs/run_20260928_195623.log | bags/run_20260928_195623 |
 | 20260928_195748 | SUCCEEDED (map, final config) | 1m 3s | logs/run_20260928_195748.log | bags/run_20260928_195748 |
+| 20260928_200937 | SUCCEEDED (map, final config; ROS graph captured) | 0m 57s | logs/run_20260928_200937.log | bags/run_20260928_200937 |
+| 20260928_201203 | SUCCEEDED (map, final config: recorded; brushed cafe_table_7, 18 contacts) | 1m 24s | logs/run_20260928_201203.log | bags/run_20260928_201203 |
+| 20260928_201543 | SUCCEEDED (map, final config) | 1m 10s | logs/run_20260928_201543.log | bags/run_20260928_201543 |
+| 20260928_201716 | SUCCEEDED (map, final config) | 1m 13s | logs/run_20260928_201716.log | bags/run_20260928_201716 |
+| 20260928_201849 | SUCCEEDED (map, final config) | 1m 7s | logs/run_20260928_201849.log | bags/run_20260928_201849 |
+| 20260928_202021 | SUCCEEDED (map, final config) | 1m 2s | logs/run_20260928_202021.log | bags/run_20260928_202021 |
+| 20260928_202213 | SUCCEEDED (map, final config: recorded, solution 2 video) | 1m 4s | logs/run_20260928_202213.log | bags/run_20260928_202213 |
