@@ -4,3 +4,5 @@ bags/
 __pycache__/
 # Rendered from the committed .dot/.svg by tools/ros_graph.py --from-json
 docs/*.png
+# ...except this one, which needs trimesh/pycollada to regenerate (tools/robot_sensors.py)
+!docs/robot_sensors.png
