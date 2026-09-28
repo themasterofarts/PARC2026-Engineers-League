@@ -26,6 +26,7 @@ setup(
         "console_scripts": [
             "task_solution.py = parc_nav_solution.task_solution:main",
             "imu_odom_corrector = parc_nav_solution.imu_odom_corrector:main",
+            "depth_obstacles = parc_nav_solution.depth_obstacles:main",
         ],
     },
 )

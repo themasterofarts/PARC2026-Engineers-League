@@ -22,11 +22,15 @@ task_params.yaml with no live calibration step needed.
 the `/sitoe_robot/pose` ground-truth topic instead — dropped after
 confirming that topic is advertised but never actually publishes in this
 world.)
+
+`--camera` (experimental) adds the top depth camera to the costmaps; see
+config/nav2_params_camera.yaml.
 """
 import math
 import os
 import signal
 import subprocess
+import sys
 import threading
 import time
 
@@ -52,7 +56,7 @@ def _invert(a):
     return (-(cos_y * x - sin_y * y), -(sin_y * x + cos_y * y), -yaw)
 
 
-def start_nav2() -> subprocess.Popen:
+def start_nav2(use_camera=False) -> subprocess.Popen:
     """Launch the Nav2 bringup as a subprocess.
 
     `launch.LaunchService.run()` registers signal handlers and only works
@@ -67,7 +71,8 @@ def start_nav2() -> subprocess.Popen:
     `ros2 launch` spawned running as an orphan.
     """
     return subprocess.Popen(
-        ["ros2", "launch", "parc_nav_solution", "nav2_bringup.launch.py"],
+        ["ros2", "launch", "parc_nav_solution", "nav2_bringup.launch.py",
+         f"use_camera:={'true' if use_camera else 'false'}"],
         start_new_session=True,
     )
 
@@ -139,7 +144,7 @@ def main():
     world_to_odom = _invert(spawn_pose_world)
     goal_x_odom, goal_y_odom = _compose(world_to_odom, goal_world)
 
-    nav2_process = start_nav2()
+    nav2_process = start_nav2(use_camera="--camera" in sys.argv[1:])
 
     rclpy.init()
     try:

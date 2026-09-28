@@ -43,15 +43,14 @@ GROUPS = {
     "Simulateur / Simulator": ("#fbe0d4", "#eb6834"),
     "Autre / Other": ("#eeeeec", "#8a8984"),
 }
-OURS = {"/basic_navigator", "/imu_odom_corrector"}
+OURS = {"/basic_navigator", "/imu_odom_corrector", "/depth_obstacles"}
 NAV2_NAMES = ("controller_server", "planner_server", "behavior_server", "bt_navigator",
               "waypoint_follower", "velocity_smoother", "lifecycle_manager", "costmap")
 SIM_PREFIXES = ("/ros_gz", "/robot_state_publisher", "/top_camera", "/bottom_camera")
 
-# Sensors in, goal -> plan -> velocity commands out. /cmd_vel_smoothed is kept
-# even though nothing subscribes to it: it shows the velocity_smoother is bypassed.
+# Sensors in, goal -> plan -> velocity commands out.
 OVERVIEW = {"/scan", "/odom", "/imu", "/tf", "/joint_states", "/robot_base_controller/cmd_vel_unstamped",
-            "/cmd_vel_smoothed", "/navigate_to_pose", "/compute_path_to_pose", "/follow_path"}
+            "/navigate_to_pose", "/compute_path_to_pose", "/follow_path"}
 
 
 def group_of(node):

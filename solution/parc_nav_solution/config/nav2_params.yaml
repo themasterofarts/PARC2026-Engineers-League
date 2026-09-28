@@ -180,20 +180,3 @@ waypoint_follower:
     use_sim_time: true
     loop_rate: 20
     stop_on_failure: false
-
-velocity_smoother:
-  ros__parameters:
-    use_sim_time: true
-    smoothing_frequency: 20.0
-    scale_velocities: false
-    feedback: "OPEN_LOOP"
-    # Was [0.5, ...] — silently clipping FollowPath's output back down
-    # below its own desired_linear_vel even before the speed tuning above.
-    # Matches the DiffDrive plugin's max_linear_velocity (1.5) / drops in a
-    # small margin below it.
-    max_velocity: [1.2, 0.0, 1.0]
-    min_velocity: [-1.2, 0.0, -1.0]
-    max_accel: [2.5, 0.0, 3.2]
-    max_decel: [-2.5, 0.0, -3.2]
-    odom_topic: /odom
-    odom_duration: 0.1

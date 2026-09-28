@@ -44,10 +44,12 @@ In local testing (11 consecutive runs, 3 headless and 8 with the official
 no contact between the robot and any furniture, stopping ~0.12 m from the
 goal marker's centre (measured against Gazebo ground truth).
 
-Known issue: `velocity_smoother` is currently bypassed. In
-`launch/nav2_bringup.launch.py` the group-level `cmd_vel` remap is matched
-before each node's own `cmd_vel → cmd_vel_nav` remap, so the controller
-publishes straight to the robot. The runs above were all made this way.
+The controller drives the robot directly; there is deliberately no
+`velocity_smoother` (see Challenges Faced).
+
+`ros2 run parc_nav_solution task_solution.py --camera` is an experimental
+mode that also feeds the top depth camera into the costmaps (see
+`config/nav2_params_camera.yaml`); it isn't the default yet.
 
 Run with:
 
@@ -78,7 +80,9 @@ unmodified official launch file.
 
 `ros2 bag record` doesn't exit on SIGINT here, so the script force-stops it
 and the bag is left without its index — run `ros2 bag reindex
-bags/run_<timestamp>` before playing one back.
+bags/run_<timestamp>` before playing one back. `tools/score_run.py
+<timestamp>` then reports what the robot touched, from the simulator's
+contact sensors — a run can report SUCCEEDED and still have pushed a table.
 
 `logs/` and `bags/` are gitignored (regenerated every run) and should be
 excluded from the submission zip too — only the `README.md` and
@@ -150,6 +154,39 @@ and renders it to `docs/` (`ros_graph_overview` is the readable summary;
 * A 0.15 rad yaw goal tolerance made the robot circle the goal
   indefinitely (it reached the position repeatedly but never settled on the
   heading while avoiding a nearby table); the tolerance is 0.1 m / 0.4 rad.
+  Tightening xy to 0.07 m brought the robot only ~2 cm closer (0.076–0.097
+  m from the marker vs 0.097–0.105 m, Gazebo ground truth) — within
+  run-to-run spread — so it stays at 0.1 m.
+* `velocity_smoother` was silently bypassed: a group-level `SetRemap` of
+  `cmd_vel` to the robot's drive topic is matched before each node's own
+  `cmd_vel → cmd_vel_nav` rule, so the controller published straight to the
+  robot and the smoother listened to its own output topic
+  (`tools/ros_graph.py` made this visible: nothing subscribed to
+  `/cmd_vel_smoothed`). Wiring it in properly (controller → `cmd_vel_nav` →
+  smoother → robot) made things worse: in interleaved GUI runs, 4 of 16 with
+  the smoother clipped `cafe_table_6`'s overhanging top, vs 0 of 15 without
+  — its acceleration limiting makes the robot lag the controller and cut
+  that corner. So the smoother was removed, and the controller and behavior
+  server publish straight to `/robot_base_controller/cmd_vel_unstamped`.
+* People: the world's three visitors are static models, none on the route.
+  A test visitor placed standing on the floor in the robot's usual gap was
+  avoided (the robot took the other side of `cafe_table_1`), and one that
+  appears 3 m ahead mid-run was avoided too, though the robot hesitated
+  (~134 s instead of ~55 s). But the world places its standing visitor at
+  z = 0.378 while the floor is at ~0.22, so her collision box floats 16 cm
+  up — above the LiDAR's scan plane: a visitor placed like that on the route
+  is invisible to the LiDAR, and the robot drove into her.
+* Camera (`--camera`, experimental): the top depth camera sees that visitor
+  and the tabletops. The raw cloud is too heavy and full of `inf`s, so
+  `depth_obstacles` thins it; the costmaps use a 3D `VoxelLayer` so camera
+  rays can clear stale marks without erasing the LiDAR's; and nothing below
+  0.6 m is used, because the sim's depth noise lifts empty-floor points up
+  to 0.48 m, and a single stray mark on the path stalls the controller. With
+  it the robot no longer touches the floating visitor, but only 3 of 4 plain
+  GUI runs succeeded (vs 17 of 17 LiDAR-only), and the detour around a
+  visitor blocking the usual gap got stuck — hence not the default. The
+  camera only publishes ~5 Hz with the GUI launch, and almost nothing
+  headless.
 * After Nav2 shut down, `ros2 launch` sometimes never returned, which left
   `task_solution.py` hanging after reporting its result; every wait during
   shutdown is now bounded, with a 30 s watchdog as a last resort.

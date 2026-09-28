@@ -16,10 +16,7 @@ digraph ros_graph {
   "/robot_state_publisher" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/ros_gz_bridge" [shape=ellipse, style=filled, fillcolor="#fbe0d4", color="#eb6834", penwidth=2];
   "/rviz2" [shape=ellipse, style=filled, fillcolor="#eeeeec", color="#8a8984", penwidth=2];
-  "/velocity_smoother" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
   "/waypoint_follower" [shape=ellipse, style=filled, fillcolor="#d3f0e4", color="#1baf7a", penwidth=2];
-  "/cmd_vel_smoothed" [shape=box, style=rounded, fontsize=15, label="/cmd_vel_smoothed
-geometry_msgs/msg/Twist"];
   "/imu" [shape=box, style=rounded, fontsize=15, label="/imu
 sensor_msgs/msg/Imu"];
   "/joint_states" [shape=box, style=rounded, fontsize=15, label="/joint_states
@@ -38,7 +35,6 @@ nav2_msgs/action/ComputePathToPose"];
 nav2_msgs/action/FollowPath"];
   "action:/navigate_to_pose" [shape=hexagon, style=dashed, fontsize=15, label="/navigate_to_pose
 nav2_msgs/action/NavigateToPose"];
-  "/velocity_smoother" -> "/cmd_vel_smoothed";
   "/ros_gz_bridge" -> "/imu";
   "/imu" -> "/imu_odom_corrector";
   "/ros_gz_bridge" -> "/joint_states";
@@ -47,17 +43,16 @@ nav2_msgs/action/NavigateToPose"];
   "/odom" -> "/imu_odom_corrector";
   "/odom" -> "/controller_server";
   "/odom" -> "/bt_navigator";
-  "/behavior_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/controller_server" -> "/robot_base_controller/cmd_vel_unstamped";
-  "/robot_base_controller/cmd_vel_unstamped" -> "/velocity_smoother";
+  "/behavior_server" -> "/robot_base_controller/cmd_vel_unstamped";
   "/robot_base_controller/cmd_vel_unstamped" -> "/ros_gz_bridge";
   "/ros_gz_bridge" -> "/scan";
   "/scan" -> "/rviz2";
-  "/scan" -> "/global_costmap/global_costmap";
   "/scan" -> "/local_costmap/local_costmap";
+  "/scan" -> "/global_costmap/global_costmap";
   "/imu_odom_corrector" -> "/tf";
-  "/robot_state_publisher" -> "/tf";
   "/ros_gz_bridge" -> "/tf";
+  "/robot_state_publisher" -> "/tf";
   "/tf" -> "/behavior_server";
   "/tf" -> "/bt_navigator";
   "/bt_navigator_navigate_to_pose_rclcpp_node" -> "action:/compute_path_to_pose" [style=dashed];

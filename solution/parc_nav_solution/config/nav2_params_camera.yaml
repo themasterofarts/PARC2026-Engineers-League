@@ -1,0 +1,67 @@
+# Opt-in camera mode (task_solution.py --camera), loaded on top of
+# nav2_params.yaml: adds the top depth camera (thinned by depth_obstacles) to
+# both costmaps so they see what the floor-level LiDAR can't — tabletop
+# overhangs, and the world's standing visitor model, which floats 16 cm above
+# the floor.
+#
+# - VoxelLayer (3D, 0-1.5 m) instead of ObstacleLayer, so the camera can clear
+#   what it no longer sees without erasing what the LiDAR marked at floor
+#   level. Marking-only left every chair/tabletop/noise point in the map
+#   forever and boxed the robot in.
+# - Nothing below 0.6 m: the sim's depth noise lifts empty-floor points to
+#   z = 0.10 +/- 0.10 m (max 0.48 m over 540k points), and any stray mark on
+#   the path stalls the controller ("collision ahead"). Tabletops (~0.75 m)
+#   and a standing person's body are above that; 1.4 m is about the robot's
+#   height.
+#
+# Status (2026-09-28): avoids the floating visitor (no contact, where
+# LiDAR-only drives into her), but 3 of 4 plain GUI runs succeeded vs 17 of 17
+# LiDAR-only, and with that visitor blocking the usual gap the detour past
+# cafe_table_7/6 got stuck. Not the default until that's tuned. The camera
+# publishes ~5 Hz with the GUI launch and almost nothing headless.
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        publish_voxel_map: false
+        origin_z: 0.0
+        z_resolution: 0.1
+        z_voxels: 15
+        max_obstacle_height: 1.5
+        mark_threshold: 0
+        observation_sources: scan depth
+        depth:
+          topic: /top_camera_depth/points_thinned
+          data_type: "PointCloud2"
+          marking: true
+          clearing: true
+          min_obstacle_height: 0.6
+          max_obstacle_height: 1.4
+          obstacle_min_range: 0.2
+          obstacle_max_range: 3.0
+          raytrace_max_range: 3.0
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        publish_voxel_map: false
+        origin_z: 0.0
+        z_resolution: 0.1
+        z_voxels: 15
+        max_obstacle_height: 1.5
+        mark_threshold: 0
+        observation_sources: scan depth
+        depth:
+          topic: /top_camera_depth/points_thinned
+          data_type: "PointCloud2"
+          marking: true
+          clearing: true
+          min_obstacle_height: 0.6
+          max_obstacle_height: 1.4
+          obstacle_min_range: 0.2
+          obstacle_max_range: 3.0
+          raytrace_max_range: 3.0
