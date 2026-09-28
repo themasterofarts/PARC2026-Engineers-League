@@ -103,3 +103,5 @@ fix, suggesting the sim isn't fully deterministic run-to-run.
 | 20260928_201849 | SUCCEEDED (map, final config) | 1m 7s | logs/run_20260928_201849.log | bags/run_20260928_201849 |
 | 20260928_202021 | SUCCEEDED (map, final config) | 1m 2s | logs/run_20260928_202021.log | bags/run_20260928_202021 |
 | 20260928_202213 | SUCCEEDED (map, final config: recorded, solution 2 video) | 1m 4s | logs/run_20260928_202213.log | bags/run_20260928_202213 |
+| 20260928_230802 | SUCCEEDED (map, final config: RViz screenshot run) | 1m 11s | logs/run_20260928_230802.log | bags/run_20260928_230802 |
+| 20260928_231011 | SUCCEEDED (map, final config: RViz screenshot run) | 1m 10s | logs/run_20260928_231011.log | bags/run_20260928_231011 |
