@@ -6,3 +6,4 @@ __pycache__/
 docs/*.png
 # ...except this one, which needs trimesh/pycollada to regenerate (tools/robot_sensors.py)
 !docs/robot_sensors.png
+!docs/robot_sensor_topics.png
