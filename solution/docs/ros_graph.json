@@ -1,0 +1,861 @@
+{
+ "/rviz2": {
+  "publishes": [
+   [
+    "/clicked_point",
+    "geometry_msgs/msg/PointStamped"
+   ],
+   [
+    "/goal_pose",
+    "geometry_msgs/msg/PoseStamped"
+   ],
+   [
+    "/initialpose",
+    "geometry_msgs/msg/PoseWithCovarianceStamped"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bottom_camera_color/image_raw",
+    "sensor_msgs/msg/Image"
+   ],
+   [
+    "/robot_description",
+    "std_msgs/msg/String"
+   ],
+   [
+    "/scan",
+    "sensor_msgs/msg/LaserScan"
+   ],
+   [
+    "/top_camera_color/image_raw",
+    "sensor_msgs/msg/Image"
+   ],
+   [
+    "/top_camera_depth/points",
+    "sensor_msgs/msg/PointCloud2"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/transform_listener_impl_6342367b33c0": {
+  "publishes": [],
+  "subscribes": [
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/imu_odom_corrector": {
+  "publishes": [
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/imu",
+    "sensor_msgs/msg/Imu"
+   ],
+   [
+    "/odom",
+    "nav_msgs/msg/Odometry"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/waypoint_follower": {
+  "publishes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/waypoint_follower/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ]
+  ],
+  "action_clients": [
+   [
+    "/navigate_to_pose",
+    "nav2_msgs/action/NavigateToPose"
+   ]
+  ],
+  "action_servers": [
+   [
+    "/follow_gps_waypoints",
+    "nav2_msgs/action/FollowGPSWaypoints"
+   ],
+   [
+    "/follow_waypoints",
+    "nav2_msgs/action/FollowWaypoints"
+   ]
+  ]
+ },
+ "/planner_server": {
+  "publishes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/plan",
+    "nav_msgs/msg/Path"
+   ],
+   [
+    "/planner_server/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": [
+   [
+    "/compute_path_through_poses",
+    "nav2_msgs/action/ComputePathThroughPoses"
+   ],
+   [
+    "/compute_path_to_pose",
+    "nav2_msgs/action/ComputePathToPose"
+   ]
+  ]
+ },
+ "/global_costmap/global_costmap": {
+  "publishes": [
+   [
+    "/global_costmap/costmap",
+    "nav_msgs/msg/OccupancyGrid"
+   ],
+   [
+    "/global_costmap/costmap_raw",
+    "nav2_msgs/msg/Costmap"
+   ],
+   [
+    "/global_costmap/costmap_raw_updates",
+    "nav2_msgs/msg/CostmapUpdate"
+   ],
+   [
+    "/global_costmap/costmap_updates",
+    "map_msgs/msg/OccupancyGridUpdate"
+   ],
+   [
+    "/global_costmap/global_costmap/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ],
+   [
+    "/global_costmap/obstacle_layer",
+    "nav_msgs/msg/OccupancyGrid"
+   ],
+   [
+    "/global_costmap/obstacle_layer_raw",
+    "nav2_msgs/msg/Costmap"
+   ],
+   [
+    "/global_costmap/obstacle_layer_raw_updates",
+    "nav2_msgs/msg/CostmapUpdate"
+   ],
+   [
+    "/global_costmap/obstacle_layer_updates",
+    "map_msgs/msg/OccupancyGridUpdate"
+   ],
+   [
+    "/global_costmap/published_footprint",
+    "geometry_msgs/msg/PolygonStamped"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/global_costmap/footprint",
+    "geometry_msgs/msg/Polygon"
+   ],
+   [
+    "/scan",
+    "sensor_msgs/msg/LaserScan"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/transform_listener_impl_5eb66e0ec880": {
+  "publishes": [],
+  "subscribes": [
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/rosbag2_recorder": {
+  "publishes": [
+   [
+    "/events/write_split",
+    "rosbag2_interfaces/msg/WriteSplitEvent"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/base_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ],
+   [
+    "/left_wheel_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ],
+   [
+    "/odom",
+    "nav_msgs/msg/Odometry"
+   ],
+   [
+    "/right_wheel_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ],
+   [
+    "/robot_base_controller/cmd_vel_unstamped",
+    "geometry_msgs/msg/Twist"
+   ],
+   [
+    "/scan",
+    "sensor_msgs/msg/LaserScan"
+   ],
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/top_chassis_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/behavior_server": {
+  "publishes": [
+   [
+    "/behavior_server/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ],
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/robot_base_controller/cmd_vel_unstamped",
+    "geometry_msgs/msg/Twist"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/local_costmap/costmap_raw",
+    "nav2_msgs/msg/Costmap"
+   ],
+   [
+    "/local_costmap/costmap_raw_updates",
+    "nav2_msgs/msg/CostmapUpdate"
+   ],
+   [
+    "/local_costmap/published_footprint",
+    "geometry_msgs/msg/PolygonStamped"
+   ],
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": [
+   [
+    "/backup",
+    "nav2_msgs/action/BackUp"
+   ],
+   [
+    "/spin",
+    "nav2_msgs/action/Spin"
+   ],
+   [
+    "/wait",
+    "nav2_msgs/action/Wait"
+   ]
+  ]
+ },
+ "/lifecycle_manager_navigation": {
+  "publishes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/diagnostics",
+    "diagnostic_msgs/msg/DiagnosticArray"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/robot_state_publisher": {
+  "publishes": [
+   [
+    "/robot_description",
+    "std_msgs/msg/String"
+   ],
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/joint_states",
+    "sensor_msgs/msg/JointState"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/bottom_camera/ros_gz_image": {
+  "publishes": [
+   [
+    "/bottom_camera_color/image_raw",
+    "sensor_msgs/msg/Image"
+   ],
+   [
+    "/bottom_camera_color/image_raw/compressed",
+    "sensor_msgs/msg/CompressedImage"
+   ],
+   [
+    "/bottom_camera_color/image_raw/compressedDepth",
+    "sensor_msgs/msg/CompressedImage"
+   ],
+   [
+    "/bottom_camera_color/image_raw/theora",
+    "theora_image_transport/msg/Packet"
+   ],
+   [
+    "/bottom_camera_color/image_raw/zstd",
+    "sensor_msgs/msg/CompressedImage"
+   ]
+  ],
+  "subscribes": [],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/ros_graph_capture": {
+  "publishes": [],
+  "subscribes": [],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/controller_server": {
+  "publishes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/controller_server/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ],
+   [
+    "/curvature_lookahead_point",
+    "geometry_msgs/msg/PointStamped"
+   ],
+   [
+    "/is_rotating_to_heading",
+    "std_msgs/msg/Bool"
+   ],
+   [
+    "/lookahead_collision_arc",
+    "nav_msgs/msg/Path"
+   ],
+   [
+    "/lookahead_point",
+    "geometry_msgs/msg/PointStamped"
+   ],
+   [
+    "/received_global_plan",
+    "nav_msgs/msg/Path"
+   ],
+   [
+    "/robot_base_controller/cmd_vel_unstamped",
+    "geometry_msgs/msg/Twist"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/odom",
+    "nav_msgs/msg/Odometry"
+   ],
+   [
+    "/speed_limit",
+    "nav2_msgs/msg/SpeedLimit"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": [
+   [
+    "/follow_path",
+    "nav2_msgs/action/FollowPath"
+   ]
+  ]
+ },
+ "/local_costmap/local_costmap": {
+  "publishes": [
+   [
+    "/local_costmap/costmap",
+    "nav_msgs/msg/OccupancyGrid"
+   ],
+   [
+    "/local_costmap/costmap_raw",
+    "nav2_msgs/msg/Costmap"
+   ],
+   [
+    "/local_costmap/costmap_raw_updates",
+    "nav2_msgs/msg/CostmapUpdate"
+   ],
+   [
+    "/local_costmap/costmap_updates",
+    "map_msgs/msg/OccupancyGridUpdate"
+   ],
+   [
+    "/local_costmap/local_costmap/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ],
+   [
+    "/local_costmap/obstacle_layer",
+    "nav_msgs/msg/OccupancyGrid"
+   ],
+   [
+    "/local_costmap/obstacle_layer_raw",
+    "nav2_msgs/msg/Costmap"
+   ],
+   [
+    "/local_costmap/obstacle_layer_raw_updates",
+    "nav2_msgs/msg/CostmapUpdate"
+   ],
+   [
+    "/local_costmap/obstacle_layer_updates",
+    "map_msgs/msg/OccupancyGridUpdate"
+   ],
+   [
+    "/local_costmap/published_footprint",
+    "geometry_msgs/msg/PolygonStamped"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/local_costmap/footprint",
+    "geometry_msgs/msg/Polygon"
+   ],
+   [
+    "/scan",
+    "sensor_msgs/msg/LaserScan"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/transform_listener_impl_63572e319010": {
+  "publishes": [],
+  "subscribes": [
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/top_camera/ros_gz_image": {
+  "publishes": [
+   [
+    "/top_camera_color/image_raw",
+    "sensor_msgs/msg/Image"
+   ],
+   [
+    "/top_camera_color/image_raw/compressed",
+    "sensor_msgs/msg/CompressedImage"
+   ],
+   [
+    "/top_camera_color/image_raw/compressedDepth",
+    "sensor_msgs/msg/CompressedImage"
+   ],
+   [
+    "/top_camera_color/image_raw/theora",
+    "theora_image_transport/msg/Packet"
+   ],
+   [
+    "/top_camera_color/image_raw/zstd",
+    "sensor_msgs/msg/CompressedImage"
+   ]
+  ],
+  "subscribes": [],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/bt_navigator": {
+  "publishes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/bt_navigator/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/goal_pose",
+    "geometry_msgs/msg/PoseStamped"
+   ],
+   [
+    "/odom",
+    "nav_msgs/msg/Odometry"
+   ],
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/tf_static",
+    "tf2_msgs/msg/TFMessage"
+   ]
+  ],
+  "action_clients": [
+   [
+    "/navigate_to_pose",
+    "nav2_msgs/action/NavigateToPose"
+   ]
+  ],
+  "action_servers": [
+   [
+    "/navigate_through_poses",
+    "nav2_msgs/action/NavigateThroughPoses"
+   ],
+   [
+    "/navigate_to_pose",
+    "nav2_msgs/action/NavigateToPose"
+   ]
+  ]
+ },
+ "/bt_navigator_navigate_to_pose_rclcpp_node": {
+  "publishes": [
+   [
+    "/behavior_tree_log",
+    "nav2_msgs/msg/BehaviorTreeLog"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/controller_selector",
+    "std_msgs/msg/String"
+   ],
+   [
+    "/planner_selector",
+    "std_msgs/msg/String"
+   ]
+  ],
+  "action_clients": [
+   [
+    "/backup",
+    "nav2_msgs/action/BackUp"
+   ],
+   [
+    "/compute_path_to_pose",
+    "nav2_msgs/action/ComputePathToPose"
+   ],
+   [
+    "/follow_path",
+    "nav2_msgs/action/FollowPath"
+   ],
+   [
+    "/spin",
+    "nav2_msgs/action/Spin"
+   ],
+   [
+    "/wait",
+    "nav2_msgs/action/Wait"
+   ]
+  ],
+  "action_servers": []
+ },
+ "/bt_navigator_navigate_through_poses_rclcpp_node": {
+  "publishes": [
+   [
+    "/behavior_tree_log",
+    "nav2_msgs/msg/BehaviorTreeLog"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/controller_selector",
+    "std_msgs/msg/String"
+   ],
+   [
+    "/planner_selector",
+    "std_msgs/msg/String"
+   ]
+  ],
+  "action_clients": [
+   [
+    "/backup",
+    "nav2_msgs/action/BackUp"
+   ],
+   [
+    "/compute_path_through_poses",
+    "nav2_msgs/action/ComputePathThroughPoses"
+   ],
+   [
+    "/follow_path",
+    "nav2_msgs/action/FollowPath"
+   ],
+   [
+    "/spin",
+    "nav2_msgs/action/Spin"
+   ],
+   [
+    "/wait",
+    "nav2_msgs/action/Wait"
+   ]
+  ],
+  "action_servers": []
+ },
+ "/velocity_smoother": {
+  "publishes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/cmd_vel_smoothed",
+    "geometry_msgs/msg/Twist"
+   ],
+   [
+    "/velocity_smoother/transition_event",
+    "lifecycle_msgs/msg/TransitionEvent"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/bond",
+    "bond/msg/Status"
+   ],
+   [
+    "/robot_base_controller/cmd_vel_unstamped",
+    "geometry_msgs/msg/Twist"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/ros_gz_bridge": {
+  "publishes": [
+   [
+    "/base_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ],
+   [
+    "/bottom_camera_color/camera_info",
+    "sensor_msgs/msg/CameraInfo"
+   ],
+   [
+    "/bottom_camera_depth/camera_info",
+    "sensor_msgs/msg/CameraInfo"
+   ],
+   [
+    "/bottom_camera_depth/points",
+    "sensor_msgs/msg/PointCloud2"
+   ],
+   [
+    "/imu",
+    "sensor_msgs/msg/Imu"
+   ],
+   [
+    "/joint_states",
+    "sensor_msgs/msg/JointState"
+   ],
+   [
+    "/left_wheel_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ],
+   [
+    "/odom",
+    "nav_msgs/msg/Odometry"
+   ],
+   [
+    "/right_wheel_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ],
+   [
+    "/scan",
+    "sensor_msgs/msg/LaserScan"
+   ],
+   [
+    "/sitoe_robot/pose",
+    "geometry_msgs/msg/Pose"
+   ],
+   [
+    "/tf",
+    "tf2_msgs/msg/TFMessage"
+   ],
+   [
+    "/top_camera_color/camera_info",
+    "sensor_msgs/msg/CameraInfo"
+   ],
+   [
+    "/top_camera_depth/camera_info",
+    "sensor_msgs/msg/CameraInfo"
+   ],
+   [
+    "/top_camera_depth/points",
+    "sensor_msgs/msg/PointCloud2"
+   ],
+   [
+    "/top_chassis_collisions",
+    "ros_gz_interfaces/msg/Contacts"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/robot_base_controller/cmd_vel_unstamped",
+    "geometry_msgs/msg/Twist"
+   ]
+  ],
+  "action_clients": [],
+  "action_servers": []
+ },
+ "/basic_navigator": {
+  "publishes": [
+   [
+    "/initialpose",
+    "geometry_msgs/msg/PoseWithCovarianceStamped"
+   ]
+  ],
+  "subscribes": [
+   [
+    "/amcl_pose",
+    "geometry_msgs/msg/PoseWithCovarianceStamped"
+   ]
+  ],
+  "action_clients": [
+   [
+    "/assisted_teleop",
+    "nav2_msgs/action/AssistedTeleop"
+   ],
+   [
+    "/backup",
+    "nav2_msgs/action/BackUp"
+   ],
+   [
+    "/compute_path_through_poses",
+    "nav2_msgs/action/ComputePathThroughPoses"
+   ],
+   [
+    "/compute_path_to_pose",
+    "nav2_msgs/action/ComputePathToPose"
+   ],
+   [
+    "/dock_robot",
+    "nav2_msgs/action/DockRobot"
+   ],
+   [
+    "/drive_on_heading",
+    "nav2_msgs/action/DriveOnHeading"
+   ],
+   [
+    "/follow_gps_waypoints",
+    "nav2_msgs/action/FollowGPSWaypoints"
+   ],
+   [
+    "/follow_path",
+    "nav2_msgs/action/FollowPath"
+   ],
+   [
+    "/follow_waypoints",
+    "nav2_msgs/action/FollowWaypoints"
+   ],
+   [
+    "/navigate_through_poses",
+    "nav2_msgs/action/NavigateThroughPoses"
+   ],
+   [
+    "/navigate_to_pose",
+    "nav2_msgs/action/NavigateToPose"
+   ],
+   [
+    "/smooth_path",
+    "nav2_msgs/action/SmoothPath"
+   ],
+   [
+    "/spin",
+    "nav2_msgs/action/Spin"
+   ],
+   [
+    "/undock_robot",
+    "nav2_msgs/action/UndockRobot"
+   ]
+  ],
+  "action_servers": []
+ }
+}

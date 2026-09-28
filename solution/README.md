@@ -39,10 +39,15 @@ the standard wheel-odometry convention, and `odom_imu` coincides with
 `odom` until the robot moves — then sends the transformed goal to Nav2's
 `BasicNavigator`.
 
-In local testing (6 consecutive runs, 3 headless and 3 with the official
-`task.launch.py`), every run reached the goal in 50–65 s with no contact
-between the robot and any furniture, stopping ~0.12 m from the goal
-marker's centre (measured against Gazebo ground truth).
+In local testing (11 consecutive runs, 3 headless and 8 with the official
+`task.launch.py`), every run reached the goal in 50–64 s (median 55 s) with
+no contact between the robot and any furniture, stopping ~0.12 m from the
+goal marker's centre (measured against Gazebo ground truth).
+
+Known issue: `velocity_smoother` is currently bypassed. In
+`launch/nav2_bringup.launch.py` the group-level `cmd_vel` remap is matched
+before each node's own `cmd_vel → cmd_vel_nav` remap, so the controller
+publishes straight to the robot. The runs above were all made this way.
 
 Run with:
 
@@ -79,7 +84,9 @@ bags/run_<timestamp>` before playing one back.
 excluded from the submission zip too — only the `README.md` and
 `parc_nav_solution/` package are meant to ship. `tools/build_map.py` (build
 a SLAM map of the cafe) is a dev-only experiment the current solution
-doesn't use.
+doesn't use. `tools/ros_graph.py` captures the live ROS graph during a run
+and renders it to `docs/` (`ros_graph_overview` is the readable summary;
+`--from-json docs/ros_graph.json` re-renders without a running stack).
 
 ## Challenges Faced
 
@@ -126,6 +133,13 @@ doesn't use.
   untouched); all Nav2 frames use `odom_imu`. Checked against ground truth
   after a spin–drive–spin–drive sequence: `odom` was off by 0.66 m, while
   `odom_imu` was within 2 cm and 0°.
+* A SLAM map (`slam_toolbox`, via `tools/build_map.py`) was tried as a way
+  to make the route consistent from run to run. It came out unusable —
+  walls rotated ~40° and drawn twice — because of the odometry drift above:
+  scan matching can't absorb a ~30% error on every turn. It hasn't been
+  retried since the `odom_imu` fix: the mapless solution already succeeds
+  consistently, and the cafe tables are movable in the simulator (the robot
+  pushed one during tuning), so a map recorded ahead of time could go stale.
 * The LiDAR scans ~4 cm above the floor, so of each cafe table it only sees
   the 0.56 m base plate; the 0.913 m tabletop overhangs that by ~0.18 m at
   the height of the robot's upper chassis. The costmap footprint was set to

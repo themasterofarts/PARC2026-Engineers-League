@@ -42,3 +42,9 @@ fix, suggesting the sim isn't fully deterministic run-to-run.
 | 20260927_232721 | SUCCEEDED | 1m 4s | logs/run_20260927_232721.log | bags/run_20260927_232721 |
 | 20260927_232949 | SUCCEEDED | 0m 55s | logs/run_20260927_232949.log | bags/run_20260927_232949 |
 | 20260927_233145 | SUCCEEDED | 0m 58s | logs/run_20260927_233145.log | bags/run_20260927_233145 |
+| 20260928_002734 | SUCCEEDED | 1m 0s | logs/run_20260928_002734.log | bags/run_20260928_002734 |
+| 20260928_003001 | SUCCEEDED | 0m 54s | logs/run_20260928_003001.log | bags/run_20260928_003001 |
+| 20260928_003210 | SUCCEEDED | 0m 55s | logs/run_20260928_003210.log | bags/run_20260928_003210 |
+| 20260928_005128 | SUCCEEDED | 0m 59s | logs/run_20260928_005128.log | bags/run_20260928_005128 |
+| 20260928_005314 | SUCCEEDED | 0m 54s | logs/run_20260928_005314.log | bags/run_20260928_005314 |
+| 20260928_014718 | FAILED (odom_imu disabled on purpose: before-fix demo video) | 2m 0s | logs/run_20260928_014718.log | bags/run_20260928_014718 |
