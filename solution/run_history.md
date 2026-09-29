@@ -92,16 +92,32 @@ fix, suggesting the sim isn't fully deterministic run-to-run.
 | 20260928_194629 | SUCCEEDED (map, AMCL tuned, yaw tol 0.4 (circled the goal)) | 2m 25s | logs/run_20260928_194629.log | bags/run_20260928_194629 |
 | 20260928_194919 | SUCCEEDED (map, AMCL tuned, yaw tol 0.4) | 1m 5s | logs/run_20260928_194919.log | bags/run_20260928_194919 |
 | 20260928_195052 | SUCCEEDED (map, AMCL tuned, yaw tol 0.4) | 0m 59s | logs/run_20260928_195052.log | bags/run_20260928_195052 |
-| 20260928_195333 | SUCCEEDED (map, final config) | 1m 0s | logs/run_20260928_195333.log | bags/run_20260928_195333 |
-| 20260928_195457 | SUCCEEDED (map, final config) | 1m 1s | logs/run_20260928_195457.log | bags/run_20260928_195457 |
-| 20260928_195623 | SUCCEEDED (map, final config) | 1m 1s | logs/run_20260928_195623.log | bags/run_20260928_195623 |
-| 20260928_195748 | SUCCEEDED (map, final config) | 1m 3s | logs/run_20260928_195748.log | bags/run_20260928_195748 |
-| 20260928_200937 | SUCCEEDED (map, final config; ROS graph captured) | 0m 57s | logs/run_20260928_200937.log | bags/run_20260928_200937 |
-| 20260928_201203 | SUCCEEDED (map, final config: recorded; brushed cafe_table_7, 18 contacts) | 1m 24s | logs/run_20260928_201203.log | bags/run_20260928_201203 |
-| 20260928_201543 | SUCCEEDED (map, final config) | 1m 10s | logs/run_20260928_201543.log | bags/run_20260928_201543 |
-| 20260928_201716 | SUCCEEDED (map, final config) | 1m 13s | logs/run_20260928_201716.log | bags/run_20260928_201716 |
-| 20260928_201849 | SUCCEEDED (map, final config) | 1m 7s | logs/run_20260928_201849.log | bags/run_20260928_201849 |
-| 20260928_202021 | SUCCEEDED (map, final config) | 1m 2s | logs/run_20260928_202021.log | bags/run_20260928_202021 |
-| 20260928_202213 | SUCCEEDED (map, final config: recorded, solution 2 video) | 1m 4s | logs/run_20260928_202213.log | bags/run_20260928_202213 |
-| 20260928_230802 | SUCCEEDED (map, final config: RViz screenshot run) | 1m 11s | logs/run_20260928_230802.log | bags/run_20260928_230802 |
-| 20260928_231011 | SUCCEEDED (map, final config: RViz screenshot run) | 1m 10s | logs/run_20260928_231011.log | bags/run_20260928_231011 |
+| 20260928_195333 | SUCCEEDED (map, stock recovery tree) | 1m 0s | logs/run_20260928_195333.log | bags/run_20260928_195333 |
+| 20260928_195457 | SUCCEEDED (map, stock recovery tree) | 1m 1s | logs/run_20260928_195457.log | bags/run_20260928_195457 |
+| 20260928_195623 | SUCCEEDED (map, stock recovery tree) | 1m 1s | logs/run_20260928_195623.log | bags/run_20260928_195623 |
+| 20260928_195748 | SUCCEEDED (map, stock recovery tree) | 1m 3s | logs/run_20260928_195748.log | bags/run_20260928_195748 |
+| 20260928_200937 | SUCCEEDED (map, stock recovery tree; ROS graph captured) | 0m 57s | logs/run_20260928_200937.log | bags/run_20260928_200937 |
+| 20260928_201203 | SUCCEEDED (map, stock recovery tree: recorded; brushed cafe_table_7, 18 contacts) | 1m 24s | logs/run_20260928_201203.log | bags/run_20260928_201203 |
+| 20260928_201543 | SUCCEEDED (map, stock recovery tree) | 1m 10s | logs/run_20260928_201543.log | bags/run_20260928_201543 |
+| 20260928_201716 | SUCCEEDED (map, stock recovery tree) | 1m 13s | logs/run_20260928_201716.log | bags/run_20260928_201716 |
+| 20260928_201849 | SUCCEEDED (map, stock recovery tree) | 1m 7s | logs/run_20260928_201849.log | bags/run_20260928_201849 |
+| 20260928_202021 | SUCCEEDED (map, stock recovery tree) | 1m 2s | logs/run_20260928_202021.log | bags/run_20260928_202021 |
+| 20260928_202213 | SUCCEEDED (map, stock recovery tree: recorded, solution 2 video) | 1m 4s | logs/run_20260928_202213.log | bags/run_20260928_202213 |
+| 20260928_230802 | SUCCEEDED (map, stock recovery tree: RViz screenshot run) | 1m 11s | logs/run_20260928_230802.log | bags/run_20260928_230802 |
+| 20260928_231011 | SUCCEEDED (map, stock recovery tree: RViz screenshot run) | 1m 10s | logs/run_20260928_231011.log | bags/run_20260928_231011 |
+| 20260928_234015 | SUCCEEDED (experiment: despeckled map, rejected) | 1m 9s | logs/run_20260928_234015.log | bags/run_20260928_234015 |
+| 20260928_234149 | FAILED (experiment: despeckled map, rejected) | 2m 35s | logs/run_20260928_234149.log | bags/run_20260928_234149 |
+| 20260928_234446 | FAILED (experiment: despeckled map, rejected) | 2m 2s | logs/run_20260928_234446.log | bags/run_20260928_234446 |
+| 20260928_234709 | FAILED (experiment: despeckled map, rejected) | 1m 45s | logs/run_20260928_234709.log | bags/run_20260928_234709 |
+| 20260928_234914 | SUCCEEDED (experiment: despeckled map, rejected) | 1m 17s | logs/run_20260928_234914.log | bags/run_20260928_234914 |
+| 20260928_235057 | FAILED (experiment: despeckled map, rejected) | 1m 33s | logs/run_20260928_235057.log | bags/run_20260928_235057 |
+| 20260928_235259 | SUCCEEDED (experiment: despeckled map, rejected) | 1m 11s | logs/run_20260928_235259.log | bags/run_20260928_235259 |
+| 20260928_235439 | FAILED (experiment: despeckled map, rejected) | 2m 42s | logs/run_20260928_235439.log | bags/run_20260928_235439 |
+| 20260928_235919 | SUCCEEDED (map, final config: recovery without spin/backup) | 1m 1s | logs/run_20260928_235919.log | bags/run_20260928_235919 |
+| 20260929_000049 | SUCCEEDED (map, final config: recovery without spin/backup) | 0m 57s | logs/run_20260929_000049.log | bags/run_20260929_000049 |
+| 20260929_000214 | SUCCEEDED (map, final config: recovery without spin/backup) | 0m 59s | logs/run_20260929_000214.log | bags/run_20260929_000214 |
+| 20260929_000336 | SUCCEEDED (map, final config: recovery without spin/backup) | 1m 1s | logs/run_20260929_000336.log | bags/run_20260929_000336 |
+| 20260929_000503 | SUCCEEDED (map, final config: recovery without spin/backup) | 0m 58s | logs/run_20260929_000503.log | bags/run_20260929_000503 |
+| 20260929_000630 | SUCCEEDED (map, final config: recovery without spin/backup) | 0m 58s | logs/run_20260929_000630.log | bags/run_20260929_000630 |
+| 20260929_000751 | SUCCEEDED (map, final config: recovery without spin/backup) | 1m 3s | logs/run_20260929_000751.log | bags/run_20260929_000751 |
+| 20260929_000920 | SUCCEEDED (map, final config: recovery without spin/backup) | 0m 58s | logs/run_20260929_000920.log | bags/run_20260929_000920 |

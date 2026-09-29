@@ -47,16 +47,16 @@ the map frame using the inverse of the spawn pose (also in
 `task_params.yaml`), gives AMCL the initial pose (0, 0, 0), and sends the goal
 to Nav2's `BasicNavigator`.
 
-In local testing with the final configuration (11 runs: 9 with the official
-`task.launch.py`, one of them and one more screen-recorded, plus 1 headless),
-every run reached the goal in 57–84 s (median 63 s, including ~16 s for AMCL
-to confirm the initial pose), driving the same ~10.2 m route and stopping
-0.04–0.19 m from the goal marker's centre (Gazebo ground truth). 10 of the 11
-had no contact with any furniture; one screen-recorded run, slower than the
-rest, brushed `cafe_table_7` (18 contact messages): the route passes ~0.4 m
-from that tabletop, the margin to widen next. The earlier map-free version
-(solution 1: 18 of 18 runs without contact, 50–64 s, ~12 m route) is in the
-git history.
+In local testing with the final configuration (8 runs with the official
+`task.launch.py`), every run reached the goal in 57–63 s (median 59 s,
+including ~16 s for AMCL to confirm the initial pose) without touching any
+furniture, driving the same ~10.2 m route and stopping 0.08–0.14 m from the
+goal marker's centre (Gazebo ground truth). The 13 runs before that, with
+Nav2's stock behavior tree, took 57–84 s and 12 were contact-free; the
+exception was a spin recovery that turned the robot into `cafe_table_7`
+(see Challenges Faced), which the final configuration's recovery no longer
+does. The earlier map-free version (solution 1: 18 of 18 runs without
+contact, 50–64 s, ~12 m route) is in the git history.
 
 The controller drives the robot directly; there is deliberately no
 `velocity_smoother` (see Challenges Faced).
@@ -176,6 +176,22 @@ and renders it to `docs/` (`ros_graph_overview` is the readable summary;
       route, which blocked that corridor, so the planner detoured and clipped
       `cafe_table_1`. The scan is now pre-filtered (`laser_filters`, returns
       under 0.35 m dropped) and the footprint at the spawn is cleared.
+    * Without scan matching, stray returns also leave dotted lines of single
+      occupied cells across open floor. Two of them, 0.25 m beside the route
+      abeam `cafe_table_7`, make NavFn fail to plan from the robot's own cell
+      there (8 of 13 runs); the next replan usually succeeds a moment later.
+      Freeing all such isolated specks (148 cells) looked like the fix but
+      made things worse: some of them were what kept the planner off a gap
+      beside `cafe_table_6`, and 5 of 8 runs went through it and hit that
+      table. The map is kept as built.
+* Nav2's stock behavior tree recovers from repeated planning failures by
+  spinning 90° in place, then waiting, then backing up. Among the tables that
+  is risky: in one run three quick replanning failures beside `cafe_table_7`
+  (the map specks above) triggered the spin, which turned the robot to face
+  that table, and it brushed the table on the way out (18 contact messages).
+  `behavior_trees/navigate_to_pose_no_motion_recovery.xml` is the stock tree
+  with Spin and BackUp removed: recovery clears the costmaps and waits 2 s,
+  and replanning from where the robot stands gets it going again.
     * Result: every table is within 0.02–0.15 m of its true position in the
       map. The tables can be pushed in the simulator, so the map assumes the
       static phase 1 environment.

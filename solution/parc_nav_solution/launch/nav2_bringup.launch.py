@@ -148,7 +148,8 @@ def launch_setup(context):
                 executable="bt_navigator",
                 name="bt_navigator",
                 output="screen",
-                parameters=params,
+                parameters=params + [{"default_nav_to_pose_bt_xml": os.path.join(
+                    pkg_share, "behavior_trees", "navigate_to_pose_no_motion_recovery.xml")}],
                 remappings=remappings,
             ),
             Node(
