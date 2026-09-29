@@ -48,7 +48,7 @@ the map frame using the inverse of the spawn pose (also in
 to Nav2's `BasicNavigator`.
 
 In local testing with the final configuration (8 runs with the official
-`task.launch.py`), every run reached the goal in 57–63 s (median 59 s,
+`task.launch.py`), every run reached the goal in 57–63 s (median 58.5 s,
 including ~16 s for AMCL to confirm the initial pose) without touching any
 furniture, driving the same ~10.2 m route and stopping 0.08–0.14 m from the
 goal marker's centre (Gazebo ground truth). The 13 runs before that, with
