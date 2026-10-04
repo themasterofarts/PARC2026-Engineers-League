@@ -21,7 +21,7 @@ def generate_launch_description():
         get_package_share_directory(package_name), "config", "ekf_node.yaml"
     )
     ## filtre de mon laser
-    #laser_filter_params = os.path.join(get_package_share_directory(pkg_path), "config", "lasers_scan_filters.yaml")
+    laser_filter_params = os.path.join(get_package_share_directory(pkg_path), "config", "lasers_scan_filters.yaml")
     
     slam_params_file = LaunchConfiguration(
         "slam_params_file",
@@ -37,13 +37,13 @@ def generate_launch_description():
     )
     
     # Noud pour filtrer le LiDAR (enleve le corps du robot du scan)
-    # laser_filter_node = Node(
-    #     package="laser_filters",
-    #     executable="scan_to_scan_filter_chain",
-    #     name="laser_filter",
-    #     output="screen",
-    #     parameters=[laser_filter_params, {"use_sim_time": use_sim_time}],
-    # )
+    laser_filter_node = Node(
+        package="laser_filters",
+        executable="scan_to_scan_filter_chain",
+        name="laser_filter",
+        output="screen",
+        parameters=[laser_filter_params, {"use_sim_time": use_sim_time}],
+    )
     
     # Declaration de l'argument use_sim_time
     declare_use_sim_time_arg = DeclareLaunchArgument(
@@ -69,7 +69,7 @@ def generate_launch_description():
     return LaunchDescription([
         declare_use_sim_time_arg,
         robot_localisation_node,
-        #laser_filter_node,
+        laser_filter_node,
         #slam_toolbox_launch,
         
     ])

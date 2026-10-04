@@ -23,7 +23,7 @@ def generate_launch_description():
     )
     
     static_map_path = os.path.join(
-        get_package_share_directory(package_name), "maps", "carte_restaurant_ok.yaml"
+        get_package_share_directory(package_name), "maps", "carte_restaurant_tables.yaml"
     )
 
     # Pile Nav2 officielle

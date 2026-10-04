@@ -1,0 +1,17 @@
+# Carte du restaurant AVEC les obstacles hauts a leur dimension reelle.
+# GENEREE AUTOMATIQUEMENT -- ne pas editer a la main.
+#   ros2 run nav_solution generate_map
+# source   : carte_restaurant_ok.pgm
+# monde    : task_world.sdf
+# marge    : 0.03 m,  hauteur robot : 1.349 m
+#
+# Le SLAM ayant ete fait au LiDAR (z = 0.048 m), une table de cafe n y
+# figurait que par sa colonne de 4.2 cm, alors que son plateau fait
+# 0.913 m a z = 0.735 m. Le robot, haut de 1.349 m, les percutait.
+image: carte_restaurant_tables.pgm
+mode: trinary
+resolution: 0.060
+origin: [-3.933, -4.841, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

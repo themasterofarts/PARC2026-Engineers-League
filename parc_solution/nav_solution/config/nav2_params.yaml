@@ -38,8 +38,7 @@ amcl:
     z_max: 0.05
     z_rand: 0.5
     z_short: 0.05
-    scan_topic: /scan # scan_filtered
-
+    scan_topic: /scan_filtered # scan
 ##### bt_navigator  ####
 
 bt_navigator:
@@ -57,6 +56,9 @@ bt_navigator:
       plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
     navigate_through_poses:
       plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+
+    default_nav_to_pose_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml"
+
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
@@ -83,8 +85,7 @@ controller_server:
 
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"]
-    controller_plugins: ["FollowPath"]
-
+    controller_plugins: ["FollowPath","DWBLocalPlanner"] 
     use_realtime_priority: false
 
     progress_checker:
@@ -99,13 +100,44 @@ controller_server:
       yaw_goal_tolerance: 0.25
 
     FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+
+      desired_linear_vel: 0.30 #0.22
+      max_angular_accel: 3.2
+      transform_tolerance: 0.2
+      lookahead_dist: 0.6
+      min_lookahead_dist: 0.3
+      max_lookahead_dist: 0.9
+      lookahead_time: 1.5
+      use_velocity_scaled_lookahead_dist: true
+      max_robot_pose_search_dist: 10.0
+      use_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.9
+      regulated_linear_scaling_min_speed: 0.10
+      use_cost_regulated_linear_velocity_scaling: true
+      inflation_cost_scaling_factor: 2.0
+      cost_scaling_dist: 0.6
+      cost_scaling_gain: 1.0
+      min_approach_linear_velocity: 0.05
+      approach_velocity_scaling_dist: 0.6
+      use_rotate_to_heading: true
+      rotate_to_heading_min_angle: 0.785
+      rotate_to_heading_angular_vel: 1.0
+      allow_reversing: false
+      use_collision_detection: true
+      max_allowed_time_to_collision_up_to_carrot: 1.0
+
+
+
+
+    DWBLocalPlanner:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
       
       # Limites de vitesse 
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.22
+      max_vel_x: 0.30 #0.22
       max_vel_y: 0.0
       max_vel_theta: 0.8
       min_speed_xy: 0.0
@@ -135,7 +167,7 @@ controller_server:
 
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       
-      BaseObstacle.scale: 0.06            # Évite les obstacles 
+      BaseObstacle.scale: 0.08 #0.25            # Évite les obstacles 
       PathAlign.scale: 30.0               
       PathAlign.forward_point_distance: 0.1
       GoalAlign.scale: 24.0               
@@ -172,21 +204,21 @@ local_costmap:
         observation_sources: scan #bottom_camera
         
         scan:
-          topic: /scan #scan_filtered      #  le scan filtre !
+          topic: /scan_filtered #scan     #  le scan filtre !
           data_type: "LaserScan"
           clearing: True
           marking: True
           #min_obstacle_height: 0.0
           #max_obstacle_height: 0.3   # Le LiDAR ne gere que les obstacles au ras du sol
-          obstacle_max_range: 12.0 # 12.0
+          obstacle_max_range: 3.0 # 12.0
           obstacle_min_range: 0.32
-          raytrace_max_range: 3.0
+          raytrace_max_range: 3.6
       
       #### INFLATION LAYER (Gonfler les obstacles pour la securite)
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 1.75 #1.0  # 0.5 ### marche de securiter pour les obstacle petite carte
-        cost_scaling_factor: 2.58 #3.0 #4.0   #7## plus c'est elever + le robot passse a coter des obstacle
+        inflation_radius: 0.70 #0.87 #1.75 #1.0  # 0.5 ### marche de securiter pour les obstacle petite carte
+        cost_scaling_factor: 2.65 #2.75 #2.58 #3.0 #4.0   #7## plus c'est elever + le robot passse a coter des obstacle
       always_send_full_costmap: True
 
 #### carte de cout global
@@ -222,20 +254,20 @@ global_costmap:
         observation_sources: scan #scan_filtre
         
         scan :      #scan_filtre:
-          topic: /scan #scan_filtered
+          topic: /scan_filtered #scan
           data_type: "LaserScan"
           clearing: True
           marking: True
           min_obstacle_height: 0.0
           max_obstacle_height: 0.3
-          obstacle_max_range: 12.5 #12.0
-          raytrace_max_range: 12.5
+          obstacle_max_range: 5.0 
+          raytrace_max_range: 6.0 
 
       ##### Marge de securite globale
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 1.75 #1.0  #0.5 ### marche de securiter pour les obstacle de la grande carte
-        cost_scaling_factor: 2.58 # 3.0  #4.0
+        inflation_radius: 0.70   #0.87 #1.75 #1.0  #0.5 ### marche de securiter pour les obstacle de la grande carte
+        cost_scaling_factor: 2.65 # 2.75 #2.58 # 3.0  #4.0
 
 docking_server:
   ros__parameters:
@@ -318,7 +350,7 @@ behavior_server:
 velocity_smoother:
   ros__parameters:
     use_sim_time: true
-    max_velocity: [0.22, 0.0, 1.0]  #[0.4, 0.0, 1.0]
+    max_velocity: [0.30, 0.0, 1.0]  #[0.4, 0.0, 1.0]
     min_velocity: [-0.22, 0.0, -1.0] #[-0.4, 0.0, -1.0]
 
     max_decel: [-2.5, 0.0, -3.2]    #[-2.5, 0.0, -3.2]
@@ -341,23 +373,45 @@ collision_monitor:
     source_timeout: 1.0
     base_shift_correction: True
     stop_pub_timeout: 2.0
-    polygons: ["FootprintApproach"]
+    polygons: ["FootprintApproach"] # ,"SlowDown"
+
     FootprintApproach:
       type: "polygon"
       action_type: "approach"
       footprint_topic: "/local_costmap/published_footprint"
-      time_before_collision: 1.2
+      time_before_collision: 1.0 # 1.2
       simulation_time_step: 0.1
       min_points: 6
       visualize: true
       enabled: True
-    observation_sources: ["scan"]
+
+
+    # SlowDown:
+    #   type: "circle"
+    #   radius: 0.6  ## rayon du robot est 0.25 + une mage de securiter de 0.35
+    #   action_type: "slowdown"
+    #   slowdown_ratio: 0.4
+    #   slowdown_ratio: 0.4
+    #   visualize: True
+    #   enabled: True
+    #   polygon_pub_topic: "polygon_slowdown"
+
+
+    observation_sources: ["scan","camera_source"]
     scan:
       type: "scan"
-      topic: "/scan"  ## scan_filtered
-      min_height: 0.15
-      max_height: 2.0
+      topic: "/scan_filtered"  ## scan_filtered
+      min_height: 0.05 #0.15
+      max_height: 0.15  # 2.0
       enabled: True
+
+    # camera_source:
+    #   type: "pointcloud"
+    #   topic: "top_camera_depth/points"
+    #   min_height: 0.20 #0.15 on ignore tous ce qui est sous 20cm      
+    #   max_height: 1.20 ## 0.15 on ignore le plafont      
+    #   enabled: True
+
 
 smoother_server:
   ros__parameters:
