@@ -10,7 +10,7 @@ ekf_filter_node:
         world_frame: odom
 
         publish_acceleration: true
-        publish_tf: true #false
+        publish_tf: false #true #
 
         # --- ODOM des roues---
         odom0: /odom
