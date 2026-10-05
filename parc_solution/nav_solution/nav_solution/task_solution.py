@@ -57,7 +57,8 @@ def stop_nav2(nav2_process: subprocess.Popen) -> None:
 def _watchdog_force_exit(timeout_sec: float) -> threading.Timer:
     """Chien de garde pour forcer la fermeture du script Python en cas de blocage."""
     def _force_exit():
-        print(f"\n[Watchdog] La fermeture a pris plus de {timeout_sec:.0f}s — Forçage de l'arrêt complet.", flush=True)
+        print(f"La fermeture a pris plus de {timeout_sec:.0f}s — Forçage de l'arrêt complet.",
+              flush=True)
         os._exit(1)
 
     timer = threading.Timer(timeout_sec, _force_exit)
@@ -109,38 +110,49 @@ def _convert_but_gazebo_vers_map(goal_x, goal_y, spawn_x, spawn_y, spawn_yaw):
 
 
 def main():
+    print("Lancement de la Simulation et de Nav2")
+    nav2_process = lance_nav2()
+    
+    print("Attendre le chargement complet de l'environne de simulation")
+    time.sleep(15.0)
+    
     rclpy.init()
+    
+    try:
 
-    task_params = _lire_task_params()
-    navigator = BasicNavigator()
+      task_params = _lire_task_params()
+      navigator = BasicNavigator()
+      
+      
+      navigator.set_parameters([rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)])
 
     ###### Pose initiale  ##############
     
     #### pour information la possition initiale du robot dans le repere map ne correspond pas exactement a celui qui se trouve sue le fichier 
     # car en creant la carte le robot se trouver a la pose (0,0) dans le repre map"""
     
-    initial_pose = PoseStamped()
-    initial_pose.header.frame_id = 'map'
-    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x = 0.0
-    initial_pose.pose.position.y = 0.0
-    initial_pose.pose.orientation.z = 0.0
-    initial_pose.pose.orientation.w = 1.0
+      initial_pose = PoseStamped()
+      initial_pose.header.frame_id = 'map'
+      initial_pose.header.stamp = rclpy.time.Time().to_msg()  #navigator.get_clock().now().to_msg()
+      initial_pose.pose.position.x = 0.0
+      initial_pose.pose.position.y = 0.0
+      initial_pose.pose.orientation.z = 0.0
+      initial_pose.pose.orientation.w = 1.0
     
-    navigator.setInitialPose(initial_pose)
+      navigator.setInitialPose(initial_pose)
 
-    navigator.waitUntilNav2Active(navigator='bt_navigator', localizer='amcl')
+      navigator.waitUntilNav2Active(navigator='bt_navigator', localizer='amcl')
 
-    print("Attendre q'amcl soit stable ..")
-    time.sleep(Attendre_amcl_stable)
+      print("Attendre q'amcl soit stable ..")
+      time.sleep(Attendre_amcl_stable)
 
     ####### converti du repere Gazebo vers le repere map #####
-    goal_x_map, goal_y_map = _convert_but_gazebo_vers_map(
-        task_params['goal_x'], task_params['goal_y'],
-        task_params['spawn_x'], task_params['spawn_y'], task_params['spawn_yaw'],
-    )
+      goal_x_map, goal_y_map = _convert_but_gazebo_vers_map(
+            task_params['goal_x'], task_params['goal_y'],
+            task_params['spawn_x'], task_params['spawn_y'], task_params['spawn_yaw'],
+      )
 
-    def Goal_robot():
+      def Goal_robot():
         
         pose = PoseStamped()
         pose.header.frame_id = 'map'
@@ -151,14 +163,14 @@ def main():
         pose.pose.orientation.w = 1.0
         return pose
 
-    print(f"Envoi de l'objectif converti : x={goal_x_map:.2f}, y={goal_y_map:.2f}")
-    navigator.goToPose(Goal_robot())
+      print(f"Envoi de l'objectif converti : x={goal_x_map:.2f}, y={goal_y_map:.2f}")
+      navigator.goToPose(Goal_robot())
 
-    heure_depart = navigator.get_clock().now()
-    i = 0
-    relance_goal = False
+      heure_depart = navigator.get_clock().now()
+      i = 0
+      relance_goal = False
 
-    while not navigator.isTaskComplete():
+      while not navigator.isTaskComplete():
         feedback = navigator.getFeedback()
         temps_ecoule = navigator.get_clock().now() - heure_depart
         i += 1
@@ -180,21 +192,37 @@ def main():
             navigator.goToPose(Goal_robot())
             relance_goal = True
 
-    result = navigator.getResult()
+      result = navigator.getResult()
 
-    if result == TaskResult.SUCCEEDED:
+      if result == TaskResult.SUCCEEDED:
         duree_totale = navigator.get_clock().now() - heure_depart
         print("SUCCES : le robot a atteint laa zone cible en vert !")
         print(f"Temps de navigation total : {duree_totale.nanoseconds / 1e9:.2f} secondes")
-    elif result == TaskResult.CANCELED:
+      elif result == TaskResult.CANCELED:
         print("ANNULE : la navigation a ete annulee .")
-    elif result == TaskResult.FAILED:
+      elif result == TaskResult.FAILED:
         print("ECHEC : le planificateur n'a pas pu trouver de chemin valide.")
-    else:
+      else:
         print("Erreur : statut de retour invalide.")
 
-    navigator.lifecycleShutdown()
-    rclpy.shutdown()
+      navigator.lifecycleShutdown()
+      #rclpy.shutdown()
+    
+    except KeyboardInterrupt:
+        print("Interruption manuelle")
+      
+    finally:
+        print("fermeture de gz et nav2 en cours")
+        watchdog = _watchdog_force_exit(30.0)
+               
+        #### verifion si ros tourne
+        
+        if rclpy.ok():
+            rclpy.shutdown()
+        
+        stop_nav2(nav2_process)
+        watchdog.cancel()
+        print("fermeture terminée")
 
 
 if __name__ == '__main__':
