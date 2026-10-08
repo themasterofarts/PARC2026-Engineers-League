@@ -16,10 +16,18 @@ def generate_launch_description():
     ## pkg robot_brinup et rviz pour la navigation##
     pkg_robo_brinp_name = "parc_robot_bringup"
     
+    mask_yaml_path = os.path.join(
+        get_package_share_directory(package_name), "maps_zone_interdi", "carte_restaurant_tables_zone_keepout.yaml"
+    )    
+    
 
     # Fichier de parametres Nav2
     nav2_params = os.path.join(
         get_package_share_directory(package_name), "config", "nav2_params.yaml"
+    )
+    #Chemin vers le fichier yaml de keepout_filtres
+    keepout_params_file = os.path.join(
+        get_package_share_directory(package_name), "config", "keepout_params.yaml"
     )
     
     static_map_path = os.path.join(
@@ -88,7 +96,7 @@ def generate_launch_description():
                     "use_sim_time": use_sim_time,
                     "params_file": params_file,
                     "autostart": LaunchConfiguration("autostart"),
-                    #"slam": "True",  # <-- essentiel: active SLAM Toolbox automatiquement
+                    #"slam": "True",  #  active SLAM Toolbox automatiquement
                 }.items(),
             ),
             
@@ -102,5 +110,32 @@ def generate_launch_description():
                 }.items(),
             ),
             
+            Node(
+                package='nav2_map_server',
+                executable='map_server',
+                name='filter_mask_server',
+                output='screen',
+                parameters=[keepout_params_file,{'yaml_filename': mask_yaml_path}]
+            ),
+            
+            Node(
+                package='nav2_map_server',
+                executable='costmap_filter_info_server',
+                name='costmap_filter_info_server',
+                output='screen',
+                parameters=[keepout_params_file]
+            ),
+            
+            Node(
+                package='nav2_lifecycle_manager',
+                executable='lifecycle_manager',
+                name='lifecycle_manager_filters',
+                output='screen',
+                parameters=[
+                    {'use_sim_time': use_sim_time},
+                    {'autostart': True},
+                    {'node_names': ['filter_mask_server', 'costmap_filter_info_server']}
+                ]
+            ),
         ]
     )

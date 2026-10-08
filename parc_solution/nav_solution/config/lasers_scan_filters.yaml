@@ -5,10 +5,10 @@ laser_filter:
       type: laser_filters/LaserScanBoxFilter
       params:
         box_frame: "base_link"
-        max_x: 0.25
-        min_x: -0.25
-        max_y: 0.20
-        min_y: -0.20
-        max_z: 0.20
-        min_z: -0.20
+        max_x: 0.35 #0.25
+        min_x: -0.35 #-0.25
+        max_y: 0.35 #0.20
+        min_y: -0.35  #-0.20
+        max_z: 0.30
+        min_z: -0.30
         invert: false ### suprime, tous rayon a l'interieur de la boite invisible

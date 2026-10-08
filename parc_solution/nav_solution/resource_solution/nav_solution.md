@@ -1,4 +1,4 @@
-# EQUIPE 1: PARC Ligue des Ingénieurs
+# EQUIPE 1: MA64 ROBOTICS
 
 ## Introduction
 
@@ -9,8 +9,8 @@ acompleter
 
 **Noms des membres de l'équipe:**
 
-* Nom et prénom (chef d'équipe)
-* Nom et prénom
+*  KPOKPO Sunday (chef d'équipe)
+* EGOUDJOBI Peace Fiacre
 
 
 
@@ -55,7 +55,7 @@ acompleter
 
  Une fois la lacolisation du robot etablie, le cerveau de notre systeme repose sur un scripte python pour diriger le robot a l'aide de l'outil `nav2_simple_commander`. 
  
- Ce programme commence par lire automatiquement le point de départ et l'objectif final à partir du fichier Yaml `task_params`, ensuite nous appliquons une formule mathématique de `rotation`, afin d'effectuer un `changement de rèpere` des coordonnées de l'objectif defini dans le `monde gazebo` vers le repere de la `carte Map`.
+ Ce programme commence par lire automatiquement le point de départ et l'objectif final à partir du fichier Yaml `task_params`, ensuite nous appliquons une formule mathématique de, afin d'effectuer un `changement de rèpere` des coordonnées de l'objectif defini dans le `monde gazebo` vers le repere de la `carte Map`.
 
  Ces nouveaux coordonnées de l'objectif est ensuite envoyée à `Nav2`, qui va calculer un chemin sécurisé en evitant les obstcales en temps réel.
  
