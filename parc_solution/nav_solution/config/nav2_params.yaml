@@ -98,7 +98,7 @@ controller_server:
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
 
-      desired_linear_vel: 0.22
+      desired_linear_vel: 0.30 #0.22
       max_angular_accel: 3.2
       transform_tolerance: 0.2
       # Point de visee FIXE. L'adaptation a la vitesse creait un cercle
@@ -259,8 +259,8 @@ local_costmap:
       #### INFLATION LAYER (Gonfler les obstacles pour la securite)
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.50 #0.75
-        cost_scaling_factor: 1.10 #2.0
+        inflation_radius: 0.60 #0.75
+        cost_scaling_factor: 1.20 #2.0
       always_send_full_costmap: True
 
 #### carte de cout global
@@ -348,8 +348,8 @@ global_costmap:
       ##### Marge de securite globale
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        inflation_radius: 0.50 #0.75
-        cost_scaling_factor: 1.10 #2.0
+        inflation_radius: 0.60 #0.75
+        cost_scaling_factor: 1.20 #2.0
 
 docking_server:
   ros__parameters:
@@ -432,8 +432,8 @@ behavior_server:
 velocity_smoother:
   ros__parameters:
     use_sim_time: true
-    max_velocity: [0.22, 0.0, 1.0]  #[0.4, 0.0, 1.0]
-    min_velocity: [-0.22, 0.0, -1.0] #[-0.4, 0.0, -1.0]
+    max_velocity: [0.30, 0.0, 1.0]  #[0.4, 0.0, 1.0]
+    min_velocity: [-0.25, 0.0, -1.0] #[-0.4, 0.0, -1.0]
 
     max_decel: [-2.5, 0.0, -3.2]    #[-2.5, 0.0, -3.2]
     max_accel: [2.5, 0.0, 3.2]   #[2.5, 0.0, 3.2]
