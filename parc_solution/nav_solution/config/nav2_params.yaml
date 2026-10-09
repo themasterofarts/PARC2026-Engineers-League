@@ -98,7 +98,7 @@ controller_server:
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
 
-      desired_linear_vel: 0.30 #0.22
+      desired_linear_vel: 0.40 #0.22
       max_angular_accel: 3.2
       transform_tolerance: 0.2
       # Point de visee FIXE. L'adaptation a la vitesse creait un cercle
@@ -432,7 +432,7 @@ behavior_server:
 velocity_smoother:
   ros__parameters:
     use_sim_time: true
-    max_velocity: [0.30, 0.0, 1.0]  #[0.4, 0.0, 1.0]
+    max_velocity: [0.40, 0.0, 1.0]  #[0.4, 0.0, 1.0]
     min_velocity: [-0.25, 0.0, -1.0] #[-0.4, 0.0, -1.0]
 
     max_decel: [-2.5, 0.0, -3.2]    #[-2.5, 0.0, -3.2]
