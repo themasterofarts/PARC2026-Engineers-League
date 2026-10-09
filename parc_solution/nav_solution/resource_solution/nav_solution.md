@@ -72,17 +72,17 @@ Ses limites sont le coût, et surtout le comportement en conditions réelles, av
 
 ## Défis rencontrés
 
-* **Le LiDar qui capte les roues du robot**: 
+* **Le LiDar qui capte les roues du robot :** 
 Le capteur lisait les roues de notre propre robot et croyait qu'il y avait un obstacle collé à lui. On a utilisé le package `laser_filters` pour nettoyer les données, ce qui nous a demandé de bien remapper nos topics  pour obliger Nav2 à lire le nouveau topic `/scan_filtered` au lieu des données brutes qui provient du `/scan`. 
 
-* **Marcage des zones interdit au robot**:
+* **Marcage des zones interdit au robot :**
 Comme notre LiDAR balaie au ras du sol, il ne détectait pas le plateau des tables du restaurant, et le robot et le robot se rapprochais trop de la table . Pour corriger ça, on a mis en place un `keepout_filter`. On a marqué sur la  carte des zones interdites et configuré les serveurs `filter_mask_server` et `costmap_filter_info_server` pour forcer le robot à les contourner.
 
-* **Confusion entre repère Gazebo et repère map** : 
+* **Confusion entre repère Gazebo et repère map :** 
 Les coordonnées de `task_params.yaml` sont dans le monde Gazebo, pas dans le repère `map`. Comme map coïncide avec la position de spawn pendant la cartographie, la pose initiale d'`AMCL` est (0, 0) (nous l'avons vérifié avec /odom), et l'objectif est converti avec changement de repère enfant( une translation et une rotation).
 
-* **Dérive de l'odomérie des roues***:
+* **Dérive de l'odomérie des roues :**
 L'odométrie des roues dérivait, nous donc l'avons fusionnée avec l'IMU grâce à `EKF` et`robot_localization`
 
-* **Le robot qui recalculait sa trajectoir en permanence**:
+* **Le robot qui recalculait sa trajectoir en permanence :**
 Au début, on n'avait pas défini d'arbre de comportement (`Behavior Tree`) spécifique dans nos paramètres. Nav2 chargeait donc son arbre par défaut, ce qui poussait le robot à recalculer sa trajectoire en boucle pour rien. Pour corriger ça on a changé la valeur de `default_nav_to_pose_bt_xml` pour utiliser le fichier `navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml`. Grâce à cette modification, le robot garde sa trajectoir et ne cherche un nouveau chemin que si l'ancien devient vraiment invalide.
