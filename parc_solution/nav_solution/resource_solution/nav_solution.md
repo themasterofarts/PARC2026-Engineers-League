@@ -6,7 +6,6 @@ Comme le LiDAR est monté très bas et ne voit pas les plateaux de table, nous a
 Le robot se localise avec le scan du LiDAR, filtré pour enlever les points qui tombent sur le robot lui-même, et avec l’odométrie fusionnée à l’IMU par un filtre de Kalman. 
 Pour les obstacles qui apparaissent pendant le trajet, les `costmaps` de `Nav2` utilisent le LiDAR et le `nuage de points de la caméra de profondeur` du haut. 
 Un script Python lit le point de départ et l’objectif dans `task_params.yaml`, convertit l’objectif du repère Gazebo vers le repère de la carte(`map`), l’envoie à Nav2 et le renvoie si Nav2 abandonne. 
-Il s’arrête au bout de 10 minutes et affiche la distance parcourue, ce qui nous sert à comparer nos réglages.
 
 **Pays de l'équipe :** 
 * BENIN
