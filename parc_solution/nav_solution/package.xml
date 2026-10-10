@@ -16,9 +16,6 @@
   <exec_depend>slam_toolbox</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>laser_filters</exec_depend>
-  <!-- Dependances pour le SLAM et la cartographie -->
-  <exec_depend>rtabmap_slam</exec_depend>
-  <exec_depend>rtabmap_ros</exec_depend>
 
   <!-- Dependance pour la sauvegarde de carte -->
   <exec_depend>nav2_map_server</exec_depend>
