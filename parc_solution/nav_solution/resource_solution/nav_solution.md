@@ -1,7 +1,7 @@
 # EQUIPE : MA64 ROBOTICS
 
 ## Introduction
-Pour cette tâche, nous avons d’abord construit une carte de la salle avec ``SLAM Toolbox`, puis nous naviguons dessus avec `Nav2` et `AMCL`. 
+Pour cette tâche, nous avons d’abord construit une carte de la salle avec `SLAM Toolbox`, puis nous naviguons dessus avec `Nav2` et `AMCL`. 
 Comme le LiDAR est monté très bas et ne voit pas les plateaux de table, nous avons complété la carte avec leur surface réelle, tirée du fichier du monde. 
 Le robot se localise avec le scan du LiDAR, filtré pour enlever les points qui tombent sur le robot lui-même, et avec l’odométrie fusionnée à l’IMU par un filtre de Kalman. 
 Pour les obstacles qui apparaissent pendant le trajet, les `costmaps` de `Nav2` utilisent le LiDAR et le `nuage de points de la caméra de profondeur` du haut. 
