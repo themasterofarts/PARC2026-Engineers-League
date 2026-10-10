@@ -66,7 +66,7 @@ Ses limites sont le coût, et surtout le comportement en conditions réelles, av
 
  Pour lancer notre solution:
 
- * ` ros2 run nav_solution task_solution`
+ * `ros2 run nav_solution task_solution`
  
 
 
