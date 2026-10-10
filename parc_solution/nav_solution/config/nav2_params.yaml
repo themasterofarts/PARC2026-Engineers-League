@@ -393,7 +393,7 @@ planner_server:
       use_final_approach_orientation: false
       smoother:
         max_iterations: 1000
-        w_smooth: 0.3
+        w_smooth: 0.5 #0.3  ## lisse la trajectoir en minimisant les ziczac
         w_data: 0.2
         tolerance: 1.0e-10
 

@@ -1,12 +1,12 @@
 # EQUIPE : MA64 ROBOTICS
 
 ## Introduction
-
-Dans cette tâche le robot Sito-E doit aller tout seul d'un point de départ à un objectif, dans une salle remplie de tables, de chaises et de personnes, et ce en moins de 10 minutes. 
-Pour nous la navigation est la partie de base, sans elle le robot ne peut ni guider un visiteur ni rejoindre un point d'accueil donc aucun des services prévus pour le stade ne fonctionne.
-L'intérêt d'un robot comme celui-ci est qu'il peut travailler en continu et décharger le personnel de tâches répétitives. 
-Ses limites sont le coût, et surtout le comportement en conditions réelles, avec de la foule, des obstacles imprévus et des capteurs qui ne sont pas parfaits. Autour de personnes, une erreur de navigation n'est pas acceptable.
-
+Pour cette tâche, nous avons d’abord construit une carte de la salle avec ``SLAM Toolbox`, puis nous naviguons dessus avec `Nav2` et `AMCL`. 
+Comme le LiDAR est monté très bas et ne voit pas les plateaux de table, nous avons complété la carte avec leur surface réelle, tirée du fichier du monde. 
+Le robot se localise avec le scan du LiDAR, filtré pour enlever les points qui tombent sur le robot lui-même, et avec l’odométrie fusionnée à l’IMU par un filtre de Kalman. 
+Pour les obstacles qui apparaissent pendant le trajet, les `costmaps` de `Nav2` utilisent le LiDAR et le `nuage de points de la caméra de profondeur` du haut. 
+Un script Python lit le point de départ et l’objectif dans `task_params.yaml`, convertit l’objectif du repère Gazebo vers le repère de la carte(`map`), l’envoie à Nav2 et le renvoie si Nav2 abandonne. 
+Il s’arrête au bout de 10 minutes et affiche la distance parcourue, ce qui nous sert à comparer nos réglages.
 
 **Pays de l'équipe :** 
 * BENIN
@@ -61,7 +61,7 @@ Ses limites sont le coût, et surtout le comportement en conditions réelles, av
 
  Ces nouveaux coordonnées de l'objectif converti est envoyé à Nav2, qui calcule un chemin sûr et évite les obstacles en temps réel.
  
- Enfin une boucle de notre code surveille le déplacement du robot en continu pour estimer son temps d'arrivée, de s'assurer de la limite du temps defini dans le cahier de charge, de permettre un recalculer de trajectoire s'il se retrouve bloquer.
+ Enfin une boucle de notre code surveille le déplacement du robot en continu pour estimer son temps d'arrivée, de s'assurer de la limite du temps defini dans le cahier de charge, de permettre un recalcule de trajectoire s'il se retrouve bloquer.
 
 
  Pour lancer notre solution:
@@ -77,7 +77,12 @@ Ses limites sont le coût, et surtout le comportement en conditions réelles, av
 Le capteur lisait les roues de notre propre robot et croyait qu'il y avait un obstacle collé à lui. On a utilisé le package `laser_filters` pour nettoyer les données, ce qui nous a demandé de bien remapper nos topics  pour obliger Nav2 à lire le nouveau topic `/scan_filtered` au lieu des données brutes qui provient du `/scan`. 
 
 * **Marcage des zones interdit au robot :**
-Comme notre LiDAR balaie au ras du sol, il ne détectait pas le plateau des tables du restaurant, et le robot et le robot se rapprochais trop de la table . Pour corriger ça, on a mis en place un `keepout_filter`. On a marqué sur la  carte des zones interdites et configuré les serveurs `filter_mask_server` et `costmap_filter_info_server` pour forcer le robot à les contourner.
+Comme notre LiDAR balaie au ras du sol, il ne détectait pas le plateau des tables du restaurant, et le robot et le robot se rapprochais trop de la table . Pour corriger ça, on a mis en place un `keepout_filter`. 
+On a marqué sur la  carte des zones interdites et configuré les serveurs `filter_mask_server` et `costmap_filter_info_server` pour forcer le robot à les contourner.
+
+* **Détection des tables en hauteur :**
+Pendant notre développement, on s'est d'abord servi uniquement du scan LiDAR pour la détection d'obstacles. On s'est vite rendu compte que le robot heurtait le plateau des tables par en dessous. 
+Pour éviter cela, on s'est servi du plugin voxel_layer pour permettre à Nav2 d'écouter les nuages de points qui proviennent du topic `/top_camera_depth/points`afin de détecter les obstacles en hauteur.
 
 * **Confusion entre repère Gazebo et repère map :** 
 Les coordonnées de `task_params.yaml` sont dans le monde Gazebo, pas dans le repère `map`. Comme map coïncide avec la position de spawn pendant la cartographie, la pose initiale d'`AMCL` est (0, 0) (nous l'avons vérifié avec /odom), et l'objectif est converti avec changement de repère enfant( une translation et une rotation).
