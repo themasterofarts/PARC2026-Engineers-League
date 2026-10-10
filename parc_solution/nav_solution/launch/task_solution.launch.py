@@ -16,16 +16,16 @@ def generate_launch_description():
     
     
     #### lancement de la simution du robot dans gazebo
-    bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(parc_bringup_dir, 'launch', 'task.launch.py')
-        )
-    )
+    # #bringup_launch = IncludeLaunchDescription(
+    #     PythonLaunchDescriptionSource(
+    #         os.path.join(parc_bringup_dir, 'launch', 'task.launch.py')
+    #     )
+    # )
     
     #### se fichier launch lance unique le ekf et node robot localization
     slam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(nav_solution, 'launch', 'slam_ekf.launch.py')
+            os.path.join(nav_solution, 'launch', 'slam_ekf_laser_filtre.launch.py')
         )
     )
     
@@ -37,17 +37,20 @@ def generate_launch_description():
     
     return LaunchDescription([
         #### on lance d'abord le robot sit et gazebo
-        bringup_launch,
+        #bringup_launch,
+        
+        ### On lance d'abord le node robot localisation et ekf, le laser filtre , et le slam si besoin d'effectuer le slam 
+        slam_launch,
         
         ### on patiente quelque seconde puis on lance slam_launch
-        TimerAction(
-            period=10.0,
-            actions=[slam_launch]
-        ),
+        # TimerAction(
+        #     period=5.0,
+        #     actions=[slam_launch]
+        # ),
         
         ### on patiente quelque seconde puis on lance nav2_launch
         TimerAction(
-            period=10.0,
+            period=5.0,
             actions=[nav2_launch]
         )
         

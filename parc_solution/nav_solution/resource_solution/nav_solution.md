@@ -1,4 +1,4 @@
-# EQUIPE 1: MA64 ROBOTICS
+# EQUIPE : MA64 ROBOTICS
 
 ## Introduction
 
@@ -61,12 +61,13 @@ Ses limites sont le coût, et surtout le comportement en conditions réelles, av
 
  Ces nouveaux coordonnées de l'objectif converti est envoyé à Nav2, qui calcule un chemin sûr et évite les obstacles en temps réel.
  
- Enfin une boucle de notre code surveille le déplacement du robot en continu pour estimer son temps d'arrivée en respectant le temps defini dans le cahier de cahier et recalculer une nouvelle trajectoire s'il se retrouve bloquer.
+ Enfin une boucle de notre code surveille le déplacement du robot en continu pour estimer son temps d'arrivée, de s'assurer de la limite du temps defini dans le cahier de charge, de permettre un recalculer de trajectoire s'il se retrouve bloquer.
 
 
  Pour lancer notre solution:
 
  * ` ros2 run nav_solution task_solution`
+ 
 
 
 
