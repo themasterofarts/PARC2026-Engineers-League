@@ -1,0 +1,6 @@
+# environnements Python locaux et caches
+parc_solution/bonus/venv/
+__pycache__/
+*.pyc
+# editeur
+.vscode/

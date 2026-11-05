@@ -1,0 +1,12 @@
+# Masque keepout (generer_masque) : noir = zone interdite a Nav2
+# 5 polygone(s), marge 0.05 m
+image: masque_finale.pgm
+mode: trinary
+resolution: 0.05
+origin:
+- -1.0
+- -4.0
+- 0.0
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

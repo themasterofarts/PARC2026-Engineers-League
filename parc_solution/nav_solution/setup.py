@@ -30,7 +30,13 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'task_solution = nav_solution.task_solution:main', 
+            'task_solution = nav_solution.task_solution:main',
+            'apriltag_tf_node = nav_solution.apriltag_tf_node:main',
+            'mission_node = nav_solution.mission_node:main',
+            'faux_arbitre = nav_solution.faux_arbitre:main',
+            'sauver_tags = nav_solution.sauver_tags:main',
+            'generer_masque = nav_solution.generer_masque:main',
+            'demarrage_vocal = nav_solution.demarrage_vocal:main',
         ],
     },
 )

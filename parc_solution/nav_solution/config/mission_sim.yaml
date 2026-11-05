@@ -1,0 +1,30 @@
+##### Mission en simulation (arene Gazebo)
+mission:
+  ros__parameters:
+    base_frame: base_footprint
+    cmd_vel_topic: /robot_base_controller/cmd_vel_unstamped
+    scan_topic: /scan
+    scan_filtered_topic: /scan_filtered   # scan sans le chassis (rotation sur place)
+    image_topic: /top_camera_color/image_raw
+    detections_topic: /detections
+    visit_distance: 0.43             # centre du robot -> face du tag ; la regle demande 0.5 m au plus
+    visit_distance_tolerance: 0.04   # visite acceptee entre 0.39 et 0.47 m (mesure camera)
+    view_distance: 1.0
+    max_linear: 0.15
+    max_angular: 0.6
+    spin_speed: 0.45
+    front_stop_distance: 0.25    # mesure depuis le LiDAR, secteur avant +-20 deg
+    tag_budget_min: 60.0
+    journal_dir: ""
+
+##### Faux arbitre avec verite terrain Gazebo (seed 9959 de arena_world.sdf)
+faux_arbitre:
+  ros__parameters:
+    arm_delay: 25.0
+    auto_depart: 3.0             # envoie "command" sur /ma64/start 3 s apres l'armement
+    odom_topic: /odom
+    verite_pose_topic: /verite/robot_pose
+    verite_tag_ids: [1, 4, 7, 9]
+    verite_tag_x: [-0.20, -0.60, 0.89, 1.35]
+    verite_tag_y: [1.42, -1.22, 1.90, 0.41]
+    verite_tag_yaw: [3.090, -0.078, -3.082, 2.087]

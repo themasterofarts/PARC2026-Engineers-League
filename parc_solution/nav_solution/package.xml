@@ -11,6 +11,14 @@
   <depend>std_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>nav2_simple_commander</depend>
+  <depend>apriltag_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>nav_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>action_msgs</depend>
+  <!-- parc_msgs (fourni par les organisateurs) n'est pas declare : rosdep ne le connait pas.
+       Copie de test : src/parc_solution/sim_outils/build_parc_msgs.sh -->
 
   <!-- Ajout des dependance -->
   <exec_depend>slam_toolbox</exec_depend>
@@ -19,6 +27,10 @@
 
   <!-- Dependance pour la sauvegarde de carte -->
   <exec_depend>nav2_map_server</exec_depend>
+
+  <!-- Detection des AprilTags et ajout des tags dans Gazebo -->
+  <exec_depend>apriltag_ros</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
 
 
 

@@ -1,0 +1,139 @@
+{
+  "ordre": [
+    4,
+    9,
+    7,
+    1
+  ],
+  "etat_final": "FINISHED",
+  "duree_s": 191.5,
+  "faux_depart": false,
+  "tags_signales": [
+    4,
+    9,
+    7,
+    1
+  ],
+  "tags_dans_l_ordre": [
+    4,
+    9,
+    7,
+    1
+  ],
+  "visites": [
+    {
+      "tag": 4,
+      "t": 45.1,
+      "temps_course_s": 17.0,
+      "image_format": "jpeg",
+      "image_octets": 19180,
+      "frame_id": "top_camera_color_optical_frame",
+      "image": "/tmp/claude-1000/-home-peace-fiacre-Projects-parc-ing--league/40eb49ff-5466-4729-99a5-45808ae001a9/scratchpad/runs/demo/rapport_tag4.jpg",
+      "pose": [
+        -0.05157273702415972,
+        -1.3254173772468438,
+        2.979373035984351
+      ],
+      "distance_m": 0.558,
+      "angle_face_deg": -1.6,
+      "devant_m": 0.555,
+      "lateral_m": -0.062,
+      "valide_hypothese": true,
+      "deplacement_3s_m": 0.0,
+      "immobile_3s": true
+    },
+    {
+      "tag": 9,
+      "t": 80.03,
+      "temps_course_s": 52.0,
+      "image_format": "jpeg",
+      "image_octets": 19586,
+      "frame_id": "top_camera_color_optical_frame",
+      "image": "/tmp/claude-1000/-home-peace-fiacre-Projects-parc-ing--league/40eb49ff-5466-4729-99a5-45808ae001a9/scratchpad/runs/demo/rapport_tag9.jpg",
+      "pose": [
+        1.0679242325358904,
+        0.9171452726889789,
+        -1.093821639820881
+      ],
+      "distance_m": 0.58,
+      "angle_face_deg": 1.8,
+      "devant_m": 0.58,
+      "lateral_m": -0.005,
+      "valide_hypothese": true,
+      "deplacement_3s_m": 0.0,
+      "immobile_3s": true
+    },
+    {
+      "tag": 7,
+      "t": 170.94,
+      "temps_course_s": 142.5,
+      "image_format": "jpeg",
+      "image_octets": 15324,
+      "frame_id": "top_camera_color_optical_frame",
+      "image": "/tmp/claude-1000/-home-peace-fiacre-Projects-parc-ing--league/40eb49ff-5466-4729-99a5-45808ae001a9/scratchpad/runs/demo/rapport_tag7.jpg",
+      "pose": [
+        0.2944599950820554,
+        1.89756176998413,
+        -0.02471597435369572
+      ],
+      "distance_m": 0.596,
+      "angle_face_deg": 1.7,
+      "devant_m": 0.595,
+      "lateral_m": -0.033,
+      "valide_hypothese": true,
+      "deplacement_3s_m": 0.0,
+      "immobile_3s": true
+    },
+    {
+      "tag": 1,
+      "t": 219.59,
+      "temps_course_s": 191.5,
+      "image_format": "jpeg",
+      "image_octets": 19380,
+      "frame_id": "top_camera_color_optical_frame",
+      "image": "/tmp/claude-1000/-home-peace-fiacre-Projects-parc-ing--league/40eb49ff-5466-4729-99a5-45808ae001a9/scratchpad/runs/demo/rapport_tag1.jpg",
+      "pose": [
+        -0.7565545665027058,
+        1.3493667871964348,
+        0.09798301824871923
+      ],
+      "distance_m": 0.561,
+      "angle_face_deg": 1.6,
+      "devant_m": 0.552,
+      "lateral_m": 0.099,
+      "valide_hypothese": true,
+      "deplacement_3s_m": 0.0,
+      "immobile_3s": true
+    }
+  ],
+  "evenements": [
+    [
+      0.0,
+      "ARME, ordre [4, 9, 7, 1]"
+    ],
+    [
+      0.0,
+      "DEPART (commande)"
+    ],
+    [
+      17.0,
+      "VISITE tag 4 (rang 1) a 17 s : distance_m=0.558, angle_face_deg=-1.6, lateral_m=-0.062, valide_hypothese=True"
+    ],
+    [
+      52.0,
+      "VISITE tag 9 (rang 2) a 52 s : distance_m=0.58, angle_face_deg=1.8, lateral_m=-0.005, valide_hypothese=True"
+    ],
+    [
+      142.5,
+      "VISITE tag 7 (rang 3) a 142 s : distance_m=0.596, angle_face_deg=1.7, lateral_m=-0.033, valide_hypothese=True"
+    ],
+    [
+      191.5,
+      "VISITE tag 1 (rang 4) a 192 s : distance_m=0.561, angle_face_deg=1.6, lateral_m=0.099, valide_hypothese=True"
+    ],
+    [
+      191.5,
+      "FIN : FINISHED (dernier tag de l'ordre signale), tags signales [4, 9, 7, 1]"
+    ]
+  ]
+}

@@ -1,0 +1,10 @@
+##### Position des AprilTags de test dans le monde Gazebo
+#    x, y : centre du tag. yaw : direction vers laquelle le tag regarde.
+#    Le tag 1 est visible depuis le point de depart du robot, hors de son chemin.
+#    Le sol du cafe n'est pas a z = 0 : le centre est place a 1 m au-dessus.
+floor_z: 0.217
+tags:
+  - {id: 1, x: 1.0, y: -6.0, yaw: -1.5708}
+  - {id: 4, x: -1.2, y: -0.8, yaw: -1.5708}
+  - {id: 7, x: 1.0, y: 2.0, yaw: -1.5708}
+  - {id: 9, x: 3.0, y: -3.2, yaw: 3.1416}

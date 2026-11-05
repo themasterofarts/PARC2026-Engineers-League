@@ -1,0 +1,9 @@
+# GENERE par sim_outils/generer_config_sim.py depuis lasers_scan_filters_robot.yaml : ne pas modifier a la main.
+# Simulateur officiel : base_footprint au lieu de base_link, use_sim_time, Twist sur /cmd_vel.
+laser_filter:
+  ros__parameters:
+    filter1:
+      name: robot_footprint_filter
+      type: laser_filters/LaserScanBoxFilter
+      params: {box_frame: base_footprint, max_x: 0.22, min_x: -0.2, max_y: 0.27, min_y: -0.27, max_z: 0.3, min_z: -0.3,
+        invert: false}

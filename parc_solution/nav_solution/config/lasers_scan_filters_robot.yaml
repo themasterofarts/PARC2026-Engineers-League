@@ -1,0 +1,20 @@
+##### Filtre LiDAR sur le vrai robot : retire les points du chassis et des roues.
+#    Entree /scan (rplidar_node), sortie remappee sur /scan_ma64 dans robot.launch.py
+#    (le robot publie deja son propre /scan_filtered : on ne reutilise pas ce nom).
+#    Boite reprise de la simulation (chassis x -0.15..+0.18 m, roues y +-0.25 m) : a confirmer
+#    avec diagnostic_robot.py (points_a_moins_de_40cm, secteurs). Une boite trop grande
+#    cache les obstacles proches ; trop petite, le robot se voit lui-meme comme obstacle.
+laser_filter:
+  ros__parameters:
+    filter1:
+      name: robot_footprint_filter
+      type: laser_filters/LaserScanBoxFilter
+      params:
+        box_frame: "base_link"
+        max_x: 0.22
+        min_x: -0.20
+        max_y: 0.27
+        min_y: -0.27
+        max_z: 0.30
+        min_z: -0.30
+        invert: false

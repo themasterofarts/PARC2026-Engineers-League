@@ -1,0 +1,12 @@
+{
+ "_source": "parc_robot_bringup/worlds/nba_sim.sdf et config/phase2_params.yaml (phase2.launch.py), recopie a la main ; visit_pose = tag + 0.5 m face au tag",
+ "arena": {"xmin": -3.5, "xmax": 3.5, "ymin": -8.0, "ymax": -2.0},
+ "start": {"x": 0.0, "y": -7.0, "yaw": 1.571},
+ "tags": [
+  {"id": 1, "x": -3.507, "y": -5.0, "facing_yaw": 0.0, "mount": "west", "visit_pose": [-3.007, -5.0, 3.1416]},
+  {"id": 4, "x": 0.0, "y": -1.993, "facing_yaw": -1.5708, "mount": "north", "visit_pose": [0.0, -2.493, 1.5708]},
+  {"id": 7, "x": 3.507, "y": -5.0, "facing_yaw": 3.1416, "mount": "east", "visit_pose": [3.007, -5.0, 0.0]},
+  {"id": 9, "x": 0.0, "y": -8.007, "facing_yaw": 1.5708, "mount": "south", "visit_pose": [0.0, -7.507, -1.5708]}
+ ],
+ "obstacles": []
+}

@@ -1,0 +1,18 @@
+##### Filtre LiDAR pour l'arene simulee : retire seulement le chassis et les roues.
+#    Points du robot mesures sur /scan (repere base_footprint) : x de -0.15 a +0.18 m,
+#    y de -0.23 a +0.25 m. L'ancienne boite (+-0.35 m) cachait aussi les obstacles
+#    proches (barres au sol des tables) : le robot montait dessus.
+laser_filter:
+  ros__parameters:
+    filter1:
+      name: robot_footprint_filter
+      type: laser_filters/LaserScanBoxFilter
+      params:
+        box_frame: "base_footprint"   # en simulation base_link est tourne de 90 deg
+        max_x: 0.22
+        min_x: -0.20
+        max_y: 0.27
+        min_y: -0.27
+        max_z: 0.30
+        min_z: -0.30
+        invert: false

@@ -1,0 +1,36 @@
+##### Detection des AprilTags (apriltag_ros) et suivi dans la carte
+#    Taille mesuree sur le PDF des organisateurs : 16.5 cm de carre noir.
+apriltag:
+  ros__parameters:
+    image_transport: raw
+    family: 36h11
+    size: 0.165
+    max_hamming: 0
+    qos_profile: default
+
+    detector:
+      threads: 2
+      decimate: 1.0   # 640x480 : decimer ferait perdre les tags lointains
+      blur: 0.0
+      refine: true
+      sharpening: 0.25
+      debug: false
+
+    pose_estimation_method: "pnp"
+
+    tag:
+      ids: [1, 4, 7, 9]
+      frames: [tag_1, tag_4, tag_7, tag_9]
+
+apriltag_tf_node:
+  ros__parameters:
+    detections_topic: /detections
+    target_frame: map
+    tag_ids: [1, 4, 7, 9]
+    tag_frame_prefix: tag_
+    min_decision_margin: 30.0   # en dessous, la detection est jugee douteuse
+    window_size: 15             # nombre de mesures gardees par tag
+    min_samples: 5              # mesures necessaires avant de publier
+    max_tf_wait: 1.0            # duree maximale d'attente de la TF d'une detection (s)
+    max_distance: 4.0           # au-dela, la position du tag est trop imprecise (m) ; 3.0 retardait l'exploration
+    max_view_angle_deg: 55.0    # tag vu plus en biais : position instable

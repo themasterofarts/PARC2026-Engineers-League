@@ -1,0 +1,513 @@
+##### Parametres Nav2 pour le mapping en direct (slam_toolbox fournit /map et la TF map -> odom).
+#    Copie de nav2_params.yaml sans le filtre de zone interdite, lie a la carte du cafe.
+#    AMCL et map_server ne sont pas lances avec ce fichier.
+amcl:
+  ros__parameters:
+    alpha1: 0.2
+    alpha2: 0.2
+    alpha3: 0.2
+    alpha4: 0.2
+    alpha5: 0.2
+    base_frame_id: "base_footprint"  # base_link
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beamskip: false
+    global_frame_id: "map"
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 100.0
+    laser_min_range: -1.0
+    laser_model_type: "likelihood_field"
+    max_beams: 60
+    max_particles: 2000
+    min_particles: 500
+    odom_frame_id: "odom"
+    pf_err: 0.05
+    pf_z: 0.99
+    recovery_alpha_fast: 0.0
+    recovery_alpha_slow: 0.0
+    random_seed: -1
+    resample_interval: 1
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
+    save_pose_rate: 0.5
+    sigma_hit: 0.2
+    tf_broadcast: true
+    transform_tolerance: 1.0
+    introspection_mode: "disabled"
+    update_min_a: 0.2
+    update_min_d: 0.25
+    z_hit: 0.5
+    z_max: 0.05
+    z_rand: 0.5
+    z_short: 0.05
+    scan_topic: /scan_filtered
+
+##### bt_navigator  ####
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: true
+    global_frame: map
+    robot_base_frame: base_footprint
+    odom_topic:  /odometry/filtered #odom
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    wait_for_service_timeout: 1000
+    action_server_result_timeout: 900.0
+    navigators: ["navigate_to_pose", "navigate_through_poses"]
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
+    navigate_through_poses:
+      plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator"
+    default_nav_to_pose_bt_xml: "$(find-pkg-share nav2_bt_navigator)/behavior_trees/navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml"
+
+    # plugin_lib_names is used to add custom BT plugins to the executor (vector of strings).
+    # Built-in plugins are added automatically
+    # plugin_lib_names: []
+
+
+##########################Contoller RPP Et dwb ############################
+
+controller_server:
+  ros__parameters:
+    use_sim_time: true
+    odom_topic: "odometry/filtered"  #odom     # odometrie corrigee par l'EKF
+    controller_frequency: 20.0
+    costmap_update_timeout: 0.30
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+
+
+    progress_checker_plugin: "progress_checker"
+    goal_checker_plugins: ["general_goal_checker"]
+    controller_plugins: ["FollowPath", "DWBLocalPlanner"]
+
+    use_realtime_priority: false
+
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5
+      movement_time_allowance: 10.0
+
+    general_goal_checker:
+      stateful: true
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.25
+      yaw_goal_tolerance: 3.15
+
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+
+      desired_linear_vel: 0.45 #0.22
+      max_angular_accel: 3.2
+      transform_tolerance: 0.2
+      # Point de visee FIXE. L'adaptation a la vitesse creait un cercle
+      # vicieux : a l'arret le point de visee retombait a min_lookahead_dist
+      # (0.30 m), soit moins que la longueur du robot (0.50 m). Un ecart
+      # lateral de 10 cm donnait alors un rayon de courbure de 0.45 m, sous
+      # le seuil de regulation, donc vitesse ecrasee au plancher... ce qui
+      # raccourcissait encore le point de visee. Le robot pivotait sur place
+      # jusqu'au declenchement du progress checker.
+      lookahead_dist: 0.7 #0.6
+      use_velocity_scaled_lookahead_dist: false
+      max_robot_pose_search_dist: 10.0
+      use_regulated_linear_velocity_scaling: true
+      # 0.9 m etait trop exigeant : un differentiel de 0.44 m de large qui
+      # tourne sur place declenchait la regulation en permanence.
+      regulated_linear_scaling_min_radius: 0.5
+      regulated_linear_scaling_min_speed: 0.10
+      use_cost_regulated_linear_velocity_scaling: true
+      inflation_cost_scaling_factor: 3.0   # = cost_scaling_factor de la couche d inflation
+      cost_scaling_dist: 0.6
+      cost_scaling_gain: 1.0
+      min_approach_linear_velocity: 0.05
+      approach_velocity_scaling_dist: 0.6
+      use_rotate_to_heading: true
+      rotate_to_heading_min_angle: 0.785
+      rotate_to_heading_angular_vel: 1.0
+      allow_reversing: false
+      use_collision_detection: true
+      max_allowed_time_to_collision_up_to_carrot: 0.5   # 1.0 bloquait le robot entre les tables de l arene
+
+
+    DWBLocalPlanner:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      
+      # Limites de vitesse 
+      min_vel_x: 0.0
+      min_vel_y: 0.0
+      max_vel_x: 0.22
+      max_vel_y: 0.0
+      max_vel_theta: 0.8
+      min_speed_xy: 0.0
+      max_speed_xy: 0.22
+      min_speed_theta: 0.0
+      
+      #Limites d'acceleration
+      acc_lim_x: 2.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -3.2
+    
+      #Génération des trajectoires 
+      vx_samples: 20             
+      vy_samples: 5 #1              
+      vtheta_samples: 20         
+      sim_time: 1.7              
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.05 #0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+    
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      
+      BaseObstacle.scale: 0.25            # Évite les obstacles 
+      PathAlign.scale: 30.0               
+      PathAlign.forward_point_distance: 0.1
+      GoalAlign.scale: 24.0               
+      GoalAlign.forward_point_distance: 0.1
+      PathDist.scale: 32.0                
+      GoalDist.scale: 24.0                
+      RotateToGoal.scale: 32.0            
+      RotateToGoal.slowing_factor: 5.0
+      RotateToGoal.lookahead_time: -1.0
+
+
+### Carte de cout local
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      use_sim_time: true
+      global_frame: odom
+      robot_base_frame: base_footprint
+      rolling_window: true
+      width: 5
+      height: 5
+      resolution: 0.05
+      #robot_radius: 0.25
+
+      # Empreinte physique du robot
+      footprint: "[[-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25]]"
+
+      # Navigation LiDAR + masque de zones interdites (KeepoutFilter).
+      # Les plateaux de table, invisibles a la hauteur du LiDAR, sont
+      # apportes par maps/masque_keepout.pgm sans polluer la carte d AMCL.
+      # Sans la couche voxel (camera) : quand le robot simule penche, la camera voit le sol
+      # au-dessus de 0.45 m et la couche voxel garde ces marques pour toujours (rien ne les
+      # efface hors du champ). Ces zones fantomes bloquaient le controleur. Mesure : 1 tag sur 4
+      # avec la couche voxel (courses 4 a 10), 4 sur 4 en 179 s sans (course 11).
+      plugins: ["obstacle_layer", "keepout_filter", "inflation_layer"]
+
+      #utiliser pour la camera      
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: True  # Permet de voir la grille 3D dans RViz2
+        origin_z: 0.0
+        z_resolution: 0.05       # Taille d'un voxel en Z 
+        z_voxels: 16             # maximum accepte par voxel_grid (16 x 0.05 = 0.80 m au-dessus de origin_z)
+        max_obstacle_height: 1.5
+        mark_threshold: 0
+        observation_sources: top_camera
+        
+        top_camera:
+          topic: /top_camera_depth/points
+          data_type: "PointCloud2"
+          clearing: True
+          marking: True
+      
+          min_obstacle_height: 0.45  # On ignore tout ce qui est sous O.45 m
+          max_obstacle_height: 1.20  # On regarde jusqu'a 1m20 (a peut prés hauteur de table)
+          obstacle_max_range: 3.0    # Porte de vision utile de la camer
+          obstacle_min_range: 0.3
+          raytrace_max_range: 1.5    # Distance pour "effacer" les obstacles s'ils n'y sont plus
+
+
+
+
+      
+
+
+        ### obstacle layer = lidar
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        
+        scan:
+          topic: /scan_filtered
+          data_type: "LaserScan"
+          clearing: True
+          marking: True
+          #min_obstacle_height: 0.0
+          #max_obstacle_height: 0.3   # Le LiDAR ne gere que les obstacles au ras du sol
+          obstacle_max_range: 3.0
+          obstacle_min_range: 0.32
+          raytrace_max_range: 3.6
+
+      # Zones interdites issues du masque (generer_masque + masque.launch.py).
+      # Placee AVANT inflation_layer pour que la marge de securite s applique
+      # aussi aux plateaux de table. Sans masque publie, ce filtre ne bloque rien.
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: True
+        filter_info_topic: "/costmap_filter_info"
+        transform_tolerance: 0.1
+
+      #### INFLATION LAYER (Gonfler les obstacles pour la securite)
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.60 #0.75
+        cost_scaling_factor: 3.0   # 2.0 : arene encombree presque entierement en cout eleve
+      always_send_full_costmap: True
+
+#### carte de cout global
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      use_sim_time: true
+      update_frequency: 5.0 #1.0
+      publish_frequency: 5.0 #1.0
+      rolling_window: false
+      width: 20
+      height: 20
+      global_frame: map
+      robot_base_frame: base_footprint
+      #robot_radius: 0.25
+      resolution: 0.05
+      track_unknown_space: true
+
+      footprint: "[[-0.25, -0.25], [0.25, -0.25], [0.25, 0.25], [-0.25, 0.25]]"
+
+      # Navigation LiDAR + masque de zones interdites (KeepoutFilter).
+      # Les plateaux de table, invisibles a la hauteur du LiDAR, sont
+      # apportes par maps/masque_keepout.pgm sans polluer la carte d AMCL.
+      # Pas de couche voxel (camera) dans la carte globale : hors du champ de la camera,
+      # rien n efface ses obstacles, et les recalages du SLAM laissaient des tables fantomes
+      # qui coupaient l arene en morceaux ("no valid path found"). La camera reste dans la
+      # costmap locale, qui suit le robot et s efface en continu.
+      plugins: ["static_layer", "obstacle_layer", "keepout_filter", "inflation_layer"]
+
+      ### la carte obtenu par le slam
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: true
+
+
+
+### Camera haut 
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 1.5
+        mark_threshold: 0
+        observation_sources: top_camera
+        
+        top_camera:
+          topic: /top_camera_depth/points
+          data_type: "PointCloud2"
+          clearing: True
+          marking: True
+          min_obstacle_height: 0.45  # Toujours ignorer le sol
+          max_obstacle_height: 1.20
+          obstacle_max_range: 3.0
+          raytrace_max_range: 3.5
+
+
+      
+
+
+
+
+####### Mis jour dynamique de la carte avec le lidar
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        
+        scan:
+          topic: /scan_filtered
+          data_type: "LaserScan"
+          clearing: True
+          marking: True
+          min_obstacle_height: 0.0
+          max_obstacle_height: 0.3
+          obstacle_max_range: 3.5
+          raytrace_max_range: 6.0
+
+      # Zones interdites issues du masque (generer_masque + masque.launch.py).
+      # Placee AVANT inflation_layer pour que la marge de securite s applique
+      # aussi aux plateaux de table. Sans masque publie, ce filtre ne bloque rien.
+      keepout_filter:
+        plugin: "nav2_costmap_2d::KeepoutFilter"
+        enabled: True
+        filter_info_topic: "/costmap_filter_info"
+        transform_tolerance: 0.1
+
+      ##### Marge de securite globale
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        inflation_radius: 0.60 #0.75
+        cost_scaling_factor: 3.0   # 2.0 : arene encombree presque entierement en cout eleve
+
+docking_server:
+  ros__parameters:
+    controller_frequency: 50.0
+    initial_perception_timeout: 5.0
+    wait_charge_timeout: 5.0
+    dock_approach_timeout: 30.0
+    undock_linear_tolerance: 0.05
+    undock_angular_tolerance: 0.05
+    max_retries: 3
+    base_frame: "base_footprint"
+    fixed_frame: "odom"
+    dock_backwards: false
+    dock_prestaging_tolerance: 0.5
+    dock_plugins: ['simple_charging_dock']
+    simple_charging_dock:
+      plugin: 'opennav_docking::SimpleChargingDock'
+      docking_threshold: 0.05
+      staging_x_offset: -0.7
+      use_external_detection_pose: false
+      use_battery_status: false
+      use_stall_detection: false
+
+
+planner_server:
+  ros__parameters:
+    use_sim_time: true
+    expected_planner_frequency: 1.0 ## calcule du nouvveau chemin 1 fois/s
+    planner_plugins: ["GridBased"]
+
+    GridBased:
+      plugin: "nav2_smac_planner::SmacPlanner2D"
+      tolerance: 0.25                      
+      downsample_costmap: false            
+      downsampling_factor: 1               
+      allow_unknown: true                  
+      max_iterations: 1000000              
+      max_on_approach_iterations: 1000     
+      max_planning_time: 3.0 #2.0          
+      cost_travel_multiplier: 2.5 #3.5          
+      use_final_approach_orientation: false
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.5 #0.3  ## lisse la trajectoir en minimisant les ziczac
+        w_data: 0.2
+        tolerance: 1.0e-10
+
+
+behavior_server:
+  ros__parameters:
+    use_sim_time: true                     
+    local_costmap_topic: local_costmap/costmap_raw
+    global_costmap_topic: global_costmap/costmap_raw
+    local_footprint_topic: local_costmap/published_footprint
+    global_footprint_topic: global_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading",  "wait"] # "assisted_teleop"
+    
+    spin:
+      plugin: "nav2_behaviors::Spin"
+    backup:
+      plugin: "nav2_behaviors::BackUp"
+    drive_on_heading:
+      plugin: "nav2_behaviors::DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors::Wait"
+    # assisted_teleop:
+    #   plugin: "nav2_behaviors::AssistedTeleop"
+      
+    local_frame: odom
+    global_frame: map
+    robot_base_frame: base_footprint       
+    transform_tolerance: 0.1
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 1.0
+    min_rotational_vel: 0.4
+    rotational_acc_lim: 3.2
+
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: true
+    max_velocity: [0.45, 0.0, 1.0]  #[0.4, 0.0, 1.0]
+    min_velocity: [-0.25, 0.0, -1.0] #[-0.4, 0.0, -1.0]
+
+    max_decel: [-2.5, 0.0, -3.2]    #[-2.5, 0.0, -3.2]
+    max_accel: [2.5, 0.0, 3.2]   #[2.5, 0.0, 3.2]
+    
+    odom_topic: "odometry/filtered" #"odom"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
+
+
+collision_monitor:
+  ros__parameters:
+    base_frame_id: "base_footprint"
+    odom_frame_id: "odom"
+    cmd_vel_in_topic: "cmd_vel_smoothed"
+    cmd_vel_out_topic: "/robot_base_controller/cmd_vel_unstamped" #"cmd_vel"
+    state_topic: "collision_monitor_state"
+    transform_tolerance: 0.2
+    source_timeout: 1.0
+    base_shift_correction: True
+    stop_pub_timeout: 0.5
+    polygons: ["FootprintApproach"]
+    FootprintApproach:
+      type: "polygon"
+      action_type: "approach"
+      footprint_topic: "/local_costmap/published_footprint"
+      time_before_collision: 1.2
+      simulation_time_step: 0.1
+      min_points: 6
+      visualize: true
+      enabled: True
+    observation_sources: ["scan"]
+    scan:
+      type: "scan"
+      topic: "/scan_filtered"
+      min_height: 0.15
+      max_height: 2.0
+      enabled: True
+
+smoother_server:
+  ros__parameters:
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10
+      max_its: 1000
+      do_refinement: True
+
+waypoint_follower:
+  ros__parameters:
+    loop_rate: 20
+    stop_on_failure: false
+    action_server_result_timeout: 900.0
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: True
+      waypoint_pause_duration: 200
+
+
+map_saver:
+  ros__parameters:
+    save_map_timeout: 5.0
+    free_thresh_default: 0.25
+    occupied_thresh_default: 0.65
+    map_subscribe_transient_local: True

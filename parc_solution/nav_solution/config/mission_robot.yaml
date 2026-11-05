@@ -1,0 +1,24 @@
+##### Mission sur le vrai robot (topics de parc_ros2_topics_updated.md)
+#    A verifier avec diagnostic_robot.py : camera du haut, secteur avant du LiDAR sans le chassis,
+#    et que obstacle_avoidance ne publie pas aussi sur /botwheel_explorer/cmd_vel.
+mission:
+  ros__parameters:
+    base_frame: base_link
+    cmd_vel_topic: /botwheel_explorer/cmd_vel   # consigne des organisateurs (4 nov) : direct aux roues
+    cmd_vel_stamped: true                       # TwistStamped sur ce topic
+    scan_topic: /scan
+    scan_filtered_topic: /scan_ma64       # notre laser_filter (robot.launch.py)
+    image_topic: /camera1/camera1/color/image_raw   # remplace par l'argument camera du launch
+    detections_topic: /detections
+    # Regle (organisateur, 05/11) : le point du robot le plus proche du tag a ~0.5 m, jugee a l'oeil.
+    # visit_distance est mesuree du CENTRE du robot : 0.60 - demi-longueur avant (~0.25) = avant a ~0.35 m.
+    # A verifier au metre ruban sur le robot (guide, 3a).
+    visit_distance: 0.60             # centre du robot -> face du tag
+    visit_distance_tolerance: 0.05   # visite acceptee entre 0.55 et 0.65 m (mesure camera)
+    view_distance: 1.2
+    max_linear: 0.12
+    max_angular: 0.5
+    spin_speed: 0.4
+    front_stop_distance: 0.25
+    tag_budget_min: 60.0
+    journal_dir: ~/MA64/journaux

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <model name="plastic_chair">
+    <!-- Chaise en plastique de l'arene finale, dimensions estimees sur les photos du 4 nov.
+         Le LiDAR (plan a 3.8 cm) n'en voit que les 4 pieds de 2.2 cm, ecartes de 0.42 m ;
+         l'assise et le dossier ne sont visibles que par les cameras. -->
+    <static>true</static>
+    <link name="link">
+      <visual name="pied_av_g">
+        <pose>0.21 0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+        <material><ambient>0.75 0.75 0.78 1</ambient><diffuse>0.75 0.75 0.78 1</diffuse></material>
+      </visual>
+      <collision name="pied_av_g">
+        <pose>0.21 0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+      </collision>
+      <visual name="pied_av_d">
+        <pose>0.21 -0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+        <material><ambient>0.75 0.75 0.78 1</ambient><diffuse>0.75 0.75 0.78 1</diffuse></material>
+      </visual>
+      <collision name="pied_av_d">
+        <pose>0.21 -0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+      </collision>
+      <visual name="pied_ar_g">
+        <pose>-0.21 0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+        <material><ambient>0.75 0.75 0.78 1</ambient><diffuse>0.75 0.75 0.78 1</diffuse></material>
+      </visual>
+      <collision name="pied_ar_g">
+        <pose>-0.21 0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+      </collision>
+      <visual name="pied_ar_d">
+        <pose>-0.21 -0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+        <material><ambient>0.75 0.75 0.78 1</ambient><diffuse>0.75 0.75 0.78 1</diffuse></material>
+      </visual>
+      <collision name="pied_ar_d">
+        <pose>-0.21 -0.21 0.215 0 0 0</pose>
+        <geometry><cylinder><radius>0.011</radius><length>0.43</length></cylinder></geometry>
+      </collision>
+      <visual name="assise">
+        <pose>0 0 0.44 0 0 0</pose>
+        <geometry><box><size>0.46 0.46 0.03</size></box></geometry>
+        <material><ambient>0.90 0.42 0.12 1</ambient><diffuse>0.90 0.42 0.12 1</diffuse></material>
+      </visual>
+      <collision name="assise">
+        <pose>0 0 0.44 0 0 0</pose>
+        <geometry><box><size>0.46 0.46 0.03</size></box></geometry>
+      </collision>
+      <visual name="dossier">
+        <pose>-0.23 0 0.65 0 -0.15 0</pose>
+        <geometry><box><size>0.03 0.46 0.40</size></box></geometry>
+        <material><ambient>0.90 0.42 0.12 1</ambient><diffuse>0.90 0.42 0.12 1</diffuse></material>
+      </visual>
+      <collision name="dossier">
+        <pose>-0.23 0 0.65 0 -0.15 0</pose>
+        <geometry><box><size>0.03 0.46 0.40</size></box></geometry>
+      </collision>
+      <visual name="accoudoir_g">
+        <pose>-0.02 0.23 0.62 0 0 0</pose>
+        <geometry><box><size>0.42 0.04 0.03</size></box></geometry>
+        <material><ambient>0.90 0.42 0.12 1</ambient><diffuse>0.90 0.42 0.12 1</diffuse></material>
+      </visual>
+      <collision name="accoudoir_g">
+        <pose>-0.02 0.23 0.62 0 0 0</pose>
+        <geometry><box><size>0.42 0.04 0.03</size></box></geometry>
+      </collision>
+      <visual name="accoudoir_d">
+        <pose>-0.02 -0.23 0.62 0 0 0</pose>
+        <geometry><box><size>0.42 0.04 0.03</size></box></geometry>
+        <material><ambient>0.90 0.42 0.12 1</ambient><diffuse>0.90 0.42 0.12 1</diffuse></material>
+      </visual>
+      <collision name="accoudoir_d">
+        <pose>-0.02 -0.23 0.62 0 0 0</pose>
+        <geometry><box><size>0.42 0.04 0.03</size></box></geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
