@@ -45,6 +45,8 @@ from tf2_ros import Buffer, TransformException, TransformListener
 
 from parc_msgs.msg import Finish, RunStatus, StartSignal, TagOrder, TagVisit
 
+from nav_solution.couverture import Couverture
+
 try:
     import cv2
 except ImportError:  # encodage JPEG de secours plus bas
@@ -118,6 +120,19 @@ class Mission(Node):
         self.explore_clearance = p('explore_clearance', 0.40).value
         self.explore_spacing = p('explore_spacing', 0.8).value
         self.explore_max_cost = p('explore_max_cost', 70).value  # < cout circonscrit (~78) : le robot entier tient
+        # tournee : cercle de points autour du centre de l'arene, camera tournee vers les murs
+        self.tournee_active = p('explore_tournee', True).value
+        self.tournee_n = p('tournee_points', 6).value
+        self.tournee_marge = p('tournee_marge_mur', 1.2).value   # distance cercle -> bord de l'arene (m)
+        self.tournee_pts = None   # [(x, y, cap vers l'exterieur)] dans map, calcule une fois
+        self.tournee_k = 0        # prochain point de la tournee
+        # couverture : surfaces deja regardees par la camera (exploration apres la tournee)
+        self.couv = Couverture(portee=p('couverture_portee', 4.0).value,          # = max_distance des tags
+                               angle_max_deg=p('couverture_angle_max_deg', 55.0).value,
+                               hfov_deg=p('camera_hfov_deg', 55.0).value)       # camera2 du robot : 55 deg
+        self.couv_lock = threading.Lock()
+        self.couv_carte = None    # (message de carte, temps) de la derniere mise a jour des surfaces
+        self.couv_cap = None
         self.wait_running = p('wait_running_status', True).value
         self.test_approche = p('test_approche_tag', 0).value
         self.journal_dir = os.path.expanduser(p('journal_dir', '').value)
@@ -171,6 +186,7 @@ class Mission(Node):
         self.laser_yaw = None
         self.grid = None
         self.costmap = None
+        self.costmap_np = None     # (message, tableau numpy) de la costmap globale
         self.costmap_locale = None
         self.viewpoints = []   # points de vue deja explores (map)
         self.journal = []
@@ -196,6 +212,7 @@ class Mission(Node):
                                  callback_group=self.cb)
         self.create_subscription(OccupancyGrid, '/local_costmap/costmap',
                                  lambda m: setattr(self, 'costmap_locale', m), LATCHED, callback_group=self.cb)
+        self.create_timer(0.5, self.maj_couverture, callback_group=self.cb)
 
     # ---------- reception ----------
     def on_order(self, msg):
@@ -247,6 +264,8 @@ class Mission(Node):
         self.grid = msg
 
     def on_costmap(self, msg):
+        # message et tableau ensemble : la carte peut changer de taille entre deux lectures
+        self.costmap_np = (msg, np.asarray(msg.data, dtype=np.int16).reshape(msg.info.height, msg.info.width))
         self.costmap = msg
 
     # ---------- outils ----------
@@ -322,13 +341,36 @@ class Mission(Node):
         return t.x, t.y, n[0], n[1]
 
     def degagement(self):
-        """Distance au plus proche obstacle tout autour (scan filtre, sans le chassis)."""
-        s = self.scan_filtre
-        if s is None:
+        """Distance au plus proche obstacle tout autour : scan filtre (sans le chassis) et costmap
+        globale (masque compris : plateaux et assises que le LiDAR ne voit pas)."""
+        o = self.obstacle_proche()
+        return None if o is None else o[0]
+
+    def obstacle_costmap(self, rayon=1.0):
+        """(distance, direction dans le repere du robot) de la case obstacle ou masque (cout 100) la
+        plus proche dans la costmap globale, a moins de rayon, ou None. Le LiDAR ne voit que les pieds
+        des tables : en tournant pres d'elles, le chassis haut touchait les plateaux (course tournee21)."""
+        r = self.pose(self.map_frame)
+        if self.costmap_np is None or r is None:
             return None
-        r = np.asarray(s.ranges, dtype=np.float32)
-        ok = np.isfinite(r) & (r > s.range_min)
-        return float(r[ok].min()) if ok.any() else 10.0
+        c, cdata = self.costmap_np
+        res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
+        n = int(rayon / res) + 1
+        i, j = int((r[0] - ox) / res), int((r[1] - oy) / res)
+        i0, i1 = max(0, i - n), min(c.info.width, i + n + 1)
+        j0, j1 = max(0, j - n), min(c.info.height, j + n + 1)
+        if i0 >= i1 or j0 >= j1:
+            return None
+        jj, ii = np.nonzero(cdata[j0:j1, i0:i1] >= 100)
+        if ii.size == 0:
+            return None
+        x = ox + (ii + i0 + 0.5) * res - r[0]
+        y = oy + (jj + j0 + 0.5) * res - r[1]
+        d = np.hypot(x, y)
+        k = int(np.argmin(d))
+        if d[k] > rayon:
+            return None
+        return max(0.0, float(d[k]) - res / 2), wrap(math.atan2(y[k], x[k]) - r[2])
 
     def secteur(self, s, centre, demi_angle):
         """Distance la plus courte du scan s dans le secteur centre +- demi_angle (repere du robot)."""
@@ -351,15 +393,19 @@ class Mission(Node):
         return self.secteur(self.scan, 0.0, self.front_sector)
 
     def obstacle_proche(self):
-        """(distance, direction dans le repere du robot) de l'obstacle le plus proche, ou None."""
+        """(distance, direction dans le repere du robot) de l'obstacle le plus proche, scan filtre
+        et costmap globale (masque compris), ou None."""
         self.devant()  # calcule l'orientation du LiDAR dans le repere du robot (laser_yaw)
         s = self.scan_filtre
-        libre = self.degagement()
-        if s is None or libre is None or self.laser_yaw is None:
+        if s is None or self.laser_yaw is None:
             return None
         r = np.asarray(s.ranges, dtype=np.float32)
         r = np.where(np.isfinite(r) & (r > s.range_min), r, np.inf)
-        return libre, wrap(s.angle_min + int(np.argmin(r)) * s.angle_increment + self.laser_yaw)
+        k = int(np.argmin(r))
+        lidar = (float(r[k]) if np.isfinite(r[k]) else 10.0,
+                 wrap(s.angle_min + k * s.angle_increment + self.laser_yaw))
+        cm = self.obstacle_costmap()
+        return cm if cm is not None and cm[0] < lidar[0] else lidar
 
     def degager(self):
         """Colle a un obstacle, Nav2 se croit en collision et ne repart pas : on s'ecarte
@@ -687,6 +733,166 @@ class Mission(Node):
         cv2.floodFill(libre, masque, (int(xs[k]), int(ys[k])), 2)
         return libre == 2
 
+    def points_tournee(self):
+        """Cercle de tournee_n points autour du centre de l'arene (zone atteignable de la costmap
+        globale, sans les rayons passes par-dessus les murets), a tournee_marge des bords, dans
+        l'ordre du cercle en partant du point le plus proche du robot. Un point encombre est
+        rapproche du centre, ou abandonne."""
+        c, robot = self.costmap, self.pose(self.map_frame)
+        if c is None or robot is None:
+            return []
+        cdata = np.asarray(c.data, dtype=np.int16).reshape(c.info.height, c.info.width)
+        atteignable = self.zone_atteignable(c, cdata, robot)
+        if atteignable is None:
+            return []
+        ys, xs = np.nonzero(atteignable)
+        if xs.size < 100:
+            return []
+        res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
+        x0, x1 = np.percentile(ox + (xs + 0.5) * res, [2, 98])
+        y0, y1 = np.percentile(oy + (ys + 0.5) * res, [2, 98])
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        rayon = min(2.0, max(0.7, min(x1 - x0, y1 - y0) / 2 - self.tournee_marge))
+        depart = math.atan2(robot[1] - cy, robot[0] - cx)
+        pts = []
+        for k in range(self.tournee_n):
+            a = depart + 2 * math.pi * k / self.tournee_n
+            for r in (rayon, 0.75 * rayon, 0.5 * rayon):
+                x, y = cx + r * math.cos(a), cy + r * math.sin(a)
+                i, j = int((x - ox) / res), int((y - oy) / res)
+                if 0 <= i < c.info.width and 0 <= j < c.info.height and atteignable[j, i] \
+                        and 0 <= cdata[j, i] <= self.explore_max_cost:
+                    pts.append((x, y, a))
+                    break
+        self.log(f'tournee : centre ({cx:.2f}, {cy:.2f}), arene {x1 - x0:.1f} x {y1 - y0:.1f} m, '
+                 f'rayon {rayon:.2f} m, {len(pts)} points')
+        return pts
+
+    def tournee(self, connu, limite):
+        """Fait le tour de l'arene (points_tournee) jusqu'a connaitre le tag. A chaque point, la
+        camera regarde vers l'exterieur (les murs, ou sont les tags) et balaie +-45 deg. Tous les
+        tags vus en route sont memorises. Renvoie True si le tag est connu."""
+        if self.tournee_pts is None:
+            self.tournee_pts = self.points_tournee()
+        while self.tournee_k < len(self.tournee_pts) and not connu() and self.t() < limite:
+            self.verifie()
+            x, y, cap = self.tournee_pts[self.tournee_k]
+            self.tournee_k += 1
+            self.viewpoints.append((x, y))
+            self.log(f'tournee {self.tournee_k}/{len(self.tournee_pts)} : ({x:.2f}, {y:.2f})')
+            if self.naviguer(x, y, cap, arret=connu, timeout=min(self.nav_timeout, limite - self.t())) == 'arret':
+                break
+            r = self.pose(self.map_frame)
+            if r and abs(wrap(cap - r[2])) > 0.3 and self.tourner(wrap(cap - r[2]), self.spin_speed, connu):
+                break
+            for angle in (math.pi / 4, -math.pi / 2, math.pi / 4):
+                if connu() or self.tourner(angle, self.spin_speed, connu) or self.attendre_vue(connu):
+                    break
+        return connu()
+
+    def attendre_vue(self, arret):
+        """Pause immobile (image nette pour la detection). Renvoie True si arret() a interrompu."""
+        t0 = self.t()
+        while self.t() - t0 < self.look_pause:
+            self.verifie()
+            if arret():
+                return True
+            time.sleep(0.05)
+        return False
+
+    # ---------- couverture camera ----------
+    def zone_accessible(self):
+        """Fonction (x, y) -> bool des points atteignables par le robot (costmap globale), ou None."""
+        r = self.pose(self.map_frame)
+        if self.costmap_np is None or r is None:
+            return None
+        c, cdata = self.costmap_np
+        atteignable = self.zone_atteignable(c, cdata, r)
+        if atteignable is None:
+            return None
+        res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
+        h, w = atteignable.shape
+
+        def accessible(x, y):
+            i = np.floor((np.asarray(x) - ox) / res).astype(int)
+            j = np.floor((np.asarray(y) - oy) / res).astype(int)
+            dedans = (i >= 0) & (i < w) & (j >= 0) & (j < h)
+            out = np.zeros(i.shape, bool)
+            out[dedans] = atteignable[j[dedans], i[dedans]]
+            return out
+        return accessible
+
+    def maj_couverture(self):
+        """Timer : surfaces de la carte (toutes les 3 s au plus) et ce que la camera voit maintenant.
+        Rien n'est marque pendant une rotation rapide (image floue : le tag n'y serait pas detecte)."""
+        if not self.started or self.grid is None:
+            return
+        r = self.pose(self.map_frame)
+        if r is None:
+            return
+        try:
+            with self.couv_lock:
+                g = self.grid
+                if self.couv_carte is None or (self.couv_carte[0] is not g and self.t() - self.couv_carte[1] > 3.0):
+                    acc = self.zone_accessible()
+                    if acc is not None:
+                        data = np.asarray(g.data, dtype=np.int16).reshape(g.info.height, g.info.width)
+                        self.couv.maj_carte(data, g.info.resolution, g.info.origin.position.x,
+                                            g.info.origin.position.y, acc)
+                        self.couv_carte = (g, self.t())
+                if self.couv_cap is not None and abs(wrap(r[2] - self.couv_cap)) < 0.25:
+                    self.couv.observer(r[0], r[1], r[2])
+                self.couv_cap = r[2]
+        except Exception as e:  # noqa: BLE001  la couverture ne doit jamais arreter la mission
+            self.get_logger().warn(f'couverture : {e}')
+
+    def chercher_par_couverture(self, connu, limite):
+        """Va vers le point qui voit le plus de surfaces encore jamais regardees, s'y tourne vers elles
+        et balaie +-30 deg. Quand tout a ete vu sans trouver le tag, une detection a ete ratee : on
+        remet la couverture a zero. Renvoie True (tag connu), False (temps ecoule) ou None
+        (couverture indisponible : l'appelant reprend l'exploration classique)."""
+        remises = 0
+        while not connu() and self.t() < limite:
+            self.verifie()
+            r = self.pose(self.map_frame)
+            if self.costmap_np is None or r is None:
+                return None
+            c, cdata = self.costmap_np
+            atteignable = self.zone_atteignable(c, cdata, r)
+            if atteignable is None:
+                return None
+            res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
+            pas = max(1, int(0.35 / res))
+            jj, ii = np.nonzero(atteignable[::pas, ::pas])
+            jj, ii = jj * pas, ii * pas
+            garde = (cdata[jj, ii] >= 0) & (cdata[jj, ii] <= self.explore_max_cost)
+            cand = np.column_stack([ox + (ii[garde] + 0.5) * res, oy + (jj[garde] + 0.5) * res])
+            with self.couv_lock:
+                if self.couv.cases is None:
+                    return None
+                choix = self.couv.meilleur_point(cand, r[:2])
+                reste = int(self.couv.non_vues().sum())
+            if choix is None or choix[3] < 3:
+                if remises >= 1:
+                    return None
+                remises += 1
+                self.log(f'couverture : toutes les surfaces vues ({reste} restantes) sans le tag : remise a zero')
+                with self.couv_lock:
+                    self.couv.remise_a_zero()
+                continue
+            x, y, cap, gain = choix
+            self.viewpoints.append((x, y))
+            self.log(f'couverture : vers ({x:.2f}, {y:.2f}), {gain} cases a voir, {reste} non vues en tout')
+            if self.naviguer(x, y, cap, arret=connu, timeout=min(self.nav_timeout, limite - self.t())) == 'arret':
+                break
+            p = self.pose(self.map_frame)
+            if p and abs(wrap(cap - p[2])) > 0.3 and self.tourner(wrap(cap - p[2]), self.spin_speed, connu):
+                break
+            for angle in (0.0, 0.5, -1.0, 0.5):
+                if connu() or (angle and self.tourner(angle, self.spin_speed, connu)) or self.attendre_vue(connu):
+                    break
+        return connu()
+
     def explorer(self, cible, limite):
         """Cherche le tag cible jusqu'au temps limite. Renvoie True si sa position est connue."""
         connu = lambda: cible in self.tags  # noqa: E731
@@ -696,6 +902,13 @@ class Mission(Node):
             if p:
                 self.viewpoints.append(p[:2])
             self.regarder_autour(connu)
+        if self.tournee_active and not connu() and self.tournee(connu, limite):
+            return True
+        if not connu() and self.t() < limite:
+            trouve = self.chercher_par_couverture(connu, limite)
+            if trouve is not None:
+                return trouve
+            self.log('couverture indisponible : exploration classique')
         while not connu() and self.t() < limite:
             self.verifie()
             pv = self.choisir_point_de_vue()

@@ -12,6 +12,7 @@ avec autre chose que le sol (/sim/*_collisions), penalises en competition.
 import argparse
 import json
 import math
+import signal
 import time
 
 import rclpy
@@ -45,7 +46,12 @@ def main():
     verite = json.load(open(a.verite or f'{a.monde}/parc_random_seed{a.seed}.json'))
     tags = {t['id']: t for t in verite['tags']}
 
-    # Ctrl+C / kill -INT : on sort de la boucle et on ecrit quand meme le rapport
+    # Ctrl+C, kill -INT ou kill (course.sh) : on sort de la boucle et on ecrit quand meme le rapport.
+    # Lance en arriere-plan par un script, le processus herite d'un SIGINT ignore : on le retablit.
+    def interrompre(*_):
+        raise KeyboardInterrupt
+    signal.signal(signal.SIGINT, interrompre)
+    signal.signal(signal.SIGTERM, interrompre)
     rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
     n = rclpy.create_node('evaluateur_sim')
     n.set_parameters([rclpy.parameter.Parameter('use_sim_time', rclpy.Parameter.Type.BOOL, True)])

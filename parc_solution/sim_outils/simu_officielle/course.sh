@@ -3,6 +3,7 @@
 #   course.sh SEED NOM [args robot.launch...]   (resultats dans ~/ma64_courses_simu/NOM)
 #   seed:=-1 n'est pas gere ici : donner un SEED fixe (le masque lit parc_random_seed<SEED>.sdf)
 #   SEED=fixe : arene fixe nba_sim.sdf de phase2.launch.py (verite dans arene_fixe.json)
+#   ORDRE="1 4 9 7" : ordre impose a l'arbitre (sinon tire au hasard), pour comparer deux versions
 # Avant : ~/parc2026_ws compile (voir le compte rendu), copie locale du simulateur etalonnee.
 ICI="$(dirname "$(readlink -f "$0")")"
 R=$HOME/ma64_courses_simu   # journaux et rapports
@@ -57,7 +58,7 @@ until grep -q "lifecycle_manager_navigation\].*Managed nodes are active" $D/robo
 sleep 10
 echo "$(date +%T) armement"
 until curl -s -X POST -H "X-Judge-Token: parc2026" -H "Content-Type: application/json" \
-      -d '{"team": "MA64"}' http://127.0.0.1:8080/api/judge/arm | tee $D/armement.json | grep -q '"ok"'; do sleep 3; done
+      -d "{\"team\": \"MA64\"${ORDRE:+, \"order\": \"$ORDRE\"}}" http://127.0.0.1:8080/api/judge/arm | tee $D/armement.json | grep -q '"ok"'; do sleep 3; done
 until grep -q "attente du depart" $D/robot.log; do sleep 2; done
 sleep 3
 echo "$(date +%T) depart"
