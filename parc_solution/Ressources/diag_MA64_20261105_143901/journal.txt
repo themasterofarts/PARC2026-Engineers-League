@@ -1,0 +1,49 @@
+== 1. Environnement
+  machine aarch64 | ROS jazzy | domaine None | RMW None
+  paquets ROS absents : foxglove_bridge
+  modules Python absents : sounddevice
+== 2. Graphe ROS (decouverte 5 s)
+  28 noeuds, 124 topics ; topics /parc presents : ['/parc/tag_order', '/parc/run_status', '/parc/start', '/parc/tag_visit', '/parc/finish']
+  /botwheel_explorer/cmd_vel : publieurs ['obstacle_avoidance'], abonnes ['botwheel_explorer']
+  rosbag : /scan /scan_filtered /botwheel_explorer/odom /tf /tf_static /joint_states /camera1/camera1/imu /camera2/camera2/imu /camera1/camera1/color/camera_info /camera2/camera2/color/camera_info /camera1/camera1/depth/camera_info /camera2/camera2/depth/camera_info /camera1/scan /camera2/scan /scan_merged /botwheel_explorer/cmd_vel
+== 3. Capteurs (ecoute 15 s, le robot doit rester immobile)
+  /scan                                           152 msg    10.01 Hz  frame laser
+  /scan_filtered                                  150 msg     9.94 Hz  frame laser
+  /botwheel_explorer/odom                         150 msg     9.93 Hz  frame odom
+  /camera1/camera1/imu                           3002 msg   198.66 Hz  frame camera1_imu_optical_frame
+  /camera2/camera2/imu                           3004 msg    198.8 Hz  frame camera2_imu_optical_frame
+  /camera1/camera1/color/image_raw                174 msg     11.7 Hz  frame camera1_color_optical_frame
+  /camera2/camera2/color/image_raw                168 msg    11.32 Hz  frame camera2_color_optical_frame
+  /camera1/camera1/color/camera_info              444 msg    29.38 Hz  frame camera1_color_optical_frame
+  /camera2/camera2/color/camera_info              219 msg    14.52 Hz  frame camera2_color_optical_frame
+  /camera1/camera1/depth/camera_info              445 msg    29.43 Hz  frame camera1_depth_optical_frame
+  /camera2/camera2/depth/camera_info              449 msg    29.71 Hz  frame camera2_depth_optical_frame
+  /camera1/camera1/depth/image_rect_raw           374 msg     24.9 Hz  frame camera1_depth_optical_frame
+  /camera2/camera2/depth/image_rect_raw           420 msg    27.84 Hz  frame camera2_depth_optical_frame
+  /camera1/scan                                   447 msg    29.65 Hz  frame camera1_link
+  /camera2/scan                                   449 msg    29.79 Hz  frame camera2_link
+  /scan_merged                                    151 msg    10.02 Hz  frame base_link
+  /speech_audio                                     0 msg     None Hz  frame -
+  /audio                                          234 msg    15.62 Hz  frame -
+  /audio/channel0                                 233 msg    15.55 Hz  frame -
+  /is_speeching                                     0 msg     None Hz  frame -
+  /sound_direction                                 17 msg     1.25 Hz  frame -
+  /joint_states                                   151 msg     10.0 Hz  frame base_link
+  /battery_level                                    0 msg     None Hz  frame -
+  /botwheel_explorer/cmd_vel                        0 msg     None Hz  frame -
+  /parc/tag_order                                   1 msg     None Hz  frame -
+  /parc/run_status                                 30 msg      2.0 Hz  frame -
+  TF :
+    base_link -> base_link                                  {'xyz': [0.0, 0.0, 0.0], 'rpy_deg': [0.0, 0.0, 0.0]}
+    base_link -> camera1_color_optical_frame                {'xyz': [0.14, 0.0149, 0.5303], 'rpy_deg': [-157.41, 0.07, -89.85]}
+    base_link -> camera1_depth_optical_frame                {'xyz': [0.14, 0.0, 0.53], 'rpy_deg': [-157.04, 0.0, -90.0]}
+    base_link -> camera1_imu_optical_frame                  {'xyz': [0.1401, -0.0055, 0.5428], 'rpy_deg': [-157.04, 0.0, -90.0]}
+    base_link -> camera1_link                               {'xyz': [0.14, 0.0, 0.53], 'rpy_deg': [0.0, 67.04, 0.0]}
+    base_link -> camera2_color_optical_frame                {'xyz': [-0.0601, 0.0151, 0.92], 'rpy_deg': [-90.12, 0.56, -89.88]}
+    base_link -> camera2_depth_optical_frame                {'xyz': [-0.06, 0.0, 0.92], 'rpy_deg': [-90.0, 0.0, -90.0]}
+    base_link -> camera2_imu_optical_frame                  {'xyz': [-0.0717, -0.0055, 0.9251], 'rpy_deg': [-90.0, 0.0, -90.0]}
+    base_link -> camera2_link                               {'xyz': [-0.06, 0.0, 0.92], 'rpy_deg': [0.0, 0.0, 0.0]}
+    base_link -> laser                                      {'xyz': [0.0, 0.0, -0.06], 'rpy_deg': [-0.0, 0.0, 180.0]}
+    base_link -> odom                                       {'xyz': [-0.9488, 5.9785, 0.0], 'rpy_deg': [0.0, 0.0, -56.26]}
+
+Resultats dans /home/sitoe/MA64/outils/diag_MA64_20261105_143901

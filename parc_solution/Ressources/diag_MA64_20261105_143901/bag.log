@@ -1,0 +1,29 @@
+[WARN] [ros2bag]: Positional "topics" argument deprecated. Please use optional "--topics" argument instead.
+[INFO] [1793889552.094899642] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1793889552.094942795] [rosbag2_recorder]: Event publisher thread: Started
+[INFO] [1793889552.112994568] [rosbag2_recorder]: Starting recording to '/home/sitoe/MA64/outils/diag_MA64_20261105_143901/bag'
+[INFO] [1793889552.116749797] [rosbag2_recorder]: Listening for topics...
+[INFO] [1793889552.116847915] [rosbag2_recorder]: Recording...
+[INFO] [1793889552.116804314] [rosbag2_recorder]: Topics discovery started.
+[INFO] [1793889552.167619283] [rosbag2_recorder]: Subscribed to topic '/tf'
+[INFO] [1793889552.176431616] [rosbag2_recorder]: Subscribed to topic '/botwheel_explorer/odom'
+[INFO] [1793889552.184020440] [rosbag2_recorder]: Subscribed to topic '/camera1/camera1/color/camera_info'
+[INFO] [1793889552.188017970] [rosbag2_recorder]: Subscribed to topic '/camera1/camera1/depth/camera_info'
+[INFO] [1793889552.194197391] [rosbag2_recorder]: Subscribed to topic '/camera1/camera1/imu'
+[INFO] [1793889552.199734199] [rosbag2_recorder]: Subscribed to topic '/joint_states'
+[INFO] [1793889552.203899761] [rosbag2_recorder]: Subscribed to topic '/scan_filtered'
+[INFO] [1793889552.208601817] [rosbag2_recorder]: Subscribed to topic '/tf_static'
+[INFO] [1793889552.217490050] [rosbag2_recorder]: Subscribed to topic '/scan'
+[INFO] [1793889552.220556952] [rosbag2_recorder]: Subscribed to topic '/camera2/scan'
+[INFO] [1793889552.224788876] [rosbag2_recorder]: Subscribed to topic '/camera2/camera2/depth/camera_info'
+[INFO] [1793889552.229517470] [rosbag2_recorder]: Subscribed to topic '/camera2/camera2/imu'
+[INFO] [1793889552.232888328] [rosbag2_recorder]: Subscribed to topic '/camera2/camera2/color/camera_info'
+[INFO] [1793889552.236925873] [rosbag2_recorder]: Subscribed to topic '/botwheel_explorer/cmd_vel'
+[INFO] [1793889552.280468363] [rosbag2_recorder]: Subscribed to topic '/scan_merged'
+[INFO] [1793889552.286800386] [rosbag2_recorder]: Subscribed to topic '/camera1/scan'
+[INFO] [1793889552.286927827] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...
+[INFO] [1793889552.286948635] [rosbag2_recorder]: Topics discovery stopped.
+[INFO] [1793889566.540423114] [rosbag2_recorder]: Pausing recording.
+[INFO] [1793889566.540580454] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1793889566.555122436] [rosbag2_recorder]: Recording stopped
+[INFO] [1793889566.595604650] [rosbag2_recorder]: Event publisher thread: Exited

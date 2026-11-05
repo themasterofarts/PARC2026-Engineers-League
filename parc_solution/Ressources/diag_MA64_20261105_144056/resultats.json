@@ -1,0 +1,1282 @@
+{
+  "date": "20261105_144056",
+  "profil": "robot",
+  "arguments": {
+    "profil": "robot",
+    "duree": 15.0,
+    "audio": false,
+    "duree_audio": 10.0,
+    "mouvement": true,
+    "oui": false,
+    "bag": false,
+    "sim_time": false,
+    "sortie": null
+  },
+  "environnement": {
+    "ROS_DISTRO": "jazzy",
+    "ROS_DOMAIN_ID": null,
+    "RMW_IMPLEMENTATION": null,
+    "ROS_LOCALHOST_ONLY": null,
+    "ROS_AUTOMATIC_DISCOVERY_RANGE": "SUBNET",
+    "AMENT_PREFIX_PATH": "/home/sitoe/MA64/ws/install/nav_solution:/home/sitoe/ros2_ws/install/respeaker_ros2:/home/sitoe/ros2_ws/install/parc_referee:/home/sitoe/ros2_ws/install/parc_msgs:/home/sitoe/odrive_ws/install/person_following_robot:/home/sitoe/odrive_ws/install/tf_transformations:/home/sitoe/odrive_ws/install/telepresence_control:/home/sitoe/odrive_ws/install/sllidar_ros2:/home/sitoe/odrive_ws/install/scan_merger:/home/sitoe/odrive_ws/install/rplidar_ros:/home/sitoe/odrive_ws/install/rosbridge_test_msgs:/home/sitoe/odrive_ws/install/rosbridge_suite:/home/sitoe/odrive_ws/install/rosbridge_server:/home/sitoe/odrive_ws/install/rosbridge_msgs:/home/sitoe/odrive_ws/install/rosapi:/home/sitoe/odrive_ws/install/agenticros_agent:/home/sitoe/odrive_ws/install/rosbridge_library:/home/sitoe/odrive_ws/install/rosapi_msgs:/home/sitoe/odrive_ws/install/reactive_assistance:/home/sitoe/odrive_ws/install/odrive_botwheel_explorer:/home/sitoe/odrive_ws/install/odrive_ros2_control:/home/sitoe/odrive_ws/install/odrive_can:/home/sitoe/odrive_ws/install/ina228_battery_monitor:/home/sitoe/odrive_ws/install/caytu_controller:/home/sitoe/odrive_ws/install/caytu_msgs:/home/sitoe/odrive_ws/install/agenticros_follow_me:/home/sitoe/odrive_ws/install/agenticros_discovery:/home/sitoe/odrive_ws/install/agenticros_msgs:/opt/ros/jazzy",
+    "CYCLONEDDS_URI": null,
+    "FASTRTPS_DEFAULT_PROFILES_FILE": null,
+    "machine": "aarch64",
+    "noyau": "6.8.12-1021-tegra",
+    "python": "3.12.3",
+    "processeurs": 12,
+    "charge": [
+      2.2001953125,
+      2.337890625,
+      2.4853515625
+    ],
+    "disque_libre_go": 109.8,
+    "memoire": "total        used        free      shared  buff/cache   available\nMem:           62877        5559       39612         123       18477       57318\nSwap:           2047           0        2047",
+    "nvpmodel": "NV Power Mode: MODE_30W\n2",
+    "utilisateur": "sitoe",
+    "dossier": "/home/sitoe/MA64/outils",
+    "paquets_ros": {
+      "apriltag_ros": "/opt/ros/jazzy",
+      "apriltag_msgs": "/opt/ros/jazzy",
+      "slam_toolbox": "/opt/ros/jazzy",
+      "nav2_bringup": "/opt/ros/jazzy",
+      "nav2_simple_commander": "/opt/ros/jazzy",
+      "robot_localization": "/opt/ros/jazzy",
+      "laser_filters": "/opt/ros/jazzy",
+      "parc_msgs": "/home/sitoe/ros2_ws/install/parc_msgs",
+      "cv_bridge": "/opt/ros/jazzy",
+      "image_transport": "/opt/ros/jazzy",
+      "depthimage_to_laserscan": "/opt/ros/jazzy",
+      "depth_image_proc": "/opt/ros/jazzy",
+      "teleop_twist_keyboard": "/opt/ros/jazzy",
+      "foxglove_bridge": null,
+      "rosbridge_server": "/home/sitoe/odrive_ws/install/rosbridge_server",
+      "audio_common_msgs": "/opt/ros/jazzy"
+    },
+    "modules_python": {
+      "numpy": true,
+      "cv2": true,
+      "cv_bridge": true,
+      "yaml": true,
+      "scipy": true,
+      "vosk": true,
+      "sounddevice": false,
+      "pyaudio": true,
+      "transforms3d": true,
+      "PIL": true
+    }
+  },
+  "graphe": {
+    "noeuds": [
+      "/_ros2cli_daemon_0_78d8bbe1c1084855aa98e254ad55b25c",
+      "/botwheel_explorer",
+      "/camera1/camera1",
+      "/camera1_tf",
+      "/camera2/camera2",
+      "/camera2_tf",
+      "/controller_manager",
+      "/depthimage_to_laserscan_1",
+      "/depthimage_to_laserscan_2",
+      "/diag_ma64",
+      "/diffbot",
+      "/joint_state_broadcaster",
+      "/laser_tf",
+      "/obstacle_avoidance",
+      "/obstacle_map",
+      "/parc_referee",
+      "/person_following_robot/byte_tracker",
+      "/person_following_robot/person_follower",
+      "/person_following_robot/static_tf2_broadcaster",
+      "/respeaker_node",
+      "/robot_state_publisher",
+      "/ros_to_iot",
+      "/rosbag2_recorder",
+      "/rplidar_node",
+      "/scan_filter",
+      "/scan_merger",
+      "/transform_listener_impl_aaaaf2b84a90"
+    ],
+    "topics": {
+      "/accessory_view/command": [
+        "caytu_msgs/msg/AccessoryCommand"
+      ],
+      "/accessory_view/state": [
+        "std_msgs/msg/String"
+      ],
+      "/audio": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/audio/channel0": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/audio/channel1": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/audio/channel2": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/audio/channel3": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/audio/channel4": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/audio/channel5": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/auto_vel": [
+        "geometry_msgs/msg/Twist"
+      ],
+      "/battery_level": [
+        "std_msgs/msg/Int32"
+      ],
+      "/botwheel_explorer/cmd_vel": [
+        "geometry_msgs/msg/TwistStamped"
+      ],
+      "/botwheel_explorer/odom": [
+        "nav_msgs/msg/Odometry"
+      ],
+      "/botwheel_explorer/transition_event": [
+        "lifecycle_msgs/msg/TransitionEvent"
+      ],
+      "/camera1/camera1/accel/imu_info": [
+        "realsense2_camera_msgs/msg/IMUInfo"
+      ],
+      "/camera1/camera1/accel/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera1/camera1/accel/sample": [
+        "sensor_msgs/msg/Imu"
+      ],
+      "/camera1/camera1/color/camera_info": [
+        "sensor_msgs/msg/CameraInfo"
+      ],
+      "/camera1/camera1/color/image_raw": [
+        "sensor_msgs/msg/Image"
+      ],
+      "/camera1/camera1/color/image_raw/compressed": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera1/camera1/color/image_raw/compressedDepth": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera1/camera1/color/image_raw/theora": [
+        "theora_image_transport/msg/Packet"
+      ],
+      "/camera1/camera1/color/image_raw/zstd": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera1/camera1/color/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera1/camera1/depth/camera_info": [
+        "sensor_msgs/msg/CameraInfo"
+      ],
+      "/camera1/camera1/depth/image_rect_raw": [
+        "sensor_msgs/msg/Image"
+      ],
+      "/camera1/camera1/depth/image_rect_raw/compressed": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera1/camera1/depth/image_rect_raw/compressedDepth": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera1/camera1/depth/image_rect_raw/theora": [
+        "theora_image_transport/msg/Packet"
+      ],
+      "/camera1/camera1/depth/image_rect_raw/zstd": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera1/camera1/depth/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera1/camera1/extrinsics/depth_to_accel": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera1/camera1/extrinsics/depth_to_color": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera1/camera1/extrinsics/depth_to_gyro": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera1/camera1/gyro/imu_info": [
+        "realsense2_camera_msgs/msg/IMUInfo"
+      ],
+      "/camera1/camera1/gyro/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera1/camera1/gyro/sample": [
+        "sensor_msgs/msg/Imu"
+      ],
+      "/camera1/camera1/imu": [
+        "sensor_msgs/msg/Imu"
+      ],
+      "/camera1/camera1/triggered_calibration/_action/feedback": [
+        "realsense2_camera_msgs/action/TriggeredCalibration_FeedbackMessage"
+      ],
+      "/camera1/camera1/triggered_calibration/_action/status": [
+        "action_msgs/msg/GoalStatusArray"
+      ],
+      "/camera1/scan": [
+        "sensor_msgs/msg/LaserScan"
+      ],
+      "/camera2/camera2/accel/imu_info": [
+        "realsense2_camera_msgs/msg/IMUInfo"
+      ],
+      "/camera2/camera2/accel/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera2/camera2/accel/sample": [
+        "sensor_msgs/msg/Imu"
+      ],
+      "/camera2/camera2/color/camera_info": [
+        "sensor_msgs/msg/CameraInfo"
+      ],
+      "/camera2/camera2/color/image_raw": [
+        "sensor_msgs/msg/Image"
+      ],
+      "/camera2/camera2/color/image_raw/compressed": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera2/camera2/color/image_raw/compressedDepth": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera2/camera2/color/image_raw/theora": [
+        "theora_image_transport/msg/Packet"
+      ],
+      "/camera2/camera2/color/image_raw/zstd": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera2/camera2/color/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera2/camera2/depth/camera_info": [
+        "sensor_msgs/msg/CameraInfo"
+      ],
+      "/camera2/camera2/depth/image_rect_raw": [
+        "sensor_msgs/msg/Image"
+      ],
+      "/camera2/camera2/depth/image_rect_raw/compressed": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera2/camera2/depth/image_rect_raw/compressedDepth": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera2/camera2/depth/image_rect_raw/theora": [
+        "theora_image_transport/msg/Packet"
+      ],
+      "/camera2/camera2/depth/image_rect_raw/zstd": [
+        "sensor_msgs/msg/CompressedImage"
+      ],
+      "/camera2/camera2/depth/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera2/camera2/extrinsics/depth_to_accel": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera2/camera2/extrinsics/depth_to_color": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera2/camera2/extrinsics/depth_to_depth": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera2/camera2/extrinsics/depth_to_gyro": [
+        "realsense2_camera_msgs/msg/Extrinsics"
+      ],
+      "/camera2/camera2/gyro/imu_info": [
+        "realsense2_camera_msgs/msg/IMUInfo"
+      ],
+      "/camera2/camera2/gyro/metadata": [
+        "realsense2_camera_msgs/msg/Metadata"
+      ],
+      "/camera2/camera2/gyro/sample": [
+        "sensor_msgs/msg/Imu"
+      ],
+      "/camera2/camera2/imu": [
+        "sensor_msgs/msg/Imu"
+      ],
+      "/camera2/camera2/triggered_calibration/_action/feedback": [
+        "realsense2_camera_msgs/action/TriggeredCalibration_FeedbackMessage"
+      ],
+      "/camera2/camera2/triggered_calibration/_action/status": [
+        "action_msgs/msg/GoalStatusArray"
+      ],
+      "/camera2/scan": [
+        "sensor_msgs/msg/LaserScan"
+      ],
+      "/client_count": [
+        "std_msgs/msg/Int32"
+      ],
+      "/closest_gap": [
+        "sensor_msgs/msg/PointCloud2"
+      ],
+      "/cmd_vel": [
+        "geometry_msgs/msg/Twist"
+      ],
+      "/collision_obstacles": [
+        "sensor_msgs/msg/PointCloud2"
+      ],
+      "/connected_clients": [
+        "rosbridge_msgs/msg/ConnectedClients"
+      ],
+      "/controller_manager/activity": [
+        "controller_manager_msgs/msg/ControllerManagerActivity"
+      ],
+      "/controller_manager/introspection_data/full": [
+        "pal_statistics_msgs/msg/Statistics"
+      ],
+      "/controller_manager/introspection_data/names": [
+        "pal_statistics_msgs/msg/StatisticsNames"
+      ],
+      "/controller_manager/introspection_data/values": [
+        "pal_statistics_msgs/msg/StatisticsValues"
+      ],
+      "/controller_manager/statistics/full": [
+        "pal_statistics_msgs/msg/Statistics"
+      ],
+      "/controller_manager/statistics/names": [
+        "pal_statistics_msgs/msg/StatisticsNames"
+      ],
+      "/controller_manager/statistics/values": [
+        "pal_statistics_msgs/msg/StatisticsValues"
+      ],
+      "/desired_traj": [
+        "geometry_msgs/msg/PoseArray"
+      ],
+      "/diagnostics": [
+        "diagnostic_msgs/msg/DiagnosticArray"
+      ],
+      "/dynamic_joint_states": [
+        "control_msgs/msg/DynamicJointState"
+      ],
+      "/events/write_split": [
+        "rosbag2_interfaces/msg/WriteSplitEvent"
+      ],
+      "/footprint": [
+        "visualization_msgs/msg/Marker"
+      ],
+      "/gaps": [
+        "sensor_msgs/msg/PointCloud2"
+      ],
+      "/goal": [
+        "geometry_msgs/msg/PoseStamped"
+      ],
+      "/is_speeching": [
+        "std_msgs/msg/Bool"
+      ],
+      "/joint_state_broadcaster/transition_event": [
+        "lifecycle_msgs/msg/TransitionEvent"
+      ],
+      "/joint_states": [
+        "sensor_msgs/msg/JointState"
+      ],
+      "/nav_goal": [
+        "geometry_msgs/msg/PoseStamped"
+      ],
+      "/network/command": [
+        "caytu_msgs/msg/NetworkCommand"
+      ],
+      "/network/state": [
+        "caytu_msgs/msg/NetworkInfo"
+      ],
+      "/parameter_events": [
+        "rcl_interfaces/msg/ParameterEvent"
+      ],
+      "/parc/finish": [
+        "parc_msgs/msg/Finish"
+      ],
+      "/parc/run_status": [
+        "parc_msgs/msg/RunStatus"
+      ],
+      "/parc/start": [
+        "parc_msgs/msg/StartSignal"
+      ],
+      "/parc/tag_order": [
+        "parc_msgs/msg/TagOrder"
+      ],
+      "/parc/tag_visit": [
+        "parc_msgs/msg/TagVisit"
+      ],
+      "/person_following_robot/color_data": [
+        "person_following_robot/msg/TrackedObject"
+      ],
+      "/person_following_robot/follow_enable": [
+        "std_msgs/msg/Bool"
+      ],
+      "/person_following_robot/gui_enable": [
+        "std_msgs/msg/Bool"
+      ],
+      "/person_following_robot/gui_state": [
+        "std_msgs/msg/Bool"
+      ],
+      "/robot_description": [
+        "std_msgs/msg/String"
+      ],
+      "/ros_to_iot": [
+        "std_msgs/msg/String"
+      ],
+      "/rosout": [
+        "rcl_interfaces/msg/Log"
+      ],
+      "/safe_vel": [
+        "geometry_msgs/msg/Twist"
+      ],
+      "/scan": [
+        "sensor_msgs/msg/LaserScan"
+      ],
+      "/scan_filtered": [
+        "sensor_msgs/msg/LaserScan"
+      ],
+      "/scan_merged": [
+        "sensor_msgs/msg/LaserScan"
+      ],
+      "/sound_direction": [
+        "std_msgs/msg/Int32"
+      ],
+      "/sound_localization": [
+        "geometry_msgs/msg/PoseStamped"
+      ],
+      "/speech_audio": [
+        "audio_common_msgs/msg/AudioData"
+      ],
+      "/stamped_vel": [
+        "geometry_msgs/msg/TwistStamped"
+      ],
+      "/status_led": [
+        "std_msgs/msg/ColorRGBA"
+      ],
+      "/tf": [
+        "tf2_msgs/msg/TFMessage"
+      ],
+      "/tf_static": [
+        "tf2_msgs/msg/TFMessage"
+      ],
+      "/tracked_person/position": [
+        "geometry_msgs/msg/PoseStamped"
+      ],
+      "/virt_gaps": [
+        "sensor_msgs/msg/PointCloud2"
+      ],
+      "/volume/command": [
+        "std_msgs/msg/Int32"
+      ],
+      "/volume/state": [
+        "std_msgs/msg/Int32"
+      ],
+      "/webrtc/command": [
+        "caytu_msgs/msg/ActionCommand"
+      ],
+      "/webrtc/state": [
+        "std_msgs/msg/String"
+      ]
+    },
+    "detail": {
+      "/botwheel_explorer/cmd_vel": {
+        "publieurs": [
+          "obstacle_avoidance"
+        ],
+        "abonnes": [
+          "botwheel_explorer"
+        ]
+      },
+      "/tf": {
+        "publieurs": [
+          "botwheel_explorer",
+          "robot_state_publisher"
+        ],
+        "abonnes": [
+          "diag_ma64",
+          "scan_merger",
+          "transform_listener_impl_aaaaf2b84a90"
+        ]
+      },
+      "/tf_static": {
+        "publieurs": [
+          "camera2",
+          "camera2_tf",
+          "camera1_tf",
+          "laser_tf",
+          "camera1",
+          "static_tf2_broadcaster",
+          "robot_state_publisher"
+        ],
+        "abonnes": [
+          "diag_ma64",
+          "scan_merger",
+          "transform_listener_impl_aaaaf2b84a90"
+        ]
+      },
+      "/goal": {
+        "publieurs": [],
+        "abonnes": [
+          "obstacle_avoidance"
+        ]
+      },
+      "/parc/tag_order": {
+        "publieurs": [
+          "parc_referee"
+        ],
+        "abonnes": [
+          "rosbag2_recorder"
+        ]
+      },
+      "/parc/run_status": {
+        "publieurs": [
+          "parc_referee"
+        ],
+        "abonnes": [
+          "rosbag2_recorder"
+        ]
+      },
+      "/parc/start": {
+        "publieurs": [],
+        "abonnes": [
+          "parc_referee"
+        ]
+      },
+      "/parc/tag_visit": {
+        "publieurs": [],
+        "abonnes": [
+          "parc_referee"
+        ]
+      },
+      "/parc/finish": {
+        "publieurs": [],
+        "abonnes": [
+          "parc_referee"
+        ]
+      }
+    },
+    "topics_parc_presents": [
+      "/parc/tag_order",
+      "/parc/run_status",
+      "/parc/start",
+      "/parc/tag_visit",
+      "/parc/finish"
+    ],
+    "parc_msgs": "== parc_msgs/msg/Finish\n# Published by the team on /parc/finish to end the run early, e.g. after\n# skipping a tag. Not needed if all four tags are reported: the referee ends\n# the run automatically after the fourth report.\n# QoS: reliable, depth 10.\n\nbuiltin_interfaces/Time stamp\n\tint32 sec\n\tuint32 nanosec\n\nuint8 REASON_COMPLETED = 0   # the robot has done everything it is going to do\nuint8 REASON_GAVE_UP   = 1   # the robot cannot continue\nuint8 reason\n== parc_msgs/msg/TagVisit\n# Published once by the team on /parc/tag_visit at each tag, while the robot is\n# stopped in the visit pose (0.5 m from the tag, facing it within +-12 degrees).\n# After publishing, the robot must hold the pose for at least 3 seconds.\n# QoS: reliable, depth 10.\n\n# header.stamp: the moment of the visit. header.frame_id: the camera frame used.\nstd_msgs/Header header\n\tbuiltin_interfaces/Time stamp\n\t\tint32 sec\n\t\tuint32 nanosec\n\tstring frame_id\n\n# AprilTag 36h11 ID of the tag being visited (1, 4, 7 or 9).\nuint8 tag_id\n\n# JPEG image from a robot camera in which the tag is clearly visible.\nsensor_msgs/CompressedImage image\n\tstd_msgs/Header header #\n\t\tbuiltin_interfaces/Time stamp\n\t\t\tint32 sec\n\t\t\tuint32 nanosec\n\t\tstring frame_id\n\tstring format                #\n\tuint8[] data                 #\n== parc_msgs/msg/TagOrder\n# Published by the referee on /parc/tag_order when the judge arms the run.\n# QoS: reliable, transient local, depth 1 (late subscribers still receive it).\n\nbuiltin_interfaces/Time stamp\n\tint32 sec\n\tuint32 nanosec\n\n# The order in which the tags must be visited, e.g. [7, 1, 9, 4].\nuint8[] tag_ids\n== parc_msgs/msg/RunStatus\n# Published by the referee on /parc/run_status at 2 Hz and on every change.\n# QoS: reliable, transient local, depth 1.\n# Teams can use it to confirm their start and visits were received, and should\n# stop the robot when the state is FINISHED, TIMED_OUT or TERMINATED.\n\nbuiltin_interfaces/Time stamp\n\tint32 sec\n\tuint32 nanosec\n\nuint8 IDLE       = 0   # no run in progress\nuint8 ARMED      = 1   # order published, waiting for /parc/start\nuint8 RUNNING    = 2   # clock running\nuint8 FINISHED   = 3   # fourth tag reported or /parc/finish received\nuint8 TIMED_OUT  = 4   # time limit reached\nuint8 TERMINATED = 5   # ended by a judge (safety stop, contact with a person, loss of control)\nuint8 state\n\nfloat32 elapsed_s      # seconds since the start signal\nfloat32 time_limit_s   # 600\n\nuint8[] tag_order      # same as /parc/tag_order\nuint8[] tags_reported  # tag IDs reported, in the order received (the judges' verdict is separate)\n\nuint8 start_method     # StartSignal.METHOD_*, valid once RUNNING\nbool false_start       # robot moved before the start signal\n== parc_msgs/msg/StartSignal\n# Published once by the team on /parc/start when the robot starts its run.\n# QoS: reliable, depth 10. The run clock starts when the referee receives it.\n\nbuiltin_interfaces/Time stamp\n\tint32 sec\n\tuint32 nanosec\n\nuint8 METHOD_COMMAND = 0   # started by a typed command\nuint8 METHOD_VOICE   = 1   # started by a spoken start word (bonus)\nuint8 method\n\n# For voice starts: the recognised word (\"go\", \"allez\" or \"vai\"). Empty otherwise.\nstring heard"
+  },
+  "tf_arbre": "camera2_link: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\nbase_link: \n  parent: 'odom'\n  broadcaster: 'default_authority'\n  rate: 10.100\n  most_recent_transform: 1793889680.648769\n  oldest_transform: 1793889670.648748\n  buffer_length: 10.000\ncaster_frontal_wheel: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncaster_rear_wheel: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\nlaser: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_color_optical_frame: \n  parent: 'camera2_color_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_depth_frame: \n  parent: 'camera1_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_link: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_depth_optical_frame: \n  parent: 'camera1_depth_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_color_frame: \n  parent: 'camera1_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_color_optical_frame: \n  parent: 'camera1_color_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_accel_frame: \n  parent: 'camera1_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_accel_optical_frame: \n  parent: 'camera1_accel_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_gyro_frame: \n  parent: 'camera1_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_gyro_optical_frame: \n  parent: 'camera1_gyro_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_imu_frame: \n  parent: 'camera1_gyro_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera1_imu_optical_frame: \n  parent: 'camera1_imu_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\nleft_wheel: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10.100\n  most_recent_transform: 1793889680.648817\n  oldest_transform: 1793889670.648902\n  buffer_length: 10.000\nright_wheel: \n  parent: 'base_link'\n  broadcaster: 'default_authority'\n  rate: 10.100\n  most_recent_transform: 1793889680.648817\n  oldest_transform: 1793889670.648902\n  buffer_length: 10.000\ncamera2_depth_frame: \n  parent: 'camera2_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_depth_optical_frame: \n  parent: 'camera2_depth_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_color_frame: \n  parent: 'camera2_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_accel_frame: \n  parent: 'camera2_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_accel_optical_frame: \n  parent: 'camera2_accel_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_gyro_frame: \n  parent: 'camera2_link'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_gyro_optical_frame: \n  parent: 'camera2_gyro_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_imu_frame: \n  parent: 'camera2_gyro_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\ncamera2_imu_optical_frame: \n  parent: 'camera2_imu_frame'\n  broadcaster: 'default_authority'\n  rate: 10000.000\n  most_recent_transform: 0.000000\n  oldest_transform: 0.000000\n  buffer_length: 0.000\n",
+  "tf": {
+    "base_link -> base_link": {
+      "xyz": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rpy_deg": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "base_link -> camera1_color_optical_frame": {
+      "xyz": [
+        0.14,
+        0.0149,
+        0.5303
+      ],
+      "rpy_deg": [
+        -157.41,
+        0.07,
+        -89.85
+      ]
+    },
+    "base_link -> camera1_depth_optical_frame": {
+      "xyz": [
+        0.14,
+        0.0,
+        0.53
+      ],
+      "rpy_deg": [
+        -157.04,
+        0.0,
+        -90.0
+      ]
+    },
+    "base_link -> camera1_imu_optical_frame": {
+      "xyz": [
+        0.1401,
+        -0.0055,
+        0.5428
+      ],
+      "rpy_deg": [
+        -157.04,
+        0.0,
+        -90.0
+      ]
+    },
+    "base_link -> camera1_link": {
+      "xyz": [
+        0.14,
+        0.0,
+        0.53
+      ],
+      "rpy_deg": [
+        0.0,
+        67.04,
+        0.0
+      ]
+    },
+    "base_link -> camera2_color_optical_frame": {
+      "xyz": [
+        -0.0601,
+        0.0151,
+        0.92
+      ],
+      "rpy_deg": [
+        -90.12,
+        0.56,
+        -89.88
+      ]
+    },
+    "base_link -> camera2_depth_optical_frame": {
+      "xyz": [
+        -0.06,
+        0.0,
+        0.92
+      ],
+      "rpy_deg": [
+        -90.0,
+        0.0,
+        -90.0
+      ]
+    },
+    "base_link -> camera2_imu_optical_frame": {
+      "xyz": [
+        -0.0717,
+        -0.0055,
+        0.9251
+      ],
+      "rpy_deg": [
+        -90.0,
+        0.0,
+        -90.0
+      ]
+    },
+    "base_link -> camera2_link": {
+      "xyz": [
+        -0.06,
+        0.0,
+        0.92
+      ],
+      "rpy_deg": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "base_link -> laser": {
+      "xyz": [
+        0.0,
+        0.0,
+        -0.06
+      ],
+      "rpy_deg": [
+        -0.0,
+        0.0,
+        180.0
+      ]
+    },
+    "base_link -> odom": {
+      "xyz": [
+        -0.9488,
+        5.9785,
+        0.0
+      ],
+      "rpy_deg": [
+        0.0,
+        0.0,
+        -56.26
+      ]
+    }
+  },
+  "tf_map_existe": false,
+  "capteurs": {
+    "/scan": {
+      "type": "sensor_msgs/msg/LaserScan",
+      "messages": 151,
+      "frequence_hz": 9.95,
+      "retard_stamp_s": {
+        "median": 0.1007,
+        "max": 0.1089
+      },
+      "frame_id": "laser",
+      "analyse": {
+        "angle_min_deg": -179.0,
+        "angle_max_deg": 180.0,
+        "increment_deg": 0.4993,
+        "points": 720,
+        "range_min": 0.15000000596046448,
+        "range_max": 16.0,
+        "points_valides": 650,
+        "distance_min": 0.169,
+        "points_a_moins_de_40cm": 111,
+        "secteurs_moins_40cm_deg_base": [
+          [
+            -179.7,
+            -175.3
+          ],
+          [
+            -76.9,
+            -47.9
+          ],
+          [
+            53.4,
+            79.4
+          ],
+          [
+            177.8,
+            179.8
+          ]
+        ],
+        "distance_devant_m": 3.829,
+        "intensites": true,
+        "yaw_laser_dans_base_deg": 180.0
+      }
+    },
+    "/scan_filtered": {
+      "type": "sensor_msgs/msg/LaserScan",
+      "messages": 149,
+      "frequence_hz": 9.89,
+      "retard_stamp_s": {
+        "median": 0.1014,
+        "max": 0.1174
+      },
+      "frame_id": "laser",
+      "analyse": {
+        "angle_min_deg": -179.0,
+        "angle_max_deg": 180.0,
+        "increment_deg": 0.4993,
+        "points": 720,
+        "range_min": 0.15000000596046448,
+        "range_max": 16.0,
+        "points_valides": 408,
+        "distance_min": 0.98,
+        "points_a_moins_de_40cm": 0,
+        "secteurs_moins_40cm_deg_base": [],
+        "distance_devant_m": 3.835,
+        "intensites": true
+      },
+      "comparaison_avec_scan_brut": {
+        "valides_brut": 650,
+        "valides_filtre": 408,
+        "retires": 256,
+        "distance_max_des_retires": 5.398,
+        "secteurs_retires_deg_base": [
+          [
+            -179.7,
+            -157.3
+          ],
+          [
+            -138.3,
+            -138.3
+          ],
+          [
+            -126.8,
+            -126.8
+          ],
+          [
+            -115.3,
+            -114.8
+          ],
+          [
+            -107.4,
+            -107.4
+          ],
+          [
+            -87.9,
+            -42.9
+          ],
+          [
+            1.5,
+            2.0
+          ],
+          [
+            10.0,
+            10.5
+          ],
+          [
+            17.5,
+            22.5
+          ],
+          [
+            42.9,
+            87.9
+          ],
+          [
+            94.9,
+            94.9
+          ],
+          [
+            136.8,
+            136.8
+          ],
+          [
+            157.3,
+            179.8
+          ]
+        ],
+        "remarque": "comparaison du dernier message de chaque topic, pas forcement le meme balayage"
+      }
+    },
+    "/botwheel_explorer/odom": {
+      "type": "nav_msgs/msg/Odometry",
+      "messages": 151,
+      "frequence_hz": 9.94,
+      "retard_stamp_s": {
+        "median": 0.0016,
+        "max": 0.013
+      },
+      "frame_id": "odom",
+      "analyse": {
+        "frame_id": "odom",
+        "child_frame_id": "base_link",
+        "derive_pendant_ecoute_m": 0.0,
+        "derive_yaw_deg": 0.0,
+        "covariance_pose_diag": [
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.01
+        ],
+        "covariance_twist_diag": [
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.001,
+          0.01
+        ],
+        "vitesse_au_repos": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "/camera1/camera1/imu": {
+      "type": "sensor_msgs/msg/Imu",
+      "messages": 3007,
+      "frequence_hz": 199.04,
+      "retard_stamp_s": {
+        "median": 0.0009,
+        "max": 0.0234
+      },
+      "frame_id": "camera1_imu_optical_frame",
+      "analyse": {
+        "echantillons": 2985,
+        "orientation_fournie": "False",
+        "orientation_covariance_0": -1.0,
+        "gyro_moyen_rad_s": [
+          0.00061,
+          -0.00788,
+          -0.00066
+        ],
+        "gyro_ecart_type": [
+          0.00224,
+          0.00297,
+          0.00211
+        ],
+        "acc_moyenne_m_s2": [
+          -0.14,
+          -3.304,
+          -8.677
+        ],
+        "covariances_gyro_acc": [
+          0.01,
+          0.01
+        ],
+        "acc_moyenne_dans_base": [
+          -0.343,
+          0.14,
+          9.279
+        ],
+        "remarque": "au repos, acc dans base doit etre proche de (0, 0, +9.8) si la TF de l'IMU est juste"
+      }
+    },
+    "/camera2/camera2/imu": {
+      "type": "sensor_msgs/msg/Imu",
+      "messages": 3007,
+      "frequence_hz": 198.99,
+      "retard_stamp_s": {
+        "median": 0.0007,
+        "max": 0.0233
+      },
+      "frame_id": "camera2_imu_optical_frame",
+      "analyse": {
+        "echantillons": 2983,
+        "orientation_fournie": "False",
+        "orientation_covariance_0": -1.0,
+        "gyro_moyen_rad_s": [
+          -0.00126,
+          0.00031,
+          -0.0032
+        ],
+        "gyro_ecart_type": [
+          0.00241,
+          0.00286,
+          0.00216
+        ],
+        "acc_moyenne_m_s2": [
+          -0.026,
+          -9.132,
+          -0.733
+        ],
+        "covariances_gyro_acc": [
+          0.01,
+          0.01
+        ],
+        "acc_moyenne_dans_base": [
+          -0.733,
+          0.026,
+          9.132
+        ],
+        "remarque": "au repos, acc dans base doit etre proche de (0, 0, +9.8) si la TF de l'IMU est juste"
+      }
+    },
+    "/camera1/camera1/color/image_raw": {
+      "type": "sensor_msgs/msg/Image",
+      "messages": 256,
+      "frequence_hz": 16.94,
+      "retard_stamp_s": {
+        "median": 0.0356,
+        "max": 0.0535
+      },
+      "frame_id": "camera1_color_optical_frame",
+      "analyse": {
+        "encodage": "rgb8",
+        "taille": [
+          640,
+          360
+        ],
+        "capture": "camera1_camera1_color_image_raw.png"
+      }
+    },
+    "/camera2/camera2/color/image_raw": {
+      "type": "sensor_msgs/msg/Image",
+      "messages": 175,
+      "frequence_hz": 11.74,
+      "retard_stamp_s": {
+        "median": 0.0701,
+        "max": 0.0728
+      },
+      "frame_id": "camera2_color_optical_frame",
+      "analyse": {
+        "encodage": "rgb8",
+        "taille": [
+          640,
+          480
+        ],
+        "capture": "camera2_camera2_color_image_raw.png"
+      }
+    },
+    "/camera1/camera1/color/camera_info": {
+      "type": "sensor_msgs/msg/CameraInfo",
+      "messages": 447,
+      "frequence_hz": 29.59,
+      "retard_stamp_s": {
+        "median": 0.0356,
+        "max": 0.0538
+      },
+      "frame_id": "camera1_color_optical_frame",
+      "analyse": {
+        "taille": [
+          640,
+          360
+        ],
+        "K": [
+          458.9,
+          0.0,
+          318.87,
+          0.0,
+          458.01,
+          177.49,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "modele": "plumb_bob",
+        "D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "/camera2/camera2/color/camera_info": {
+      "type": "sensor_msgs/msg/CameraInfo",
+      "messages": 226,
+      "frequence_hz": 14.98,
+      "retard_stamp_s": {
+        "median": 0.0706,
+        "max": 0.0731
+      },
+      "frame_id": "camera2_color_optical_frame",
+      "analyse": {
+        "taille": [
+          640,
+          480
+        ],
+        "K": [
+          612.33,
+          0.0,
+          318.24,
+          0.0,
+          612.05,
+          229.67,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "modele": "plumb_bob",
+        "D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "/camera1/camera1/depth/camera_info": {
+      "type": "sensor_msgs/msg/CameraInfo",
+      "messages": 450,
+      "frequence_hz": 29.78,
+      "retard_stamp_s": {
+        "median": 0.0109,
+        "max": 0.054
+      },
+      "frame_id": "camera1_depth_optical_frame",
+      "analyse": {
+        "taille": [
+          640,
+          360
+        ],
+        "K": [
+          320.82,
+          0.0,
+          320.77,
+          0.0,
+          320.82,
+          179.7,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "modele": "plumb_bob",
+        "D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "/camera2/camera2/depth/camera_info": {
+      "type": "sensor_msgs/msg/CameraInfo",
+      "messages": 451,
+      "frequence_hz": 29.85,
+      "retard_stamp_s": {
+        "median": 0.0326,
+        "max": 0.0682
+      },
+      "frame_id": "camera2_depth_optical_frame",
+      "analyse": {
+        "taille": [
+          640,
+          360
+        ],
+        "K": [
+          318.01,
+          0.0,
+          317.78,
+          0.0,
+          318.01,
+          182.34,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "modele": "plumb_bob",
+        "D": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "/camera1/camera1/depth/image_rect_raw": {
+      "type": "sensor_msgs/msg/Image",
+      "messages": 425,
+      "frequence_hz": 28.19,
+      "retard_stamp_s": {
+        "median": 0.0106,
+        "max": 0.0544
+      },
+      "frame_id": "camera1_depth_optical_frame",
+      "analyse": {
+        "encodage": "16UC1",
+        "taille": [
+          640,
+          360
+        ],
+        "capture": "camera1_camera1_depth_image_rect_raw.png",
+        "distance_centre_brute": 705.5,
+        "remarque": "16UC1 RealSense : en millimetres en general"
+      }
+    },
+    "/camera2/camera2/depth/image_rect_raw": {
+      "type": "sensor_msgs/msg/Image",
+      "messages": 424,
+      "frequence_hz": 28.22,
+      "retard_stamp_s": {
+        "median": 0.0324,
+        "max": 0.0687
+      },
+      "frame_id": "camera2_depth_optical_frame",
+      "analyse": {
+        "encodage": "16UC1",
+        "taille": [
+          640,
+          360
+        ],
+        "capture": "camera2_camera2_depth_image_rect_raw.png",
+        "distance_centre_brute": 25412.0,
+        "remarque": "16UC1 RealSense : en millimetres en general"
+      }
+    },
+    "/camera1/scan": {
+      "type": "sensor_msgs/msg/LaserScan",
+      "messages": 450,
+      "frequence_hz": 29.9,
+      "retard_stamp_s": {
+        "median": 0.0115,
+        "max": 0.0548
+      },
+      "frame_id": "camera1_link",
+      "analyse": {
+        "angle_min_deg": -44.77,
+        "angle_max_deg": 45.0,
+        "increment_deg": 0.1405,
+        "points": 640,
+        "range_min": 0.10499999672174454,
+        "range_max": 10.0,
+        "points_valides": 561,
+        "distance_min": 0.703,
+        "points_a_moins_de_40cm": 0,
+        "secteurs_moins_40cm_deg_base": [],
+        "distance_devant_m": 0.705,
+        "intensites": false
+      }
+    },
+    "/camera2/scan": {
+      "type": "sensor_msgs/msg/LaserScan",
+      "messages": 449,
+      "frequence_hz": 29.76,
+      "retard_stamp_s": {
+        "median": 0.0332,
+        "max": 0.069
+      },
+      "frame_id": "camera2_link",
+      "analyse": {
+        "angle_min_deg": -45.29,
+        "angle_max_deg": 44.98,
+        "increment_deg": 0.1413,
+        "points": 640,
+        "range_min": 0.10499999672174454,
+        "range_max": 10.0,
+        "points_valides": 152,
+        "distance_min": 1.724,
+        "points_a_moins_de_40cm": 0,
+        "secteurs_moins_40cm_deg_base": [],
+        "distance_devant_m": 6.023,
+        "intensites": false
+      }
+    },
+    "/scan_merged": {
+      "type": "sensor_msgs/msg/LaserScan",
+      "messages": 150,
+      "frequence_hz": 9.94,
+      "retard_stamp_s": {
+        "median": 0.0127,
+        "max": 0.0339
+      },
+      "frame_id": "base_link",
+      "analyse": {
+        "angle_min_deg": -180.0,
+        "angle_max_deg": 180.0,
+        "increment_deg": 0.4993,
+        "points": 722,
+        "range_min": 0.10000000149011612,
+        "range_max": 10.0,
+        "points_valides": 434,
+        "distance_min": 0.842,
+        "points_a_moins_de_40cm": 0,
+        "secteurs_moins_40cm_deg_base": [],
+        "distance_devant_m": 0.846,
+        "intensites": true
+      }
+    },
+    "/speech_audio": {
+      "type": "audio_common_msgs/msg/AudioData",
+      "messages": 0
+    },
+    "/audio": {
+      "type": "audio_common_msgs/msg/AudioData",
+      "messages": 233,
+      "frequence_hz": 15.43
+    },
+    "/audio/channel0": {
+      "type": "audio_common_msgs/msg/AudioData",
+      "messages": 233,
+      "frequence_hz": 15.49
+    },
+    "/is_speeching": {
+      "type": "std_msgs/msg/Bool",
+      "messages": 0
+    },
+    "/sound_direction": {
+      "type": "std_msgs/msg/Int32",
+      "messages": 60,
+      "frequence_hz": 4.13,
+      "dernier_message": "std_msgs.msg.Int32(data=-106)"
+    },
+    "/joint_states": {
+      "type": "sensor_msgs/msg/JointState",
+      "messages": 151,
+      "frequence_hz": 10.0,
+      "retard_stamp_s": {
+        "median": 0.0014,
+        "max": 0.0031
+      },
+      "frame_id": "base_link",
+      "dernier_message": "sensor_msgs.msg.JointState(header=std_msgs.msg.Header(stamp=builtin_interfaces.msg.Time(sec=1793889680, nanosec=848798336), frame_id='base_link'), name=['left_wheel_joint', 'right_wheel_joint'], position=[-186.0048178321828, 159.98065400232932], velocity=[0.0, 0.0], effort=[0.049278486520051956, 0.06049322709441185])"
+    },
+    "/battery_level": {
+      "type": "std_msgs/msg/Int32",
+      "messages": 0
+    },
+    "/botwheel_explorer/cmd_vel": {
+      "type": "geometry_msgs/msg/TwistStamped",
+      "messages": 0
+    },
+    "/parc/tag_order": {
+      "type": "parc_msgs/msg/TagOrder",
+      "messages": 1,
+      "dernier_message": "parc_msgs.msg.TagOrder(stamp=builtin_interfaces.msg.Time(sec=1793882624, nanosec=17303232), tag_ids=[])"
+    },
+    "/parc/run_status": {
+      "type": "parc_msgs/msg/RunStatus",
+      "messages": 31,
+      "frequence_hz": 2.02,
+      "dernier_message": "parc_msgs.msg.RunStatus(stamp=builtin_interfaces.msg.Time(sec=1793889680, nanosec=517995566), state=0, elapsed_s=0.0, time_limit_s=600.0, tag_order=[], tags_reported=[], start_method=0, false_start=False)"
+    }
+  }
+}

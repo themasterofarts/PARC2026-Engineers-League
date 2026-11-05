@@ -1,0 +1,69 @@
+{
+  "date": "20261105_143943",
+  "profil": "robot",
+  "arguments": {
+    "profil": "robot",
+    "duree": 15.0,
+    "audio": false,
+    "duree_audio": 10.0,
+    "mouvement": true,
+    "oui": false,
+    "bag": false,
+    "sim_time": false,
+    "sortie": null
+  },
+  "environnement": {
+    "ROS_DISTRO": "jazzy",
+    "ROS_DOMAIN_ID": null,
+    "RMW_IMPLEMENTATION": null,
+    "ROS_LOCALHOST_ONLY": null,
+    "ROS_AUTOMATIC_DISCOVERY_RANGE": "SUBNET",
+    "AMENT_PREFIX_PATH": "/home/sitoe/MA64/ws/install/nav_solution:/home/sitoe/ros2_ws/install/respeaker_ros2:/home/sitoe/ros2_ws/install/parc_referee:/home/sitoe/ros2_ws/install/parc_msgs:/home/sitoe/odrive_ws/install/person_following_robot:/home/sitoe/odrive_ws/install/tf_transformations:/home/sitoe/odrive_ws/install/telepresence_control:/home/sitoe/odrive_ws/install/sllidar_ros2:/home/sitoe/odrive_ws/install/scan_merger:/home/sitoe/odrive_ws/install/rplidar_ros:/home/sitoe/odrive_ws/install/rosbridge_test_msgs:/home/sitoe/odrive_ws/install/rosbridge_suite:/home/sitoe/odrive_ws/install/rosbridge_server:/home/sitoe/odrive_ws/install/rosbridge_msgs:/home/sitoe/odrive_ws/install/rosapi:/home/sitoe/odrive_ws/install/agenticros_agent:/home/sitoe/odrive_ws/install/rosbridge_library:/home/sitoe/odrive_ws/install/rosapi_msgs:/home/sitoe/odrive_ws/install/reactive_assistance:/home/sitoe/odrive_ws/install/odrive_botwheel_explorer:/home/sitoe/odrive_ws/install/odrive_ros2_control:/home/sitoe/odrive_ws/install/odrive_can:/home/sitoe/odrive_ws/install/ina228_battery_monitor:/home/sitoe/odrive_ws/install/caytu_controller:/home/sitoe/odrive_ws/install/caytu_msgs:/home/sitoe/odrive_ws/install/agenticros_follow_me:/home/sitoe/odrive_ws/install/agenticros_discovery:/home/sitoe/odrive_ws/install/agenticros_msgs:/opt/ros/jazzy",
+    "CYCLONEDDS_URI": null,
+    "FASTRTPS_DEFAULT_PROFILES_FILE": null,
+    "machine": "aarch64",
+    "noyau": "6.8.12-1021-tegra",
+    "python": "3.12.3",
+    "processeurs": 12,
+    "charge": [
+      2.564453125,
+      2.412109375,
+      2.51904296875
+    ],
+    "disque_libre_go": 109.8,
+    "memoire": "total        used        free      shared  buff/cache   available\nMem:           62877        5573       39600         123       18476       57304\nSwap:           2047           0        2047",
+    "nvpmodel": "NV Power Mode: MODE_30W\n2",
+    "utilisateur": "sitoe",
+    "dossier": "/home/sitoe/MA64/outils",
+    "paquets_ros": {
+      "apriltag_ros": "/opt/ros/jazzy",
+      "apriltag_msgs": "/opt/ros/jazzy",
+      "slam_toolbox": "/opt/ros/jazzy",
+      "nav2_bringup": "/opt/ros/jazzy",
+      "nav2_simple_commander": "/opt/ros/jazzy",
+      "robot_localization": "/opt/ros/jazzy",
+      "laser_filters": "/opt/ros/jazzy",
+      "parc_msgs": "/home/sitoe/ros2_ws/install/parc_msgs",
+      "cv_bridge": "/opt/ros/jazzy",
+      "image_transport": "/opt/ros/jazzy",
+      "depthimage_to_laserscan": "/opt/ros/jazzy",
+      "depth_image_proc": "/opt/ros/jazzy",
+      "teleop_twist_keyboard": "/opt/ros/jazzy",
+      "foxglove_bridge": null,
+      "rosbridge_server": "/home/sitoe/odrive_ws/install/rosbridge_server",
+      "audio_common_msgs": "/opt/ros/jazzy"
+    },
+    "modules_python": {
+      "numpy": true,
+      "cv2": true,
+      "cv_bridge": true,
+      "yaml": true,
+      "scipy": true,
+      "vosk": true,
+      "sounddevice": false,
+      "pyaudio": true,
+      "transforms3d": true,
+      "PIL": true
+    }
+  }
+}

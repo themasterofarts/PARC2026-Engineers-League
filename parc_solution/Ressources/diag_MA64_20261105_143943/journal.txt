@@ -1,0 +1,7 @@
+== 1. Environnement
+  machine aarch64 | ROS jazzy | domaine None | RMW None
+  paquets ROS absents : foxglove_bridge
+  modules Python absents : sounddevice
+== 2. Graphe ROS (decouverte 5 s)
+
+Resultats dans /home/sitoe/MA64/outils/diag_MA64_20261105_143943
