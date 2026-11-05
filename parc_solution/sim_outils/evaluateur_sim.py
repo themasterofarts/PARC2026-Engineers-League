@@ -56,7 +56,7 @@ def main():
     n = rclpy.create_node('evaluateur_sim')
     n.set_parameters([rclpy.parameter.Parameter('use_sim_time', rclpy.Parameter.Type.BOOL, True)])
     etat = {'pose': None, 'visites': [], 'contacts': {}, 'run': None, 'fin': None, 'trajet_m': 0.0, 'prec': None,
-            'inclinaison_max_deg': 0.0, 'premiers_contacts': {}}
+            'inclinaison_max_deg': 0.0, 'premiers_contacts': {}, 't_depart': None}
 
     def on_pose(m):
         p = (m.position.x, m.position.y, yaw_of(m.orientation))
@@ -91,6 +91,8 @@ def main():
 
     def on_status(m):
         etat['run'] = m
+        if m.state == 2 and etat['t_depart'] is None:     # RUNNING : debut de la course (temps simule)
+            etat['t_depart'] = round(n.get_clock().now().nanoseconds * 1e-9, 1)
         if m.state in (3, 4, 5) and etat['fin'] is None:
             etat['fin'] = time.time()
 
@@ -126,6 +128,9 @@ def main():
         'seed': a.seed,
         'etat_final': ETATS.get(r.state) if r else None,
         'temps_course_s': round(r.elapsed_s, 1) if r else None,
+        't_depart_simule_s': etat['t_depart'],
+        'duree_simulee_s': (round(max(v['t'] for v in etat['visites']) - etat['t_depart'], 1)
+                            if etat['visites'] and etat['t_depart'] is not None else None),
         'ordre': list(r.tag_order) if r else None,
         'tags_signales': list(r.tags_reported) if r else None,
         'faux_depart': bool(r.false_start) if r else None,

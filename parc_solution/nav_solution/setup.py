@@ -37,6 +37,7 @@ setup(
             'sauver_tags = nav_solution.sauver_tags:main',
             'generer_masque = nav_solution.generer_masque:main',
             'demarrage_vocal = nav_solution.demarrage_vocal:main',
+            'odom_gyro = nav_solution.odom_gyro:main',
         ],
     },
 )

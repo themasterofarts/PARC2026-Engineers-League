@@ -2,11 +2,11 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, TimerAction
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, OpaqueFunction, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetRemap
 
 
 def generate_launch_description():
@@ -55,6 +55,10 @@ def generate_launch_description():
                               description="Depart vocal (Vosk, /speech_audio) en plus du depart par commande"),
         DeclareLaunchArgument("modele_vosk", default_value="~/teams/MA64/vosk-model",
                               description="Dossier du modele Vosk"),
+        DeclareLaunchArgument("gyro", default_value="false",
+                              description="Cap pris sur le gyroscope (odom_gyro, arbre TF /tf_ma64)"),
+        DeclareLaunchArgument("imu", default_value="",
+                              description="Topic de l'IMU pour gyro:=true (defaut : camera horizontale)"),
     ]
 
     def noeuds(context):
@@ -160,8 +164,7 @@ def generate_launch_description():
             condition=IfCondition(LaunchConfiguration("vocal")),
         )
 
-        return [
-            vocal,
+        noeuds_ma64 = [
             laser_filter,
             slam,
             lifecycle_slam,
@@ -172,5 +175,20 @@ def generate_launch_description():
             TimerAction(period=5.0, actions=[nav2]),
             TimerAction(period=12.0, actions=[mission]),
         ]
+        if LaunchConfiguration("gyro").perform(context).lower() != "true":
+            return [vocal] + noeuds_ma64
+        # odometrie corrigee par le gyroscope : odom_gyro recopie /tf vers /tf_ma64 en y remplacant la
+        # TF odom -> base des roues ; tous nos noeuds lisent /tf_ma64 (ceux du robot ne changent pas)
+        odom_gyro = Node(
+            package=package_name,
+            executable="odom_gyro",
+            name="odom_gyro",
+            output="screen",
+            parameters=[{"use_sim_time": sim,
+                         "base_frame": "base_footprint" if sim else "base_link",
+                         "imu_topic": LaunchConfiguration("imu").perform(context)
+                         or ("/camera1/camera1/imu" if sim else "/camera2/camera2/imu")}],
+        )
+        return [vocal, odom_gyro, GroupAction([SetRemap(src="/tf", dst="/tf_ma64")] + noeuds_ma64)]
 
     return LaunchDescription(declare_args + [OpaqueFunction(function=noeuds)])
