@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Genere les fichiers *_robot_sim.yaml (robot.launch.py sim:=true) depuis ceux du vrai robot.
 
-Le simulateur officiel PARC 2026 publie les memes topics que le robot, avec trois differences :
+Le simulateur officiel PARC 2026 publie les memes topics que le robot, avec quatre differences :
   - TF odom -> base_footprint -> base_link, ou base_link est tourne de 90 deg : le repere qui
     regarde vers l'avant est base_footprint (sur le robot, c'est base_link) ;
   - horloge simulee (use_sim_time) ;
-  - commandes Twist sur /cmd_vel (sur le robot : TwistStamped sur /botwheel_explorer/cmd_vel).
+  - commandes Twist sur /cmd_vel (sur le robot : TwistStamped sur /botwheel_explorer/cmd_vel) ;
+  - cameras inversees : la camera horizontale est camera2 sur le robot (0.92 m), camera1 en simulation.
 Seules ces valeurs changent : la simulation teste la configuration du robot.
 A relancer apres toute modification d'un fichier *_robot.yaml.
 """
@@ -31,6 +32,10 @@ def remplace(o):
                 o[k] = '/cmd_vel'
             elif k == 'cmd_vel_stamped':
                 o[k] = False
+            elif isinstance(v, str) and v.startswith('/camera2/'):
+                # cameras inversees : la camera horizontale est camera2 sur le robot, camera1 en simulation
+                o[k] = '/camera1/camera1/' + v[len('/camera2/camera2/'):] if v.startswith('/camera2/camera2/') \
+                    else '/camera1/' + v[len('/camera2/'):]
             else:
                 remplace(v)
     elif isinstance(o, list):

@@ -7,7 +7,7 @@
 #    detection camera en direct. Le repere map d'une nouvelle course ne coincide
 #    avec celui de la cartographie que si le robot part du meme endroit, dans la
 #    meme direction.
-#    Utilisation : ros2 run nav_solution sauver_tags ~/MA64/cartes/tags.yaml
+#    Utilisation : ros2 run nav_solution sauver_tags ~/teams/MA64/cartes/tags.yaml
 
 import sys
 import time

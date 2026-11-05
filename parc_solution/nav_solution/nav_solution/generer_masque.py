@@ -6,7 +6,7 @@
 #    Nav2 les traite alors comme des obstacles (keepout_filter, avant l'inflation).
 #
 #    A la souris, sur la carte faite pendant les essais :
-#      ros2 run nav_solution generer_masque ~/MA64/cartes/arene.yaml
+#      ros2 run nav_solution generer_masque ~/teams/MA64/cartes/arene.yaml
 #        clic gauche : ajoute un coin   | clic droit ou Entree : ferme le polygone
 #        u : annule le dernier coin     | s : enregistre et quitte | q : quitte sans enregistrer
 #    Depuis une liste de polygones (simulation, tests) :

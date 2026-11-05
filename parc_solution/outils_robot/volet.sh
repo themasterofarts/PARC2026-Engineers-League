@@ -8,14 +8,14 @@ C='source robot.conf &&'
 # meme connexion SSH partagee que deploy.sh : un seul mot de passe pour tout le creneau
 M='-o ControlMaster=auto -o ControlPath=~/.ssh/cm-%r@%h:%p -o ControlPersist=30m'
 distant() {  # distant SESSION ETAPE [ARGS] : etape lancee sur le robot dans une session tmux
-  echo "$C ssh $M -t \$ROBOT \"tmux new -A -s $1 '~/MA64/lancer.sh ${*:2}'\""
+  echo "$C ssh $M -t \$ROBOT \"tmux new -A -s $1 '~/teams/MA64/lancer.sh ${*:2}'\""
 }
 case "$1" in
   deploy)    titre="1. Deployer le code (PC) - mot de passe SSH ici";                       cmd="$C ./deploy.sh" ;;
   diag)      titre="2. Diagnostic au repos (robot immobile)";           cmd=$(distant diag diag) ;;
   mouvement) titre="3. Diagnostic mouvement : taper OUI (robot)"; cmd=$(distant mouvement mouvement) ;;
   rapatrier) titre="13. Fin : rapatrier les resultats (PC)"
-             cmd="$C scp $M -r \$ROBOT:MA64/outils/diag_MA64_* \$ROBOT:MA64/cartes \$ROBOT:MA64/journaux ../Ressources/" ;;
+             cmd="$C scp $M -r \$ROBOT:teams/MA64/outils/diag_MA64_* \$ROBOT:teams/MA64/cartes \$ROBOT:teams/MA64/journaux ../Ressources/" ;;
   carto)     titre="5. Cartographie / etalonnage : SLAM + AprilTag (robot)"
              cmd=$(distant carto carto '$CAMERA $TAILLE') ;;
   etalon)    titre="6. Etalonnage : distance camera -> tag, a comparer au ruban"
@@ -23,7 +23,7 @@ case "$1" in
   teleop)    titre="7. Teleop : i , j l k (SANS anti-collision)"; cmd=$(distant teleop teleop) ;;
   sauver)    titre="8. Sauver carte + tags : doit afficher [1, 4, 7, 9]"; cmd=$(distant sauver sauver) ;;
   masque)    titre="9. Masque (PC) : dessiner plateaux et assises, puis s"
-             cmd="$C mkdir -p ../Ressources/carte_robot && scp $M \$ROBOT:MA64/cartes/arene.* ../Ressources/carte_robot/ && source /opt/ros/jazzy/setup.bash && source ../../../install/setup.bash && ros2 run nav_solution generer_masque ../Ressources/carte_robot/arene.yaml && scp $M ../Ressources/carte_robot/arene_keepout.* \$ROBOT:MA64/cartes/" ;;
+             cmd="$C mkdir -p ../Ressources/carte_robot && scp $M \$ROBOT:teams/MA64/cartes/arene.* ../Ressources/carte_robot/ && source /opt/ros/jazzy/setup.bash && source ../../../install/setup.bash && ros2 run nav_solution generer_masque ../Ressources/carte_robot/arene.yaml && scp $M ../Ressources/carte_robot/arene_keepout.* \$ROBOT:teams/MA64/cartes/" ;;
   course)    titre="10. Course : robot pose sur le scotch"; cmd=$(distant course course '$CAMERA $TAILLE') ;;
   etat)      titre="11. Etat de l'arbitre : attendre state: 1"; cmd=$(distant etat etat) ;;
   depart)    titre="12. DEPART : quand state: 1 et 'attente du depart'"; cmd=$(distant depart depart) ;;

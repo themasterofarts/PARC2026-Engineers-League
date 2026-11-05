@@ -18,8 +18,8 @@ def generate_launch_description():
     #    Pas d'EKF : botwheel_explorer publie deja la TF odom -> base_link, une seconde
     #    source pour la meme TF ferait sauter la position du robot.
     #    Cartographie seule (teleop) : mission:=false nav2:=false
-    #    Masque des plateaux et assises : masque:=~/MA64/cartes/arene_keepout.yaml
-    #    Course sur une carte faite pendant les essais : carte:=~/MA64/cartes/arene.yaml
+    #    Masque des plateaux et assises : masque:=~/teams/MA64/cartes/arene_keepout.yaml
+    #    Course sur une carte faite pendant les essais : carte:=~/teams/MA64/cartes/arene.yaml
     #    (AMCL au lieu de slam_toolbox ; depart au meme endroit qu'au debut de la cartographie,
     #    ou x0:= y0:= yaw0:=)
     #    Simulateur officiel PARC 2026 (memes topics que le robot) : sim:=true
@@ -35,8 +35,8 @@ def generate_launch_description():
 
     declare_args = [
         DeclareLaunchArgument("sim", default_value="false", description="true : simulateur officiel PARC 2026"),
-        DeclareLaunchArgument("camera", default_value="camera1",
-                              description="Camera pour les tags : camera1 ou camera2"),
+        DeclareLaunchArgument("camera", default_value="camera2",
+                              description="Camera des tags : camera2 sur le robot (horizontale, 0.92 m), camera1 dans le simulateur"),
         DeclareLaunchArgument("tag_size", default_value="0.165", description="Cote du carre noir des tags (m)"),
         DeclareLaunchArgument("nav2", default_value="true"),
         DeclareLaunchArgument("mission", default_value="true"),
@@ -53,7 +53,7 @@ def generate_launch_description():
                               description="Parametres slam_toolbox (defaut : slam_toolbox_robot[_sim].yaml)"),
         DeclareLaunchArgument("vocal", default_value="false",
                               description="Depart vocal (Vosk, /speech_audio) en plus du depart par commande"),
-        DeclareLaunchArgument("modele_vosk", default_value="~/MA64/vosk-model",
+        DeclareLaunchArgument("modele_vosk", default_value="~/teams/MA64/vosk-model",
                               description="Dossier du modele Vosk"),
     ]
 

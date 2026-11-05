@@ -1,9 +1,10 @@
 ##### Nav2 sur le vrai robot (genere depuis nav2_params_mapping.yaml)
 #    - repere base_link (pas de base_footprint sur le robot), odometrie /botwheel_explorer/odom
 #    - pas de couche voxel : le robot ne publie pas de nuage de points ; la camera du haut
-#      entre par son scan /camera1/scan (depthimage_to_laserscan du robot). PAS /camera2/scan :
-#      la camera du bas, inclinee vers le sol, y voit le sol a 0.5-0.7 m (simulateur officiel) et
-#      Nav2 croyait a un mur permanent devant le robot.
+#      entre par son scan /camera2/scan (depthimage_to_laserscan du robot). Sur le vrai robot
+#      (diagnostic du 5 nov), camera2 est a 0.92 m et horizontale ; camera1 est a 0.53 m, inclinee
+#      de 67 deg vers le sol : son scan verrait le sol (mur permanent devant le robot). Dans le
+#      simulateur officiel c'est l'inverse : generer_config_sim.py y remet /camera1/scan.
 #    - LiDAR filtre par notre laser_filter : /scan_ma64 (le robot a deja son /scan_filtered)
 #    - sortie /botwheel_explorer/cmd_vel en TwistStamped (consigne des organisateurs du 4 nov) :
 #      directement aux roues, sans obstacle_avoidance -> la securite repose sur collision_monitor
@@ -103,10 +104,10 @@ local_costmap:
       obstacle_layer:
         plugin: nav2_costmap_2d::ObstacleLayer
         enabled: true
-        observation_sources: scan camera1_scan
+        observation_sources: scan camera2_scan
         scan: {topic: /scan_ma64, data_type: LaserScan, clearing: true, marking: true, obstacle_max_range: 3.0,
           obstacle_min_range: 0.32, raytrace_max_range: 3.6}
-        camera1_scan: {topic: /camera1/scan, data_type: LaserScan, clearing: true, marking: true, max_obstacle_height: 2.0,
+        camera2_scan: {topic: /camera2/scan, data_type: LaserScan, clearing: true, marking: true, max_obstacle_height: 2.0,
           min_obstacle_height: 0.0, obstacle_max_range: 2.5, obstacle_min_range: 0.0, raytrace_max_range: 3.0, raytrace_min_range: 0.0,
           inf_is_valid: false}
       inflation_layer: {plugin: 'nav2_costmap_2d::InflationLayer', inflation_radius: 0.6, cost_scaling_factor: 2.0}
@@ -132,10 +133,10 @@ global_costmap:
       obstacle_layer:
         plugin: nav2_costmap_2d::ObstacleLayer
         enabled: true
-        observation_sources: scan camera1_scan
+        observation_sources: scan camera2_scan
         scan: {topic: /scan_ma64, data_type: LaserScan, clearing: true, marking: true, min_obstacle_height: 0.0,
           max_obstacle_height: 0.3, obstacle_max_range: 3.5, raytrace_max_range: 6.0}
-        camera1_scan: {topic: /camera1/scan, data_type: LaserScan, clearing: true, marking: true, max_obstacle_height: 2.0,
+        camera2_scan: {topic: /camera2/scan, data_type: LaserScan, clearing: true, marking: true, max_obstacle_height: 2.0,
           min_obstacle_height: 0.0, obstacle_max_range: 2.5, obstacle_min_range: 0.0, raytrace_max_range: 3.0, raytrace_min_range: 0.0,
           inf_is_valid: false}
       inflation_layer: {plugin: 'nav2_costmap_2d::InflationLayer', inflation_radius: 0.6, cost_scaling_factor: 2.0}

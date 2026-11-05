@@ -8,7 +8,7 @@ mission:
     cmd_vel_stamped: true                       # TwistStamped sur ce topic
     scan_topic: /scan
     scan_filtered_topic: /scan_ma64       # notre laser_filter (robot.launch.py)
-    image_topic: /camera1/camera1/color/image_raw   # remplace par l'argument camera du launch
+    image_topic: /camera2/camera2/color/image_raw   # remplace par l'argument camera du launch
     detections_topic: /detections
     # Regle (organisateur, 05/11) : le point du robot le plus proche du tag a ~0.5 m, jugee a l'oeil.
     # visit_distance est mesuree du CENTRE du robot : 0.60 - demi-longueur avant (~0.25) = avant a ~0.35 m.
@@ -21,4 +21,4 @@ mission:
     spin_speed: 0.4
     front_stop_distance: 0.25
     tag_budget_min: 60.0
-    journal_dir: ~/MA64/journaux
+    journal_dir: ~/teams/MA64/journaux

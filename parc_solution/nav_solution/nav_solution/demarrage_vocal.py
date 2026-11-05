@@ -35,7 +35,7 @@ class DemarrageVocal(Node):
         super().__init__('demarrage_vocal')
         p = self.declare_parameter
         self.words = [w.lower() for w in p('words', ['go', 'allez', 'vai']).value]
-        model_path = os.path.expanduser(p('model_path', '~/MA64/vosk-model').value)
+        model_path = os.path.expanduser(p('model_path', '~/teams/MA64/vosk-model').value)
         self.rate = p('sample_rate', 16000).value
         self.channels = p('channels', 1).value
         self.channel = p('channel', 0).value       # canal garde si l'audio est multicanal
