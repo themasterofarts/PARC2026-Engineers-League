@@ -14,7 +14,7 @@ def generate_launch_description():
     #    Les pilotes du robot tournent deja (LiDAR, cameras, odometrie, TF odom -> base_link,
     #    obstacle_avoidance). On ajoute : filtre LiDAR, SLAM en direct, AprilTag, Nav2,
     #    noeud de mission. Depart par commande : /ma64/start (voir GUIDE_ROBOT_JEUDI.md).
-    #    Depart vocal (Vosk, mot "allez" dit seul) : vocal:=true [modele_vosk:=dossier]
+    #    Depart vocal (Vosk, mots go / allez / vai) : vocal:=true [modele_vosk:=dossier]
     #    Pas d'EKF : botwheel_explorer publie deja la TF odom -> base_link, une seconde
     #    source pour la meme TF ferait sauter la position du robot.
     #    Cartographie seule (teleop) : mission:=false nav2:=false

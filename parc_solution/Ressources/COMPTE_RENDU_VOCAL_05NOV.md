@@ -32,7 +32,7 @@ Condition du test : odométrie étalonnée comme chez lui (`wheel_separation` 0,
 | « go » mal reconnu | vocabulaire libre : 0 « go » reconnu sur environ 10 | mot retenu : **« allez »** |
 | Grammaire limitée à « allez » | 3 faux départs en 60 s | abandonnée |
 | La mission gardait un mot entendu **avant l'armement** : le robot serait parti dès l'armement | lecture de `on_start_word` | mot ignoré tant que la course n'est pas armée (log `mot de depart ignore`) |
-| Vosk absent du robot, sans internet sur place | — | `deploy.sh --vocal` : modèle français et paquets aarch64 copiés et installés dans `~/MA64/pylib`, rien dans le système |
+| Vosk absent du robot, sans internet sur place | — | paquets aarch64 et modèle français prêts dans `~/parc_offline` ; l'installation dans un dossier d'équipe est testée hors ligne sur le laptop. À intégrer avec Peace |
 
 ## Résultats
 | Test | Résultat |
@@ -40,16 +40,15 @@ Condition du test : odométrie étalonnée comme chez lui (`wheel_separation` 0,
 | Nœud ROS, `allez.wav` | 14 départs pour environ 16 « allez » dits |
 | Nœud ROS, parole sans le mot, `go.wav`, bruit | **0 faux départ** |
 | Bout en bout, simulateur officiel | « allez » avant l'armement : ignoré, le robot ne part pas. Après l'armement : départ, arbitre `start_method: 1` (voix), `false_start: false` |
-| Paquet envoyé au robot (`preparer_envoi.sh`) | 4 vérifications OK |
+| Paquet envoyé au robot (`preparer_envoi.sh`), avec les deux fichiers modifiés | 4 vérifications OK |
 
-## Fichiers modifiés
-- `nav_solution/demarrage_vocal.py` : la règle « allez » seul, en vocabulaire libre.
+## Propositions à montrer à Peace (rien n'est fusionné dans sa branche)
+Son guide, `deploy.sh`, `lancer.sh` et `robot.launch.py` restent exactement les siens. Sur `sun/voice_start`, seuls deux fichiers diffèrent des siens :
+- `nav_solution/demarrage_vocal.py` : la règle « allez » seul, en vocabulaire libre ;
 - `nav_solution/mission_node.py` : un mot entendu avant l'armement est ignoré.
-- `nav_solution/launch/robot.launch.py` : le commentaire du départ vocal.
-- `outils_robot/deploy.sh` : l'option `--vocal`.
-- `outils_robot/lancer.sh` : l'étape `vocal` (test du micro en direct).
-- `Ressources/GUIDE_ROBOT_JEUDI.md` : l'en-tête, l'option `--vocal`, la section **2b (test du départ vocal, 3 min)** et le départ à la voix.
+
+L'installation de Vosk sur le robot (paquets aarch64 et modèle français, dans `~/parc_offline`) et le test du micro sont à décider avec lui.
 
 ## Reste à faire
-- **Au créneau :** `deploy.sh --vocal`, puis la section 2b du guide. Le micro du robot n'a encore jamais été écouté.
+- **Au créneau :** écouter le micro du robot, qui ne l'a encore jamais été. Dire « allez » seul 5 fois (5 départs attendus), puis parler 20 s sans le mot (0 attendu).
 - **À confirmer par écrit avec Evans :** les 0,5 m se mesurent-ils depuis le centre du robot (texte du brief) ou depuis son avant (règle orale du 5/11, que suit la mission) ?
