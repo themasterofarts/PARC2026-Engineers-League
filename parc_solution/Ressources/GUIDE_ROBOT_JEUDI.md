@@ -4,7 +4,7 @@ Branche `peace/phase-reelle`. Mis à jour le 4 novembre après les messages des 
 - commandes de vitesse sur `/botwheel_explorer/cmd_vel`, en `TwistStamped` ;
 - cartes faites à l'avance autorisées ;
 - l'arbitre tourne sur le robot, et `parc_msgs` est dans leur espace de travail `~/ros2_ws` ;
-- démarrage vocal mis de côté : le départ se fait par commande.
+- départ vocal (bonus +5) : mot **« allez », dit seul**. Le départ par commande reste le secours. Voir 2b.
 
 **Mode de course recommandé : cartographie en direct + positions des tags notées la veille** (`indices:=`, sans `carte:=`). En simulation, ce mode a réussi 4/4 en 179 s. La carte enregistrée avec AMCL (`carte:=`) a décroché en simulation (1/4) : c'est une option à ne pas utiliser tant que ce n'est pas résolu.
 
@@ -95,6 +95,7 @@ Options :
 |---|---|
 | `BASE_SETUP=/chemin/setup.bash` | si l'espace de travail de base du robot n'est pas `~/ros2_ws/install/setup.bash` |
 | `--parc-msgs` | **ne plus utiliser** : les organisateurs ont installé `parc_msgs`. Seulement en secours s'il disparaît |
+| `--vocal` | départ vocal : copie le modèle français (66 Mo, 1 à 2 min la 1re fois) et installe Vosk dans `~/MA64/pylib`, sans internet ni rien dans le système. Lit `~/parc_offline` sur le PC |
 
 **Sur le robot, tout se lance dans `tmux`.** Si le Wi-Fi coupe la connexion SSH, tout ce qui a été lancé directement dans cette session s'arrête avec elle. Dans `tmux`, ça continue de tourner.
 
@@ -134,6 +135,25 @@ Ce que ces résultats décident :
 | Hauteur de `camera1_link` et `camera2_link` | argument `camera:=` des commandes suivantes |
 | Facteur de l'odométrie en rotation | si l'écart dépasse quelques %, plan B avec un EKF |
 | Points à moins de 40 cm sur le scan | taille de la boîte dans `lasers_scan_filters_robot.yaml` |
+
+---
+
+## 2b. Test du départ vocal (3 min)
+
+Il faut avoir déployé avec `--vocal` (section 1). Sur le robot :
+
+```bash
+~/MA64/lancer.sh vocal
+```
+
+Debout à 1 à 2 m du robot :
+1. Dis **« allez »**, seul, **5 fois**. Attendu : **5 lignes** `DEPART VOCAL : "allez"`.
+2. Parle normalement pendant 20 s, **sans dire « allez »**. Attendu : **0 ligne** `DEPART VOCAL`. Les lignes `entendu : "..."` montrent ce que Vosk comprend.
+3. `Ctrl+C`. Note les deux nombres.
+
+Si aucune ligne `entendu` n'apparaît, le son n'arrive pas : `ros2 topic hz /speech_audio`.
+
+Sur le micro du laptop (05/11), cette règle a donné 14 départs sur environ 16 « allez », et 0 faux départ en 60 s de parole.
 
 ---
 
@@ -257,6 +277,9 @@ ros2 topic echo /parc/tag_order --qos-durability transient_local
 ```
 
 **Départ**, une fois que le terminal 1 affiche `attente du depart` et que l'arbitre est à l'état `ARMED` :
+
+- **à la voix (+5)** : dis **« allez »**, seul. Ajoute `vocal:=true modele_vosk:=$HOME/MA64/vosk-model` à la commande du terminal 1 (`~/MA64/lancer.sh course` le fait tout seul si Vosk est installé). Un « allez » dit avant l'armement est ignoré ;
+- **en secours, si la voix ne marche pas** :
 
 ```bash
 ros2 topic pub --once /ma64/start std_msgs/msg/String "{data: go}"

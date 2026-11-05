@@ -213,6 +213,14 @@ class Mission(Node):
             self.commande(0.0, 0.0)
 
     def on_start_word(self, msg, vocal=False):
+        # un mot entendu avant l'armement ne doit pas faire partir le robot a l'armement
+        if self.status is None:
+            armee = self.order is not None     # essai sans arbitre : seulement apres l'ordre
+        else:
+            armee = self.status.state == RunStatus.ARMED
+        if not armee:
+            self.log(f'mot de depart ignore : course pas armee ("{msg.data.strip()}")')
+            return
         if self.start_word is None:
             self.start_vocal = vocal
             self.start_word = msg.data.strip().lower()
