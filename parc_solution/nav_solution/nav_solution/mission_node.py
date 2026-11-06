@@ -17,7 +17,6 @@
 #    La position des tags vient de apriltag_tf_node (/apriltag/tag_<id>/pose, repere map),
 #    leur position en direct de la TF camera -> tag_<id> publiee par apriltag_node.
 
-import collections
 import json
 import math
 import os
@@ -31,7 +30,6 @@ from action_msgs.msg import GoalStatus
 from apriltag_msgs.msg import AprilTagDetectionArray
 from geometry_msgs.msg import PoseStamped, Twist, TwistStamped
 from nav2_msgs.action import NavigateToPose
-from nav2_msgs.msg import CostmapFilterInfo
 from nav2_msgs.srv import ManageLifecycleNodes
 from nav_msgs.msg import OccupancyGrid
 from rclpy.action import ActionClient
@@ -124,8 +122,8 @@ class Mission(Node):
         self.explore_max_cost = p('explore_max_cost', 70).value  # < cout circonscrit (~78) : le robot entier tient
         # tournee : cercle de points autour du centre de l'arene, camera tournee vers les murs
         self.tournee_active = p('explore_tournee', True).value
-        self.tournee_n = p('tournee_points', 8).value
-        self.tournee_marge = p('tournee_marge_mur', 1.0).value   # distance cercle -> bord de l'arene (m)
+        self.tournee_n = p('tournee_points', 6).value
+        self.tournee_marge = p('tournee_marge_mur', 1.2).value   # distance cercle -> bord de l'arene (m)
         self.tournee_pts = None   # [(x, y, cap vers l'exterieur)] dans map, calcule une fois
         self.tournee_k = 0        # prochain point de la tournee
         # couverture : surfaces deja regardees par la camera (exploration apres la tournee)
@@ -135,15 +133,6 @@ class Mission(Node):
         self.couv_lock = threading.Lock()
         self.couv_carte = None    # (message de carte, temps) de la derniere mise a jour des surfaces
         self.couv_cap = None
-        self.trace = collections.deque(maxlen=80)   # positions passees (odom), tous les 8 cm
-        self.couv_rates = []      # points de couverture que Nav2 n'a pas atteints : on n'y retourne pas
-        # masque automatique des tables (groupes de petits obstacles du LiDAR), sauf masque dessine
-        self.masque_auto = p('masque_auto', True).value
-        self.masque_carte = None
-        self.masque_tables = -1
-        self.tables = []          # tables memorisees : listes de points (map) ; jamais oubliees
-        self.arene = None         # bords de l'arene (x0, x1, y0, y1) mesures par la tournee
-        self.ilots_cache = (None, [])                # (carte, centres des petits obstacles isoles)
         self.wait_running = p('wait_running_status', True).value
         self.test_approche = p('test_approche_tag', 0).value
         self.journal_dir = os.path.expanduser(p('journal_dir', '').value)
@@ -160,11 +149,7 @@ class Mission(Node):
         cmd_topic = p('cmd_vel_topic', '/cmd_vel').value
         scan_topic = p('scan_topic', '/scan').value
         scan_filtre_topic = p('scan_filtered_topic', '/scan_ma64').value
-        # rotation sur place : le robot pivote autour de l'axe des roues (URDF : x = +0.095 dans
-        # base_footprint) et l'arriere du chassis balaie un cercle de 0.44 m autour de cet axe
-        self.pivot_x = p('pivot_x', 0.095).value
-        self.rayon_balayage = p('rayon_balayage', 0.46).value
-        self.degagement_min = p('degagement_min', 0.30).value   # plus pres : on s'ecarte avant de partir
+        self.rotation_clearance = p('rotation_clearance', 0.38).value
         # demi-empreinte du robot (meme valeurs que la footprint Nav2)
         self.half_length = p('footprint_half_length', 0.25).value
         self.half_width = p('footprint_half_width', 0.25).value
@@ -228,10 +213,6 @@ class Mission(Node):
         self.create_subscription(OccupancyGrid, '/local_costmap/costmap',
                                  lambda m: setattr(self, 'costmap_locale', m), LATCHED, callback_group=self.cb)
         self.create_timer(0.5, self.maj_couverture, callback_group=self.cb)
-        if self.masque_auto:
-            self.pub_info = self.create_publisher(CostmapFilterInfo, '/costmap_filter_info', LATCHED)
-            self.pub_masque = self.create_publisher(OccupancyGrid, '/keepout_filter_mask', LATCHED)
-            self.create_timer(2.0, self.maj_masque_auto, callback_group=self.cb)
 
     # ---------- reception ----------
     def on_order(self, msg):
@@ -365,40 +346,6 @@ class Mission(Node):
         o = self.obstacle_proche()
         return None if o is None else o[0]
 
-    def points_obstacles(self, rayon=1.0):
-        """Obstacles a moins de rayon, dans le repere du robot (N x 2) : scan filtre et cases obstacle
-        ou masque (cout 100) de la costmap globale."""
-        pts = []
-        self.devant()   # calcule laser_yaw
-        s = self.scan_filtre
-        if s is not None and self.laser_yaw is not None:
-            r = np.asarray(s.ranges, dtype=np.float32)
-            a = s.angle_min + np.arange(r.size) * s.angle_increment + self.laser_yaw
-            ok = np.isfinite(r) & (r > s.range_min) & (r < rayon)
-            pts.append(np.column_stack([r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])]))
-        p = self.pose(self.map_frame)
-        if self.costmap_np is not None and p is not None:
-            c, cdata = self.costmap_np
-            res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
-            n = int(rayon / res) + 1
-            i, j = int((p[0] - ox) / res), int((p[1] - oy) / res)
-            i0, i1, j0, j1 = max(0, i - n), min(c.info.width, i + n + 1), max(0, j - n), min(c.info.height, j + n + 1)
-            if i0 < i1 and j0 < j1:
-                jj, ii = np.nonzero(cdata[j0:j1, i0:i1] >= 100)
-                dx = ox + (ii + i0 + 0.5) * res - p[0]
-                dy = oy + (jj + j0 + 0.5) * res - p[1]
-                cy, sy = math.cos(-p[2]), math.sin(-p[2])
-                pts.append(np.column_stack([cy * dx - sy * dy, sy * dx + cy * dy]))
-        return np.concatenate(pts) if pts else np.zeros((0, 2))
-
-    def place_rotation(self):
-        """Distance (m) entre l'axe des roues et l'obstacle le plus proche : il faut plus que
-        rayon_balayage pour tourner sur place sans toucher. 10.0 si rien autour."""
-        pts = self.points_obstacles(self.rayon_balayage + 0.3)
-        if len(pts) == 0:
-            return 10.0
-        return float(np.hypot(pts[:, 0] - self.pivot_x, pts[:, 1]).min())
-
     def obstacle_costmap(self, rayon=1.0):
         """(distance, direction dans le repere du robot) de la case obstacle ou masque (cout 100) la
         plus proche dans la costmap globale, a moins de rayon, ou None. Le LiDAR ne voit que les pieds
@@ -464,57 +411,14 @@ class Mission(Node):
         """Colle a un obstacle, Nav2 se croit en collision et ne repart pas : on s'ecarte
         d'abord en ligne droite, a l'oppose de l'obstacle le plus proche."""
         o = self.obstacle_proche()
-        if o is None or o[0] >= self.degagement_min:
+        if o is None or o[0] >= self.rotation_clearance:
             return
         libre, a = o
         self.log(f'obstacle a {libre:.2f} m ({math.degrees(a):.0f} deg) : on se degage')
-        bouge = self.reculer(0.25) if abs(a) < math.pi / 2 else self.avancer(0.2)
-        if bouge is False:
-            # enferme dans la costmap (plateau de table vu trop tard, autour du robot) : on refait
-            # a reculons le chemin par lequel on est arrive, qui etait libre
-            self.retracer(0.6)
-
-    def retracer(self, distance):
-        """Recule le long de la trace des positions passees (repere odom), sur distance metres,
-        en ne surveillant que le LiDAR arriere : la costmap croit le robot enferme."""
-        trace = list(self.trace)
-        p = self.pose(self.odom_frame)
-        if p is None or len(trace) < 2:
-            return False
-        self.log(f'sortie de secours : on refait le chemin a reculons ({distance:.1f} m)')
-        cibles, fait, prec = [], 0.0, (p[0], p[1])
-        for x, y in reversed(trace):
-            d = math.hypot(x - prec[0], y - prec[1])
-            if d < 0.05:
-                continue
-            fait += d
-            cibles.append((x, y))
-            prec = (x, y)
-            if fait >= distance:
-                break
-        t0, mur = self.t(), time.time()
-        for cx, cy in cibles:
-            while self.t() - t0 < 40.0 and time.time() - mur < 120.0:
-                self.verifie()
-                p = self.pose(self.odom_frame)
-                if p is None:
-                    break
-                if math.hypot(cx - p[0], cy - p[1]) < 0.06:
-                    break
-                arriere = self.secteur(self.scan_filtre, math.pi, math.radians(35))
-                if arriere is not None and arriere < 0.30:
-                    self.log(f'sortie de secours arretee : obstacle a {arriere:.2f} m derriere')
-                    self.stop()
-                    return False
-                # l'arriere du robot (cap + pi) vise le point : poursuite en marche arriere
-                alpha = wrap(math.atan2(cy - p[1], cx - p[0]) - (p[2] + math.pi))
-                if abs(alpha) > 0.6:
-                    self.commande(0.0, clamp(1.2 * alpha, 0.4))
-                else:
-                    self.commande(-0.07, clamp(1.2 * alpha, 0.4))
-                time.sleep(0.05)
-        self.stop()
-        return True
+        if abs(a) < math.pi / 2:
+            self.reculer(0.25)
+        else:
+            self.avancer(0.2)
 
     def trajet_libre(self, distance):
         """Distance (m, signee : < 0 en marche arriere) que le robot peut parcourir en ligne
@@ -572,7 +476,7 @@ class Mission(Node):
         distance = self.trajet_libre(distance)
         if distance < 0.05:
             self.log('avance annulee : pas de place dans la costmap')
-            return False
+            return
         p0 = self.pose(self.odom_frame)
         if p0 is None:
             return
@@ -592,7 +496,6 @@ class Mission(Node):
             self.commande(0.08, 0.0)
             time.sleep(0.05)
         self.stop()
-        return True
 
     def reculer(self, distance):
         """Recule en ligne droite (odometrie), si le scan filtre ne voit rien derriere et que
@@ -600,7 +503,7 @@ class Mission(Node):
         distance = -self.trajet_libre(-distance)
         if distance < 0.05:
             self.log('recul annule : pas de place dans la costmap')
-            return False
+            return
         p0 = self.pose(self.odom_frame)
         if p0 is None:
             return
@@ -622,7 +525,6 @@ class Mission(Node):
             self.commande(-0.08, 0.0)
             time.sleep(0.05)
         self.stop()
-        return True
 
     # ---------- Nav2 ----------
     def relancer_nav2(self):
@@ -702,10 +604,10 @@ class Mission(Node):
             if arret is not None and arret():
                 self.stop()
                 return True
-            # en tournant, l'arriere du robot balaie un cercle autour de l'axe des roues
-            place = self.place_rotation()
-            if place < self.rayon_balayage:
-                self.log(f'rotation sur place annulee : obstacle a {place:.2f} m de l\'axe des roues')
+            # en tournant, les coins du robot balaient un cercle : rien ne doit y entrer
+            libre = self.degagement()
+            if libre is not None and libre < self.rotation_clearance:
+                self.log(f'rotation sur place annulee : obstacle a {libre:.2f} m')
                 break
             self.commande(0.0, math.copysign(vitesse, angle))
             time.sleep(0.05)
@@ -723,7 +625,7 @@ class Mission(Node):
         ecarte = False
         for _ in range(8):
             o = self.obstacle_proche()
-            if o is not None and self.place_rotation() < self.rayon_balayage and not ecarte:
+            if o is not None and o[0] < self.rotation_clearance and not ecarte:
                 # obstacle sur le cote (mur, pied de table) : avancer ou reculer n'aide pas,
                 # Nav2 nous eloigne de 0.4 m a l'oppose, en manoeuvrant
                 ecarte = True
@@ -735,8 +637,8 @@ class Mission(Node):
                                      timeout=20.0) == 'arret':
                         return True
                     o = self.obstacle_proche()
-            if self.place_rotation() < self.rayon_balayage:
-                self.log(f'tour d\'observation annule : obstacle a {self.place_rotation():.2f} m de l\'axe des roues')
+            if o is not None and o[0] < self.rotation_clearance:
+                self.log(f'tour d\'observation annule : obstacle a {o[0]:.2f} m')
                 return False
             if self.tourner(math.pi / 4, self.spin_speed, arret):
                 return True
@@ -814,8 +716,7 @@ class Mission(Node):
 
     def zone_atteignable(self, c, cdata, robot, inconnu=False):
         """Cellules de la costmap globale reliees au robot sans traverser d'obstacle (remplissage).
-        inconnu=True : les cases encore inconnues sont traversables (un mur connu les separe quand
-        meme de l'exterieur de l'arene)."""
+        inconnu=True : cases inconnues traversables (un mur connu les separe de l'exterieur)."""
         if cv2 is None:
             return None
         libre = (((cdata >= 0) | inconnu) & (cdata < 99)).astype(np.uint8)   # 99 : zone inscrite, 100 : obstacle
@@ -833,143 +734,6 @@ class Mission(Node):
         cv2.floodFill(libre, masque, (int(xs[k]), int(ys[k])), 2)
         return libre == 2
 
-    def ilots(self):
-        """Centres (map) des petits obstacles isoles de la carte SLAM : colonne de table, pieds de
-        chaise, poteau. Le LiDAR ne voit que ca d'une table : on garde les points de passage a
-        distance (course seed 135 : un point de tournee entre une table et une poubelle)."""
-        g = self.grid
-        if g is None or cv2 is None:
-            return []
-        if self.ilots_cache[0] is g:
-            return self.ilots_cache[1]
-        occ = (np.asarray(g.data, dtype=np.int16).reshape(g.info.height, g.info.width) >= 65).astype(np.uint8)
-        n, etiquettes, stats, centres = cv2.connectedComponentsWithStats(occ, connectivity=8)
-        res, ox, oy = g.info.resolution, g.info.origin.position.x, g.info.origin.position.y
-        petit = max(2, int(0.25 / res))     # boite englobante de moins de 25 cm
-        petits = [k for k in range(1, n)
-                  if stats[k, cv2.CC_STAT_WIDTH] <= petit and stats[k, cv2.CC_STAT_HEIGHT] <= petit]
-        # un ilot a moins de 30 cm d'un grand obstacle continu (mur, meuble) est un morceau de ce mur,
-        # vu en pointilles de loin, pas un pied de table (seed 135 : faux groupes dans les coins)
-        grand = (occ > 0) & ~np.isin(etiquettes, petits)
-        loin = cv2.distanceTransform((~grand).astype(np.uint8), cv2.DIST_L2, 3) * res
-        pts = [(ox + (centres[k][0] + 0.5) * res, oy + (centres[k][1] + 0.5) * res) for k in petits
-               if loin[int(centres[k][1]), int(centres[k][0])] > 0.30]
-        self.ilots_cache = (g, pts)
-        return pts
-
-    def maj_masque_auto(self):
-        """Masque keepout construit pendant la course a partir du LiDAR : une table avec ses chaises
-        apparait sur la carte comme un groupe d'au moins 3 petits ilots (colonne, pieds) a moins de
-        0.9 m les uns des autres. On interdit l'enveloppe du groupe, plus un disque de 0.45 m autour
-        de chaque ilot (plateau, assises), plus 0.15 m. Un poteau de tag reste un ilot seul : il
-        n'est pas masque. Nav2 contourne alors les tables sur tous ses trajets (seed 135 : chemin
-        entre une table et une poubelle)."""
-        g = self.grid
-        if g is None or cv2 is None or self.masque_carte is g:
-            return
-        self.masque_carte = g
-        tags = [(v[0], v[1]) for v in list(self.tags.values())]
-        pts = [pt for pt in self.ilots() if all(math.hypot(pt[0] - tx, pt[1] - ty) > 0.4 for tx, ty in tags)]
-        groupe = list(range(len(pts)))
-
-        def racine(k):
-            while groupe[k] != k:
-                groupe[k] = groupe[groupe[k]]
-                k = groupe[k]
-            return k
-        for a in range(len(pts)):
-            for b in range(a + 1, len(pts)):
-                if math.hypot(pts[a][0] - pts[b][0], pts[a][1] - pts[b][1]) < 0.9:
-                    groupe[racine(a)] = racine(b)
-        groupes = {}
-        for k in range(len(pts)):
-            groupes.setdefault(racine(k), []).append(pts[k])
-        # memoire : les pieds font une ou deux cases et le SLAM les efface parfois ; une table vue
-        # une fois reste masquee toute la course (seed 135 : la table centrale clignotait)
-        for v in groupes.values():
-            if len(v) < 3 or not self.forme_de_table(v):
-                continue
-            cx, cy = np.mean([x for x, _ in v]), np.mean([y for _, y in v])
-            for t in self.tables:
-                if math.hypot(cx - np.mean([x for x, _ in t]), cy - np.mean([y for _, y in t])) < 0.9:
-                    t.extend(pt for pt in v if all(math.hypot(pt[0] - q[0], pt[1] - q[1]) > 0.05 for q in t))
-                    break
-            else:
-                self.tables.append(list(v))
-        # pas de table contre un mur : un mur vu de loin en pointilles imite des pieds, et un faux
-        # masque pres d'un tag empecherait sa visite (seed 135 : faux groupes pres des tags 1 et 9)
-        tables = self.tables
-        # bords mesures par la tournee, sinon remesures a chaque mise a jour (tag deja connu au depart :
-        # pas de tournee ; une seule mesure trop tot, carte incomplete, ecarterait de vraies tables)
-        arene = self.arene or self.bornes_arene()
-        if arene is not None:
-            x0, x1, y0, y1 = arene
-            tables = [t for t in tables
-                      if x0 + 0.4 < np.mean([x for x, _ in t]) < x1 - 0.4
-                      and y0 + 0.4 < np.mean([y for _, y in t]) < y1 - 0.4]
-        res, ox, oy = g.info.resolution, g.info.origin.position.x, g.info.origin.position.y
-        m = np.zeros((g.info.height, g.info.width), np.uint8)
-        for t in tables:
-            px = np.array([[(x - ox) / res, (y - oy) / res] for x, y in t], np.int32)
-            cv2.fillConvexPoly(m, cv2.convexHull(px), 1)
-            for cx, cy in px:
-                cv2.circle(m, (int(cx), int(cy)), int(0.45 / res), 1, -1)
-        if tables:
-            r = max(1, int(0.15 / res))
-            m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1)))
-        grille = OccupancyGrid()
-        grille.header.stamp = self.get_clock().now().to_msg()
-        grille.header.frame_id = g.header.frame_id or self.map_frame
-        grille.info = g.info
-        grille.data = (m.astype(np.int8) * 100).ravel().tolist()
-        info = CostmapFilterInfo()
-        info.header = grille.header
-        info.type = 0
-        info.filter_mask_topic = '/keepout_filter_mask'
-        info.base, info.multiplier = 0.0, 1.0
-        self.pub_info.publish(info)
-        self.pub_masque.publish(grille)
-        if len(tables) != self.masque_tables:
-            self.masque_tables = len(tables)
-            self.log(f'masque auto : {len(tables)} table(s) ' +
-                     ' '.join(f'({np.mean([x for x, _ in t]):.1f}, {np.mean([y for _, y in t]):.1f})' for t in tables))
-
-    @staticmethod
-    def forme_de_table(pts):
-        """Une table et ses chaises forment un ensemble en 2D de moins de 1.6 m ; un mur vu de loin
-        et en biais apparait en pointilles : des ilots alignes (seed 135, faux groupes le long des murs)."""
-        a = np.array(pts)
-        etendue = np.ptp(a, axis=0)
-        if max(etendue) > 1.6:
-            return False
-        if len(a) < 3:
-            return False
-        valeurs = np.linalg.eigvalsh(np.cov((a - a.mean(axis=0)).T))
-        largeur, longueur = math.sqrt(max(valeurs[0], 0.0)), math.sqrt(max(valeurs[1], 0.0))
-        return not (largeur < 0.08 and longueur > 0.3)   # ecart-type de 0.3 m : ilots alignes sur ~1 m
-
-    def loin_des_ilots(self, x, y, marge=1.0):
-        # coin du plateau a 0.65 m de la colonne + arriere du robot a 0.31 m de son centre
-        return all(math.hypot(x - ix, y - iy) >= marge for ix, iy in self.ilots())
-
-    def bornes_arene(self):
-        """(x0, x1, y0, y1) de la zone atteignable depuis le robot (cases inconnues comprises, un mur
-        connu la borne), en ecartant 2 % des points de chaque cote ; None si pas encore de costmap."""
-        r = self.pose(self.map_frame)
-        if self.costmap_np is None or r is None:
-            return None
-        c, cdata = self.costmap_np
-        atteignable = self.zone_atteignable(c, cdata, r, inconnu=True)
-        if atteignable is None:
-            return None
-        ys, xs = np.nonzero(atteignable)
-        if xs.size < 100:
-            return None
-        res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
-        x0, x1 = np.percentile(ox + (xs + 0.5) * res, [2, 98])
-        y0, y1 = np.percentile(oy + (ys + 0.5) * res, [2, 98])
-        return float(x0), float(x1), float(y0), float(y1)
-
     def points_tournee(self):
         """Cercle de tournee_n points autour du centre de l'arene (zone atteignable de la costmap
         globale, sans les rayons passes par-dessus les murets), a tournee_marge des bords, dans
@@ -979,9 +743,7 @@ class Mission(Node):
         if c is None or robot is None:
             return []
         cdata = np.asarray(c.data, dtype=np.int16).reshape(c.info.height, c.info.width)
-        # cases inconnues traversables : juste apres le tour de depart, la carte n'est pas finie et la
-        # zone connue seule donnait une arene de 1.9 x 2.5 m au lieu de 6 x 7 ; un mur connu la borne
-        atteignable = self.zone_atteignable(c, cdata, robot, inconnu=True)
+        atteignable = self.zone_atteignable(c, cdata, robot)
         if atteignable is None:
             return []
         ys, xs = np.nonzero(atteignable)
@@ -990,9 +752,8 @@ class Mission(Node):
         res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
         x0, x1 = np.percentile(ox + (xs + 0.5) * res, [2, 98])
         y0, y1 = np.percentile(oy + (ys + 0.5) * res, [2, 98])
-        self.arene = (x0, x1, y0, y1)
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-        rayon = min(2.5, max(0.7, min(x1 - x0, y1 - y0) / 2 - self.tournee_marge))
+        rayon = min(2.0, max(0.7, min(x1 - x0, y1 - y0) / 2 - self.tournee_marge))
         depart = math.atan2(robot[1] - cy, robot[0] - cx)
         pts = []
         for k in range(self.tournee_n):
@@ -1001,7 +762,7 @@ class Mission(Node):
                 x, y = cx + r * math.cos(a), cy + r * math.sin(a)
                 i, j = int((x - ox) / res), int((y - oy) / res)
                 if 0 <= i < c.info.width and 0 <= j < c.info.height and atteignable[j, i] \
-                        and cdata[j, i] <= self.explore_max_cost and self.loin_des_ilots(x, y):
+                        and 0 <= cdata[j, i] <= self.explore_max_cost:
                     pts.append((x, y, a))
                     break
         self.log(f'tournee : centre ({cx:.2f}, {cy:.2f}), arene {x1 - x0:.1f} x {y1 - y0:.1f} m, '
@@ -1025,8 +786,7 @@ class Mission(Node):
             r = self.pose(self.map_frame)
             if r and abs(wrap(cap - r[2])) > 0.3 and self.tourner(wrap(cap - r[2]), self.spin_speed, connu):
                 break
-            # vers le mur (+-45 deg), puis vers le centre : les tags sur poteaux y sont souvent
-            for angle in (math.pi / 4, -math.pi / 2, math.pi / 4 + math.pi):
+            for angle in (math.pi / 4, -math.pi / 2, math.pi / 4):
                 if connu() or self.tourner(angle, self.spin_speed, connu) or self.attendre_vue(connu):
                     break
         return connu()
@@ -1064,14 +824,9 @@ class Mission(Node):
         return accessible
 
     def maj_couverture(self):
-        """Timer : trace des positions, surfaces de la carte (toutes les 3 s au plus) et ce que la
-        camera voit maintenant. Rien n'est marque pendant une rotation rapide (image floue)."""
-        if not self.started:
-            return
-        po = self.pose(self.odom_frame)
-        if po and (not self.trace or math.hypot(po[0] - self.trace[-1][0], po[1] - self.trace[-1][1]) > 0.08):
-            self.trace.append(po[:2])
-        if self.grid is None:
+        """Timer : surfaces de la carte (toutes les 3 s au plus) et ce que la camera voit maintenant.
+        Rien n'est marque pendant une rotation rapide (image floue : le tag n'y serait pas detecte)."""
+        if not self.started or self.grid is None:
             return
         r = self.pose(self.map_frame)
         if r is None:
@@ -1113,9 +868,6 @@ class Mission(Node):
             jj, ii = jj * pas, ii * pas
             garde = (cdata[jj, ii] >= 0) & (cdata[jj, ii] <= self.explore_max_cost)
             cand = np.column_stack([ox + (ii[garde] + 0.5) * res, oy + (jj[garde] + 0.5) * res])
-            cand = np.array([pt for pt in cand if self.loin_des_ilots(pt[0], pt[1])
-                             and all(math.hypot(pt[0] - rx, pt[1] - ry) > 0.5 for rx, ry in self.couv_rates)
-                             ]).reshape(-1, 2)
             with self.couv_lock:
                 if self.couv.cases is None:
                     return None
@@ -1128,19 +880,13 @@ class Mission(Node):
                 self.log(f'couverture : toutes les surfaces vues ({reste} restantes) sans le tag : remise a zero')
                 with self.couv_lock:
                     self.couv.remise_a_zero()
-                self.couv_rates.clear()
                 continue
             x, y, cap, gain = choix
             self.viewpoints.append((x, y))
             self.log(f'couverture : vers ({x:.2f}, {y:.2f}), {gain} cases a voir, {reste} non vues en tout')
-            nav = self.naviguer(x, y, cap, arret=connu, timeout=min(self.nav_timeout, limite - self.t()))
-            if nav == 'arret':
+            if self.naviguer(x, y, cap, arret=connu, timeout=min(self.nav_timeout, limite - self.t())) == 'arret':
                 break
             p = self.pose(self.map_frame)
-            if nav != 'ok' and (p is None or math.hypot(x - p[0], y - p[1]) > 0.5):
-                # point pas atteint : sinon il reste le meilleur et on y retourne sans fin (seed 135)
-                self.couv_rates.append((x, y))
-                self.log(f'couverture : ({x:.2f}, {y:.2f}) pas atteint, mis de cote')
             if p and abs(wrap(cap - p[2])) > 0.3 and self.tourner(wrap(cap - p[2]), self.spin_speed, connu):
                 break
             for angle in (0.0, 0.5, -1.0, 0.5):
@@ -1446,8 +1192,6 @@ class Mission(Node):
         while self.t() < limite:
             self.verifie()
             if echecs >= 2:
-                # position ou orientation memorisee probablement fausse (tag vu de loin et de biais :
-                # point de vue derriere un mur, course juges seed 135) : on le recherche pour la remesurer
                 self.log(f'tag {i} : {echecs} points de vue inaccessibles, on le remesure')
                 self.tags.pop(i, None)
                 self.indices.pop(i, None)
@@ -1525,10 +1269,10 @@ class Mission(Node):
 
     def angle_de_visite(self, tx, ty, nx, ny):
         """Angle (rad) dont tourner la normale du tag pour que le point de visite et le point de vue
-        soient libres (cout < 99 : 99 robot en collision, 100 obstacle ou masque) et atteignables depuis
-        le robot sans traverser d'obstacle connu (case inconnue acceptee : au depart la carte n'est pas
-        finie ; un point derriere un mur reste refuse, course juges seed 135). None si aucun angle ne
-        convient. 0 sans costmap."""
+        soient libres dans la costmap globale (99 : robot en collision, 100 : obstacle ou masque).
+        0 si l'axe est libre ou si aucun angle ne l'est."""
+        # le point doit etre atteignable depuis le robot sans traverser d'obstacle connu : jamais
+        # derriere un mur (course juges seed 135 : point de vue hors de l'arene, boucle sans fin)
         accessible = self.zone_accessible(inconnu=True)
         if accessible is None:
             return 0.0

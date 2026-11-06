@@ -4,6 +4,4 @@ mission:
   ros__parameters: {base_frame: base_footprint, cmd_vel_topic: /cmd_vel, cmd_vel_stamped: false, scan_topic: /scan,
     scan_filtered_topic: /scan_ma64, image_topic: /camera1/camera1/color/image_raw, detections_topic: /detections,
     visit_distance: 0.6, visit_distance_tolerance: 0.05, view_distance: 1.2, max_linear: 0.12, max_angular: 0.5,
-    spin_speed: 0.4, front_stop_distance: 0.25, pivot_x: 0.095, rayon_balayage: 0.46, degagement_min: 0.3, footprint_half_length: 0.31,
-    footprint_half_width: 0.24, explore_max_cost: 85, tag_budget_min: 60.0, journal_dir: ~/teams/MA64/journaux,
-    use_sim_time: true}
+    spin_speed: 0.4, front_stop_distance: 0.25, tag_budget_min: 60.0, journal_dir: ~/teams/MA64/journaux, use_sim_time: true}
