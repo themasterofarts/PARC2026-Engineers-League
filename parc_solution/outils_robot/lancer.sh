@@ -1,6 +1,6 @@
 #!/bin/bash
 # Sur le robot : lance une etape du creneau, avec l'environnement de l'equipe.
-#   ~/teams/MA64/lancer.sh diag | mouvement | carto CAMERA TAILLE | etalon TAG | teleop | sauver
+#   ~/teams/MA64/lancer.sh diag | mouvement | bag | carto CAMERA TAILLE | etalon TAG | teleop | sauver
 #                    course CAMERA TAILLE | etat | ordre | depart
 # Appele depuis le PC par les volets Terminator (ouvrir_terminaux.sh), dans une session tmux.
 source ~/teams/MA64/env.sh
@@ -21,6 +21,10 @@ case "$1" in
              echo "depart vocal : ${vocal:-non (depart par commande seulement)}"
              ros2 launch nav_solution robot.launch.py camera:="${2:-camera2}" tag_size:="${3:-0.165}" \
                indices:="$HOME/teams/MA64/cartes/tags.yaml" $masque $vocal ;;
+  bag)       mkdir -p ~/teams/MA64/bags && ros2 bag record -o ~/teams/MA64/bags/essai_$(date +%H%M) \
+               /scan /botwheel_explorer/odom /botwheel_explorer/cmd_vel /tf /tf_static \
+               /camera2/camera2/imu /camera1/camera1/imu /camera2/scan /camera2/camera2/depth/camera_info \
+               /detections /parc/run_status /parc/tag_order ;;
   etat)      ros2 topic echo /parc/run_status ;;
   ordre)     ros2 topic echo /parc/tag_order --qos-durability transient_local ;;
   depart)    ros2 topic pub --once /ma64/start std_msgs/msg/String "{data: go}" ;;

@@ -4,7 +4,7 @@ import os
 
 ICI = os.path.dirname(os.path.abspath(__file__))
 FENETRES = [
-    ('ma64_1_preparation', 'MA64 1/3 - Preparation', ['deploy', 'diag', 'mouvement', 'web']),
+    ('ma64_1_preparation', 'MA64 1/3 - Preparation', ['nettoyer', 'deploy', 'bag', 'diag', 'mouvement', 'web']),
     ('ma64_2_cartographie', 'MA64 2/3 - Cartographie', ['carto', 'etalon', 'teleop', 'sauver']),
     ('ma64_3_course', 'MA64 3/3 - Masque et course', ['masque', 'course', 'etat', 'depart', 'rapatrier']),
 ]

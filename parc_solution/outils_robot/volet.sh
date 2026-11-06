@@ -11,11 +11,14 @@ distant() {  # distant SESSION ETAPE [ARGS] : etape lancee sur le robot dans une
   echo "$C ssh $M -t \$ROBOT \"tmux new -A -s $1 '~/teams/MA64/lancer.sh ${*:2}'\""
 }
 case "$1" in
+  nettoyer)  titre="0. Une seule fois : supprimer l'ancien dossier ~/MA64 (hors ~/teams)"
+             cmd="$C ssh $M \$ROBOT 'rm -rf ~/MA64 && echo ancien dossier supprime'" ;;
   deploy)    titre="1. Deployer le code (PC) - mot de passe SSH ici";                       cmd="$C ./deploy.sh" ;;
+  bag)       titre="1b. Rosbag : a lancer AVANT le diagnostic, Ctrl+C a la fin"; cmd=$(distant bag bag) ;;
   diag)      titre="2. Diagnostic au repos (robot immobile)";           cmd=$(distant diag diag) ;;
   mouvement) titre="3. Diagnostic mouvement : taper OUI (robot)"; cmd=$(distant mouvement mouvement) ;;
   rapatrier) titre="13. Fin : rapatrier les resultats (PC)"
-             cmd="$C scp $M -r \$ROBOT:teams/MA64/outils/diag_MA64_* \$ROBOT:teams/MA64/cartes \$ROBOT:teams/MA64/journaux ../Ressources/" ;;
+             cmd="$C scp $M -r \$ROBOT:teams/MA64/outils/diag_MA64_* \$ROBOT:teams/MA64/cartes \$ROBOT:teams/MA64/journaux \$ROBOT:teams/MA64/bags ../Ressources/" ;;
   carto)     titre="5. Cartographie / etalonnage : SLAM + AprilTag (robot)"
              cmd=$(distant carto carto '$CAMERA $TAILLE') ;;
   etalon)    titre="6. Etalonnage : distance camera -> tag, a comparer au ruban"

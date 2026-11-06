@@ -899,8 +899,11 @@ class Mission(Node):
         # pas de table contre un mur : un mur vu de loin en pointilles imite des pieds, et un faux
         # masque pres d'un tag empecherait sa visite (seed 135 : faux groupes pres des tags 1 et 9)
         tables = self.tables
-        if self.arene is not None:
-            x0, x1, y0, y1 = self.arene
+        # bords mesures par la tournee, sinon remesures a chaque mise a jour (tag deja connu au depart :
+        # pas de tournee ; une seule mesure trop tot, carte incomplete, ecarterait de vraies tables)
+        arene = self.arene or self.bornes_arene()
+        if arene is not None:
+            x0, x1, y0, y1 = arene
             tables = [t for t in tables
                       if x0 + 0.4 < np.mean([x for x, _ in t]) < x1 - 0.4
                       and y0 + 0.4 < np.mean([y for _, y in t]) < y1 - 0.4]
@@ -948,6 +951,24 @@ class Mission(Node):
     def loin_des_ilots(self, x, y, marge=1.0):
         # coin du plateau a 0.65 m de la colonne + arriere du robot a 0.31 m de son centre
         return all(math.hypot(x - ix, y - iy) >= marge for ix, iy in self.ilots())
+
+    def bornes_arene(self):
+        """(x0, x1, y0, y1) de la zone atteignable depuis le robot (cases inconnues comprises, un mur
+        connu la borne), en ecartant 2 % des points de chaque cote ; None si pas encore de costmap."""
+        r = self.pose(self.map_frame)
+        if self.costmap_np is None or r is None:
+            return None
+        c, cdata = self.costmap_np
+        atteignable = self.zone_atteignable(c, cdata, r, inconnu=True)
+        if atteignable is None:
+            return None
+        ys, xs = np.nonzero(atteignable)
+        if xs.size < 100:
+            return None
+        res, ox, oy = c.info.resolution, c.info.origin.position.x, c.info.origin.position.y
+        x0, x1 = np.percentile(ox + (xs + 0.5) * res, [2, 98])
+        y0, y1 = np.percentile(oy + (ys + 0.5) * res, [2, 98])
+        return float(x0), float(x1), float(y0), float(y1)
 
     def points_tournee(self):
         """Cercle de tournee_n points autour du centre de l'arene (zone atteignable de la costmap
