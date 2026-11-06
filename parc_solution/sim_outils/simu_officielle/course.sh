@@ -18,6 +18,7 @@ nettoie() {
   for p in $(pgrep -f "^gz sim"); do kill $p; done
   for p in $(ps -eo pid,args | grep -E "^ *[0-9]+ (/opt/ros/jazzy/lib/|python3 /home/peace-fiacre/parc2026_ws/install|/usr/bin/python3 /home/peace-fiacre/parc2026_ws/install)" | grep -v grep | awk '{print $1}'); do kill $p 2>/dev/null; done
   pkill -f "evaluateur_sim.py" 2>/dev/null
+  for p in $(pgrep -f "^rviz2 -d "); do kill $p 2>/dev/null; done   # notre vue (RVIZ=1)
   sleep 3
   for p in $(ps -eo pid,args | grep -E "^ *[0-9]+ (/opt/ros/jazzy/lib/|gz sim|/bin/sh -c ruby|python3 /home/peace-fiacre/parc2026_ws/install|/usr/bin/python3 /home/peace-fiacre/parc2026_ws/install|/usr/bin/python3 /opt/ros/jazzy/bin/ros2 (launch|run))" | grep -v grep | awk '{print $1}'); do kill -9 $p 2>/dev/null; done
   sleep 1
@@ -52,7 +53,9 @@ fi
 echo "$(date +%T) robot.launch sim:=true $*"
 ros2 launch nav_solution robot.launch.py sim:=true camera:=camera1 tag_size:=0.12 "$@" > $D/robot.log 2>&1 &
 # RVIZ=1 : notre vue (carte, costmaps, masque, empreinte, camera), sans la fenetre Gazebo
-[ "${RVIZ:-0}" = 1 ] && rviz2 -d $ICI/vue_ma64.rviz --ros-args -p use_sim_time:=true > $D/rviz.log 2>&1 &
+# avec gyro:=true, nos noeuds (et la vue) lisent l'arbre TF corrige /tf_ma64
+TF_VUE=/tf; [[ " $* " == *" gyro:=true "* ]] && TF_VUE=/tf_ma64
+[ "${RVIZ:-0}" = 1 ] && rviz2 -d $ICI/vue_ma64.rviz --ros-args -p use_sim_time:=true -r /tf:=$TF_VUE > $D/rviz.log 2>&1 &
 until grep -q "attente de l'ordre des tags" $D/robot.log; do sleep 3; done
 until grep -q "lifecycle_manager_navigation\].*Managed nodes are active" $D/robot.log; do sleep 3; done
 sleep 10

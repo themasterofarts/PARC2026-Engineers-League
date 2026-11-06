@@ -73,7 +73,7 @@ echo "== Verification 2 : executables et launch"
   set -e
   source /opt/ros/jazzy/setup.bash
   source "$TMP/ws/install/local_setup.bash"
-  attendus="apriltag_tf_node faux_arbitre mission_node sauver_tags generer_masque demarrage_vocal"
+  attendus="apriltag_tf_node faux_arbitre mission_node sauver_tags generer_masque demarrage_vocal odom_gyro obstacles_hauts"
   presents=$(ros2 pkg executables nav_solution | awk '{print $2}' | tr '\n' ' ')
   for e in $attendus; do
     echo " $presents " | grep -q " $e " || { echo "ECHEC executable manquant : $e"; exit 1; }
@@ -114,7 +114,7 @@ PY
 
 echo "== Verification 4 : analyse des fichiers Python"
 if python3 -m pyflakes --version > /dev/null 2>&1; then
-  python3 -m pyflakes "$D/src/nav_solution/nav_solution/"{mission_node,apriltag_tf_node,sauver_tags,faux_arbitre,generer_masque,demarrage_vocal,couverture}.py \
+  python3 -m pyflakes "$D/src/nav_solution/nav_solution/"{mission_node,apriltag_tf_node,sauver_tags,faux_arbitre,generer_masque,demarrage_vocal,couverture,odom_gyro,obstacles_hauts}.py \
     "$D/outils/diagnostic_robot.py" "$D/outils/distance_tag.py" && bash -n "$D/lancer.sh" && echo "   ok"
 else
   python3 -m py_compile "$D/src/nav_solution/nav_solution/"*.py "$D/outils/diagnostic_robot.py" && echo "   ok (syntaxe)"

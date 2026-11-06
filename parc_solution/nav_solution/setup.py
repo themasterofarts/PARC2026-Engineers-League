@@ -38,6 +38,7 @@ setup(
             'generer_masque = nav_solution.generer_masque:main',
             'demarrage_vocal = nav_solution.demarrage_vocal:main',
             'odom_gyro = nav_solution.odom_gyro:main',
+            'obstacles_hauts = nav_solution.obstacles_hauts:main',
         ],
     },
 )

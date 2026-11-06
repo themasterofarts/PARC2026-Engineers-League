@@ -20,5 +20,13 @@ mission:
     max_angular: 0.5
     spin_speed: 0.4
     front_stop_distance: 0.25
+    # le robot tourne autour de l'axe des roues (URDF : x = +0.095) : l'arriere du chassis (x = -0.288)
+    # decrit un cercle de 0.44 m ; il touchait les obstacles en tournant sur place
+    pivot_x: 0.095
+    rayon_balayage: 0.46        # distance obstacle -> axe des roues necessaire pour tourner sur place
+    degagement_min: 0.30        # obstacle plus pres que ca : on s'ecarte avant de partir
+    footprint_half_length: 0.31
+    footprint_half_width: 0.24
+    explore_max_cost: 85          # inflation cost_scaling 1.0 : meme distance aux obstacles qu'avant
     tag_budget_min: 60.0
     journal_dir: ~/teams/MA64/journaux

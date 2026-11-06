@@ -89,6 +89,20 @@ Visualization Manager:
       Color Transformer: FlatColor
       Color: 255; 200; 0
       Value: true
+    - Class: rviz_default_plugins/LaserScan
+      Name: Obstacles hauts (camera)
+      Enabled: true
+      Topic:
+        Value: /ma64/obstacles_hauts
+        Reliability Policy: Reliable
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Depth: 5
+      Size (m): 0.06
+      Style: Flat Squares
+      Color Transformer: FlatColor
+      Color: 255; 0; 255
+      Value: true
     - Class: rviz_default_plugins/RobotModel
       Name: Robot
       Enabled: true

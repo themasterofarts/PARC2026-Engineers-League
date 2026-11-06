@@ -150,6 +150,8 @@ def generate_launch_description():
                 config("mission_robot"),
                 {"image_topic": PathJoinSubstitution([camera_prefix, "image_raw"])},
                 {"indices_tags": LaunchConfiguration("indices")},
+                # masque des tables construit depuis le LiDAR, sauf si un masque dessine est charge
+                {"masque_auto": LaunchConfiguration("masque").perform(context) == ""},
                 {"use_sim_time": sim},
             ],
             condition=IfCondition(LaunchConfiguration("mission")),
@@ -164,7 +166,21 @@ def generate_launch_description():
             condition=IfCondition(LaunchConfiguration("vocal")),
         )
 
+        # plateaux et assises vus par la camera de profondeur (le LiDAR ne voit que les pieds)
+        cam = LaunchConfiguration("camera").perform(context)
+        hauts = Node(
+            package=package_name,
+            executable="obstacles_hauts",
+            name="obstacles_hauts",
+            output="screen",
+            parameters=[{"use_sim_time": sim,
+                         "base_frame": "base_footprint" if sim else "base_link",
+                         "depth_topic": f"/{cam}/{cam}/depth/image_rect_raw",
+                         "info_topic": f"/{cam}/{cam}/depth/camera_info"}],
+        )
+
         noeuds_ma64 = [
+            hauts,
             laser_filter,
             slam,
             lifecycle_slam,
