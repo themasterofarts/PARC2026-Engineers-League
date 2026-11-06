@@ -89,6 +89,9 @@ echo "nav_solution compile"
 # env.sh : tout ce qu'il faut sourcer avant de lancer quoi que ce soit
 cat > "$D/env.sh" <<EOF
 source /opt/ros/jazzy/setup.bash
+# DDS : le choix teste par "lancer.sh rmw" (rmw.txt), sinon Cyclone s'il est installe, sinon FastDDS
+if [ -f "$D/rmw.txt" ]; then export RMW_IMPLEMENTATION=\$(cat "$D/rmw.txt")
+elif ros2 pkg prefix rmw_cyclonedds_cpp >/dev/null 2>&1; then export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp; fi
 if [ -n "$BASE" ] && [ -f "$BASE" ]; then source "$BASE"; fi
 if [ -f "$D/parc_msgs_ws/install/local_setup.bash" ]; then source "$D/parc_msgs_ws/install/local_setup.bash"; fi
 source "$D/ws/install/local_setup.bash"

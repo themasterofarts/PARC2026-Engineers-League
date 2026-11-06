@@ -9,6 +9,15 @@ case "$1" in
   mouvement) cd ~/MA64/outils && python3 diagnostic_robot.py --mouvement --no-bag ;;
   carto)     ros2 launch nav_solution robot.launch.py mission:=false nav2:=false camera:="${2:-camera2}" tag_size:="${3:-0.165}" ;;
   etalon)    python3 ~/MA64/outils/distance_tag.py "${2:-4}" ;;
+  rmw)       # essaie Cyclone puis FastDDS : garde le premier qui recoit vraiment /scan du robot
+             rm -f ~/MA64/rmw.txt
+             for r in rmw_cyclonedds_cpp rmw_fastrtps_cpp; do
+               ros2 daemon stop > /dev/null 2>&1
+               if RMW_IMPLEMENTATION=$r timeout 15 ros2 topic echo --once /scan --field header.frame_id > /dev/null 2>&1; then
+                 echo $r > ~/MA64/rmw.txt; echo "OK : $r recoit /scan (enregistre dans ~/MA64/rmw.txt)"; break
+               else echo "echec : $r ne recoit pas /scan"; fi
+             done
+             [ -f ~/MA64/rmw.txt ] || echo "AUCUN DDS ne recoit /scan : verifier le domaine (echo \$ROS_DOMAIN_ID) et le Wi-Fi" ;;
   vocal)     ros2 run nav_solution demarrage_vocal --ros-args -p model_path:="$HOME/MA64/vosk-model" ;;
   teleop)    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/botwheel_explorer/cmd_vel \
                -p stamped:=true -p frame_id:=base_link -p speed:=0.15 -p turn:=0.5 ;;
