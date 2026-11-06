@@ -7,7 +7,7 @@ source ~/MA64/env.sh
 case "$1" in
   diag)      cd ~/MA64/outils && python3 diagnostic_robot.py ;;
   mouvement) cd ~/MA64/outils && python3 diagnostic_robot.py --mouvement --no-bag ;;
-  carto)     ros2 launch nav_solution robot.launch.py mission:=false nav2:=false camera:="${2:-camera1}" tag_size:="${3:-0.165}" ;;
+  carto)     ros2 launch nav_solution robot.launch.py mission:=false nav2:=false camera:="${2:-camera2}" tag_size:="${3:-0.165}" ;;
   etalon)    python3 ~/MA64/outils/distance_tag.py "${2:-4}" ;;
   teleop)    ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r cmd_vel:=/botwheel_explorer/cmd_vel \
                -p stamped:=true -p frame_id:=base_link -p speed:=0.15 -p turn:=0.5 ;;
@@ -19,7 +19,7 @@ case "$1" in
              vocal=""    # depart vocal (Vosk) si le module et le modele sont installes ; sinon depart par commande
              [ -d ~/MA64/vosk-model ] && python3 -c "import vosk" 2>/dev/null && vocal="vocal:=true"
              echo "depart vocal : ${vocal:-non (depart par commande seulement)}"
-             ros2 launch nav_solution robot.launch.py camera:="${2:-camera1}" tag_size:="${3:-0.165}" \
+             ros2 launch nav_solution robot.launch.py camera:="${2:-camera2}" tag_size:="${3:-0.165}" \
                indices:="$HOME/MA64/cartes/tags.yaml" $masque $vocal ;;
   etat)      ros2 topic echo /parc/run_status ;;
   ordre)     ros2 topic echo /parc/tag_order --qos-durability transient_local ;;

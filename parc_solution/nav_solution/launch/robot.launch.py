@@ -35,7 +35,7 @@ def generate_launch_description():
 
     declare_args = [
         DeclareLaunchArgument("sim", default_value="false", description="true : simulateur officiel PARC 2026"),
-        DeclareLaunchArgument("camera", default_value="camera1",
+        DeclareLaunchArgument("camera", default_value="camera2",
                               description="Camera pour les tags : camera1 ou camera2"),
         DeclareLaunchArgument("tag_size", default_value="0.165", description="Cote du carre noir des tags (m)"),
         DeclareLaunchArgument("nav2", default_value="true"),
@@ -67,6 +67,16 @@ def generate_launch_description():
         slam_params = LaunchConfiguration("slam_params").perform(context) or config("slam_toolbox_robot")
         carte = LaunchConfiguration("carte")
 
+        # Vrai robot : LiDAR monte a l'envers (rosbag du 05/11), /scan -> /scan_corrige
+        scan_lidar = "/scan" if sim else "/scan_corrige"
+        retourne = Node(
+            package="nav_solution",
+            executable="scan_retourne",
+            name="scan_retourne",
+            output="screen",
+            condition=IfCondition("false" if sim else "true"),
+        )
+
         # /scan sans le chassis ni les roues, publie sous /scan_ma64
         laser_filter = Node(
             package="laser_filters",
@@ -74,7 +84,7 @@ def generate_launch_description():
             name="laser_filter",
             output="screen",
             parameters=[config("lasers_scan_filters_robot"), {"use_sim_time": sim}],
-            remappings=[("scan", "/scan"), ("scan_filtered", "/scan_ma64")],
+            remappings=[("scan", scan_lidar), ("scan_filtered", "/scan_ma64")],
         )
 
         # slam_toolbox est active par un lifecycle_manager : l'activation par evenement du launch
@@ -146,6 +156,7 @@ def generate_launch_description():
                 config("mission_robot"),
                 {"image_topic": PathJoinSubstitution([camera_prefix, "image_raw"])},
                 {"indices_tags": LaunchConfiguration("indices")},
+                {"scan_topic": scan_lidar},
                 {"use_sim_time": sim},
             ],
             condition=IfCondition(LaunchConfiguration("mission")),
@@ -161,6 +172,7 @@ def generate_launch_description():
         )
 
         return [
+            retourne,
             vocal,
             laser_filter,
             slam,

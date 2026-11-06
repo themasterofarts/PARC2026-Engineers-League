@@ -371,16 +371,19 @@ class Mission(Node):
 
     def degager(self):
         """Colle a un obstacle, Nav2 se croit en collision et ne repart pas : on s'ecarte
-        d'abord en ligne droite, a l'oppose de l'obstacle le plus proche."""
+        d'abord en ligne droite, a l'oppose de l'obstacle le plus proche ; si ce sens est
+        bloque dans la costmap, dans l'autre sens (sinon le robot reste coince : seed 7, 06/11)."""
         o = self.obstacle_proche()
         if o is None or o[0] >= self.rotation_clearance:
             return
         libre, a = o
         self.log(f'obstacle a {libre:.2f} m ({math.degrees(a):.0f} deg) : on se degage')
-        if abs(a) < math.pi / 2:
-            self.reculer(0.25)
-        else:
-            self.avancer(0.2)
+        essais = [(self.reculer, 0.25), (self.avancer, 0.2)]
+        if abs(a) >= math.pi / 2:
+            essais.reverse()
+        for bouger, distance in essais:
+            if bouger(distance):
+                return
 
     def trajet_libre(self, distance):
         """Distance (m, signee : < 0 en marche arriere) que le robot peut parcourir en ligne
@@ -438,10 +441,10 @@ class Mission(Node):
         distance = self.trajet_libre(distance)
         if distance < 0.05:
             self.log('avance annulee : pas de place dans la costmap')
-            return
+            return False
         p0 = self.pose(self.odom_frame)
         if p0 is None:
-            return
+            return False
         t0, mur = self.t(), time.time()
         duree = distance / 0.08 + 3.0
         while self.t() - t0 < duree:
@@ -458,6 +461,7 @@ class Mission(Node):
             self.commande(0.08, 0.0)
             time.sleep(0.05)
         self.stop()
+        return True
 
     def reculer(self, distance):
         """Recule en ligne droite (odometrie), si le scan filtre ne voit rien derriere et que
@@ -465,10 +469,10 @@ class Mission(Node):
         distance = -self.trajet_libre(-distance)
         if distance < 0.05:
             self.log('recul annule : pas de place dans la costmap')
-            return
+            return False
         p0 = self.pose(self.odom_frame)
         if p0 is None:
-            return
+            return False
         t0, mur = self.t(), time.time()
         duree = distance / 0.08 + 3.0
         while self.t() - t0 < duree:
@@ -487,6 +491,7 @@ class Mission(Node):
             self.commande(-0.08, 0.0)
             time.sleep(0.05)
         self.stop()
+        return True
 
     # ---------- Nav2 ----------
     def relancer_nav2(self):

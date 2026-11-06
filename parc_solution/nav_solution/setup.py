@@ -37,6 +37,7 @@ setup(
             'sauver_tags = nav_solution.sauver_tags:main',
             'generer_masque = nav_solution.generer_masque:main',
             'demarrage_vocal = nav_solution.demarrage_vocal:main',
+            'scan_retourne = nav_solution.scan_retourne:main',
         ],
     },
 )
