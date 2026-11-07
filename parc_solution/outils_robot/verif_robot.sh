@@ -45,6 +45,28 @@ for nom, base in (('avec correction (notre code)', lambda a: math.pi - a), ('san
     verdict = 'mur a DROITE' if (dr or 9) < (g or 9) else 'mur a GAUCHE'
     print(f'   {nom} : gauche {g} m | droite {dr} m | devant {mini(base, -20, 20)} m -> {verdict}')
 print('   attendu : "avec correction" -> mur a DROITE')
+# profil complet autour du robot (avec notre correction), le corps du robot exclu
+pts = []
+for i, d in enumerate(s.ranges):
+    if not math.isfinite(d) or d < 0.1: continue
+    a = math.pi - (s.angle_min + i * s.angle_increment)
+    x, y = d * math.cos(a), d * math.sin(a)
+    if -0.20 < x < 0.22 and abs(y) < 0.27: continue
+    pts.append((math.degrees(math.atan2(y, x)), d, x, y))
+print('   profil (0 devant, +90 gauche, -90 droite, 180 derriere) :')
+lig = []
+for c in range(-150, 210, 30):
+    v = [p for p in pts if (c - 15 <= p[0] < c + 15) or (c == 180 and p[0] < -165)]
+    lig.append(f'{c if c <= 180 else c - 360:+4d}: ' + (f'{min(p[1] for p in v):.2f}' if v else '-'))
+print('     ' + '  '.join(lig))
+der = [-p[2] - 0.20 for p in pts if p[2] < -0.20 and abs(p[3]) < 0.5]
+dro = [-p[3] - 0.27 for p in pts if p[3] < -0.27 and abs(p[2]) < 0.5]
+gau = [p[3] - 0.27 for p in pts if p[3] > 0.27 and abs(p[2]) < 0.5]
+f = lambda v: f'{min(v):.2f} m' if v else 'rien a moins de 0.5 m de large'
+print(f'   ecart arriere du robot -> obstacle derriere : {f(der)}')
+print(f'   ecart flanc droit      -> obstacle a droite : {f(dro)}')
+print(f'   ecart flanc gauche     -> obstacle a gauche : {f(gau)}')
+print('   attendu au depart : murs derriere et a droite, rien de proche a gauche')
 PY
 echo "== Arbitre (attendu : /parc/run_status, /parc/tag_order, ...)"
 ros2 topic list | grep /parc/ | sed 's/^/   /'
