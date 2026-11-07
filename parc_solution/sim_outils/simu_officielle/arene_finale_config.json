@@ -1,0 +1,81 @@
+{
+ "_aide": "repere local : x vers l'est (pied Spalding), y vers le nord (mur du fond), origine coin sud-ouest (affiche PARC / gazon). Caps en radians : 0 est, 1.571 nord, 3.142 ouest, -1.571 sud. tags : [x, y, sens de la face] ; tables : [x, y, cap] ; plots : [x, y, rayon, hauteur]. Source : croquis a l'echelle annote du 7 nov 00.03 (vert robot vers le gazon, rouge plots, jaune tags 4 puis sens horaire, bleu tables). Sens des tags et des tables : suppose. ouverture : points [x, y] suivis apres le depart (tout droit vers le gazon, puis a gauche vers le centre), puis tour de 360. Tag 7 : face tournee vers le grand plot, vers le gazon (precision du 7 nov) ; tag 4 vers l'ouest.",
+ "dimensions": [
+  7.0,
+  6.1
+ ],
+ "depart": [
+  6.5,
+  5.5,
+  3.142
+ ],
+ "tags": {
+  "4": [
+   6.9,
+   0.65,
+   3.142
+  ],
+  "9": [
+   3.6,
+   0.83,
+   1.571
+  ],
+  "1": [
+   0.4,
+   2.07,
+   0.0
+  ],
+  "7": [
+   4.4,
+   4.3,
+   2.858
+  ]
+ },
+ "tables": [
+  [
+   6.35,
+   3.08,
+   0.0
+  ],
+  [
+   6.4,
+   1.43,
+   0.0
+  ],
+  [
+   4.85,
+   0.55,
+   0.0
+  ]
+ ],
+ "plots": [
+  [
+   0.8,
+   5.35,
+   0.24,
+   0.78
+  ],
+  [
+   3.8,
+   2.0,
+   0.075,
+   0.25
+  ],
+  [
+   5.45,
+   2.07,
+   0.075,
+   0.25
+  ]
+ ],
+ "ouverture": [
+  [
+   3.5,
+   5.5
+  ],
+  [
+   3.5,
+   3.3
+  ]
+ ]
+}

@@ -25,6 +25,7 @@ import time
 
 import numpy as np
 import rclpy
+from rcl_interfaces.msg import ParameterDescriptor
 import yaml
 from action_msgs.msg import GoalStatus
 from apriltag_msgs.msg import AprilTagDetectionArray
@@ -107,6 +108,11 @@ class Mission(Node):
         self.spin_speed = p('spin_speed', 0.45).value
         self.look_pause = p('look_pause', 1.2).value
         self.front_stop = p('front_stop_distance', 0.25).value
+        # ouverture : au depart, avance tout droit (m) puis tourne (deg, + = gauche), avant
+        # d'explorer. Pour une marque de depart dans un coin. 0 = pas d'ouverture.
+        dyn = ParameterDescriptor(dynamic_typing=True)
+        self.ouverture_avance = float(self.declare_parameter('ouverture_avance', 0.0, dyn).value)
+        self.ouverture_virage = float(self.declare_parameter('ouverture_virage', 0.0, dyn).value)
         self.front_sector = math.radians(p('front_sector_deg', 20.0).value)
         self.pos_tol = p('approach_position_tolerance', 0.04).value
         self.dist_tol = p('visit_distance_tolerance', 0.05).value
@@ -1063,8 +1069,39 @@ class Mission(Node):
                 return math.radians(deg)
         return 0.0
 
+    def ouverture(self):
+        """Avance tout droit de ouverture_avance (seul le scan devant arrete), puis tourne."""
+        d = self.ouverture_avance
+        self.log(f'ouverture : avance de {d:.2f} m puis virage de {self.ouverture_virage:.0f} deg')
+        p0 = self.pose(self.odom_frame)
+        if p0 is None:
+            self.log('ouverture annulee : pas de pose odom')
+            return
+        t0, mur = self.t(), time.time()
+        duree = d / 0.10 + 5.0
+        while self.t() - t0 < duree and time.time() - mur < 3 * duree:
+            self.verifie()
+            p = self.pose(self.odom_frame)
+            if p is None or math.hypot(p[0] - p0[0], p[1] - p0[1]) >= d:
+                break
+            libre = self.devant() or 10.0
+            if libre < self.front_stop + 0.05:
+                self.log(f'ouverture : obstacle devant a {libre:.2f} m, on s\'arrete')
+                break
+            self.commande(0.10, 0.0)
+            time.sleep(0.05)
+        self.stop()
+        p = self.pose(self.odom_frame)
+        if p:
+            self.log(f'ouverture : avance faite {math.hypot(p[0] - p0[0], p[1] - p0[1]):.2f} m')
+        if abs(self.ouverture_virage) > 1:
+            self.tourner(math.radians(self.ouverture_virage), self.spin_speed)
+            self.stop()
+
     def courir(self):
         self.attendre_depart()
+        if self.ouverture_avance > 0:
+            self.ouverture()
         ordre = list(self.order)
         signales = []
         for k, i in enumerate(ordre):

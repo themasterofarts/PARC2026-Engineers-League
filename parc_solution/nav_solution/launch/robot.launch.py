@@ -51,6 +51,12 @@ def generate_launch_description():
                               description="Fichier YAML des tags notes a la cartographie (sauver_tags)"),
         DeclareLaunchArgument("slam_params", default_value="",
                               description="Parametres slam_toolbox (defaut : slam_toolbox_robot[_sim].yaml)"),
+        DeclareLaunchArgument("arbitre", default_value="true",
+                              description="false : mission debranchee de l'arbitre (/parc/* -> /ma64/*), ordre donne a la main"),
+        DeclareLaunchArgument("ouverture_avance", default_value="0.0",
+                              description="Au depart : avance tout droit (m) avant d'explorer"),
+        DeclareLaunchArgument("ouverture_virage", default_value="0.0",
+                              description="Puis tourne (deg, + = gauche)"),
         DeclareLaunchArgument("vocal", default_value="false",
                               description="Depart vocal (Vosk, /speech_audio) en plus du depart par commande"),
         DeclareLaunchArgument("modele_vosk", default_value="~/MA64/vosk-model",
@@ -157,8 +163,14 @@ def generate_launch_description():
                 {"image_topic": PathJoinSubstitution([camera_prefix, "image_raw"])},
                 {"indices_tags": LaunchConfiguration("indices")},
                 {"scan_topic": scan_lidar},
+                {"ouverture_avance": LaunchConfiguration("ouverture_avance")},
+                {"ouverture_virage": LaunchConfiguration("ouverture_virage")},
                 {"use_sim_time": sim},
             ],
+            remappings=[] if LaunchConfiguration("arbitre").perform(context) != "false" else [
+                ("/parc/tag_order", "/ma64/tag_order"), ("/parc/run_status", "/ma64/run_status"),
+                ("/parc/start", "/ma64/parc_start"), ("/parc/tag_visit", "/ma64/tag_visit"),
+                ("/parc/finish", "/ma64/finish")],
             condition=IfCondition(LaunchConfiguration("mission")),
         )
 
