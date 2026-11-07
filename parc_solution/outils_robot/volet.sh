@@ -16,6 +16,7 @@ case "$1" in
   deploy)    titre="1. Deployer le code + parc_msgs (PC) - mot de passe SSH ici"
              vocal=""; [ -f ~/parc_offline/vosk-model-small-fr-0.22/conf/model.conf ] && vocal=" --vocal"   # Vosk si present sur le PC
              cmd="$C ./deploy.sh --parc-msgs$vocal" ;;
+  tout)      titre="1. TOUT : deploy + verif capteurs + verif navigation (sans mouvement)"; cmd="$C ./tout_verifier.sh" ;;
   verifnav)  titre="1e. Verification navigation sans mouvement (lance puis arrete tout)"; cmd="$C ./verif_nav.sh" ;;
   verif)     titre="1d. Verification complete a distance (robot immobile)"; cmd="$C ./verif_robot.sh" ;;
   rmw)       titre="1c. Couche DDS : garde celle qui recoit /scan (Cyclone puis FastDDS)"; cmd=$(distant rmw rmw) ;;
