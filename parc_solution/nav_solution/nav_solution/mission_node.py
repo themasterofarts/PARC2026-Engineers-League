@@ -1367,7 +1367,7 @@ class Mission(Node):
         ok = np.isfinite(r) & (r > max(s.range_min, 0.12)) & (np.abs(a) < math.radians(15))
         return float(np.median(r[ok])) if ok.any() else None
 
-    def ouverture(self):
+    def ouverture_droite(self):   # pas "ouverture" : c'est la liste des points du fichier
         """Avance tout droit de ouverture_avance (seul le scan devant arrete), puis tourne."""
         d = self.ouverture_avance
         self.log(f'ouverture : avance de {d:.2f} m puis virage de {self.ouverture_virage:.0f} deg')
@@ -1407,7 +1407,7 @@ class Mission(Node):
     def courir(self):
         self.attendre_depart()
         if self.ouverture_avance > 0:
-            self.ouverture()
+            self.ouverture_droite()
         ordre = list(self.order)
         if self.ouverture:
             self.ouvrir(ordre)
