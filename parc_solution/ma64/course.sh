@@ -28,7 +28,8 @@ if [ "${SIM:-0}" != 1 ]; then
 fi
 # modele Vosk : dans src/ma64 ou dans le dossier de l'equipe (~/teams/MA64/vosk-model)
 modele=""; for m in "$ICI/vosk-model" "$EQ/vosk-model"; do [ -f "$m/conf/model.conf" ] && { modele=$m; break; }; done
-vocal=""; [ -n "$modele" ] && python3 -c "import vosk" 2>/dev/null && vocal="vocal:=true modele_vosk:=$modele"
+# depart vocal desactive pour la finale (decision du 07/11) ; VOCAL=1 pour le reactiver
+vocal=""; [ "${VOCAL:-0}" = 1 ] && [ -n "$modele" ] && python3 -c "import vosk" 2>/dev/null && vocal="vocal:=true modele_vosk:=$modele"
 indices=""; [ -f "$ICI/tags.yaml" ] && indices="indices:=$ICI/tags.yaml"
 echo "MA64 : voix ${vocal:+oui}${vocal:-non (depart par depart.sh)} ; positions de tags ${indices:+oui}${indices:-non}"
 # une seule manoeuvre de depart : l'ouverture du fichier de positions (points + tour de 360) si elle y
