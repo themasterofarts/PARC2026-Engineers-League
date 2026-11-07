@@ -13,7 +13,12 @@ distant() {  # distant SESSION ETAPE [ARGS] : etape lancee sur le robot dans une
 case "$1" in
   nettoyer)  titre="0. Une seule fois : supprimer l'ancien dossier ~/MA64 (hors ~/teams)"
              cmd="$C ssh $M \$ROBOT 'rm -rf ~/MA64 && echo ancien dossier supprime'" ;;
-  deploy)    titre="1. Deployer le code + parc_msgs (PC) - mot de passe SSH ici";           cmd="$C ./deploy.sh --parc-msgs" ;;
+  deploy)    titre="1. Deployer le code + parc_msgs (PC) - mot de passe SSH ici"
+             vocal=""; [ -f ~/parc_offline/vosk-model-small-fr-0.22/conf/model.conf ] && vocal=" --vocal"   # Vosk si present sur le PC
+             cmd="$C ./deploy.sh --parc-msgs$vocal" ;;
+  rmw)       titre="1c. Couche DDS : garde celle qui recoit /scan (Cyclone puis FastDDS)"; cmd=$(distant rmw rmw) ;;
+  camera)    titre="5b. Camera -> detecteur de tags (pendant carto ou course)"; cmd=$(distant camera camera '$CAMERA') ;;
+  vocal)     titre="5c. Test du micro : dire allez (Ctrl+C ensuite)"; cmd=$(distant vocal vocal) ;;
   bag)       titre="1b. Rosbag : a lancer AVANT le diagnostic, Ctrl+C a la fin"; cmd=$(distant bag bag) ;;
   diag)      titre="2. Diagnostic au repos (robot immobile)";           cmd=$(distant diag diag) ;;
   mouvement) titre="3. Diagnostic mouvement : taper OUI (robot)"; cmd=$(distant mouvement mouvement) ;;
