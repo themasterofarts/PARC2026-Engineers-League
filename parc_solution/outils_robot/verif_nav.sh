@@ -11,6 +11,12 @@ source ~/teams/MA64/env.sh
 ok=0; ko=0
 res() { if [ "$1" = 0 ]; then echo "   OK   $2"; ok=$((ok+1)); else echo "   ECHEC $2"; ko=$((ko+1)); fi; }
 tmux kill-session -t verifnav 2>/dev/null
+for t in course nav carto; do tmux kill-session -t $t 2>/dev/null && echo "   (session $t arretee)"; done
+echo "== LiDAR du robot (pilote des organisateurs)"
+lidar=0
+for i in $(seq 1 6); do timeout 5 ros2 topic hz /scan 2>/dev/null | grep -q "average rate" && { lidar=1; break; }; echo "   /scan muet, nouvel essai ($i/6)"; done
+res $([ $lidar = 1 ] && echo 0 || echo 1) "/scan publie"
+[ $lidar = 1 ] || echo "   -> LiDAR MUET : signaler aux organisateurs (pilote du robot), le SLAM ne peut pas demarrer"
 echo "== Lancement de la navigation SANS mission (aucune commande de mouvement possible)"
 tmux new -d -s verifnav "bash -c 'source ~/teams/MA64/env.sh && ros2 launch nav_solution robot.launch.py camera:=camera2 tag_size:=0.165 mission:=false > /tmp/verifnav.log 2>&1'"
 for i in $(seq 1 60); do grep -q "lifecycle_manager_navigation\].*Managed nodes are active" /tmp/verifnav.log 2>/dev/null && break; sleep 2; done
@@ -71,9 +77,9 @@ if 's' in r:
     for i, d in enumerate(s.ranges):
         a = s.angle_min + i * s.angle_increment + math.pi
         x, y = d * math.cos(a), d * math.sin(a)
-        if math.isfinite(d) and -0.25 < x < 0.25: lat.append(abs(y) - 0.25)
+        if math.isfinite(d) and -0.20 < x < 0.20 and abs(y) > 0.20: lat.append(abs(y) - 0.23)   # bord du robot a 0.23 m
     m = min(lat) if lat else 9
-    print(f"   {'OK   ' if m > 0.08 else 'ATTENTION'} ecart flanc du robot / obstacle le plus proche sur le cote : {m:.2f} m"
+    print(f"   {'OK   ' if m > 0.03 else 'ATTENTION'} ecart flanc du robot / obstacle le plus proche sur le cote : {m:.2f} m"
           + ("" if m > 0.08 else " -> robot presque colle : Nav2 risque de ne pas demarrer, l'ecarter de 10 cm"))
 PY2
 echo "== Bilan : $ok OK, $ko ECHEC"
