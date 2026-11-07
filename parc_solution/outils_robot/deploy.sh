@@ -101,6 +101,9 @@ source /opt/ros/jazzy/setup.bash
 # DDS : le choix teste par "lancer.sh rmw" (rmw.txt), sinon Cyclone s'il est installe, sinon FastDDS
 if [ -f "$D/rmw.txt" ]; then export RMW_IMPLEMENTATION=\$(cat "$D/rmw.txt")
 elif ros2 pkg prefix rmw_cyclonedds_cpp >/dev/null 2>&1; then export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp; fi
+# Cyclone : limite d'index de participant relevee (creneau du 07/11 : "Failed to find a free participant
+# index", teleop / vocal / map_saver ne demarraient plus avec les pilotes et la carto lances)
+export CYCLONEDDS_URI='<CycloneDDS><Domain><Discovery><ParticipantIndex>auto</ParticipantIndex><MaxAutoParticipantIndex>120</MaxAutoParticipantIndex></Discovery></Domain></CycloneDDS>'
 if [ -n "$BASE" ] && [ -f "$BASE" ]; then source "$BASE"; fi
 if [ -f "$D/parc_msgs_ws/install/local_setup.bash" ]; then source "$D/parc_msgs_ws/install/local_setup.bash"; fi
 source "$D/install/local_setup.bash"
