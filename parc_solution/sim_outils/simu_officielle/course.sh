@@ -3,6 +3,7 @@
 #   course.sh SEED NOM [args robot.launch...]   (resultats dans ~/ma64_courses_simu/NOM)
 #   seed:=-1 n'est pas gere ici : donner un SEED fixe (le masque lit parc_random_seed<SEED>.sdf)
 #   SEED=fixe : arene fixe nba_sim.sdf de phase2.launch.py (verite dans arene_fixe.json)
+#   LIMITE_ARBITRE=1800.0 : temps limite de l'arbitre (s, defaut 30 min)
 #   ORDRE="1 4 9 7" : ordre impose a l'arbitre (sinon tire au hasard), pour comparer deux versions
 # Avant : ~/parc2026_ws compile (voir le compte rendu), copie locale du simulateur etalonnee.
 ICI="$(dirname "$(readlink -f "$0")")"
@@ -24,9 +25,23 @@ nettoie() {
   sleep 1
 }
 nettoie
+# envoyeur du depart cree avant tous les autres noeuds (decouverte LOCALHOST, voir depart_ma64.py)
+rm -f $D/go
+python3 $ICI/depart_ma64.py $D/go > $D/depart.log 2>&1 &
+DEPART_PID=$!
 echo "$(date +%T) simulation seed $SEED"
 VUE=false; [ "${GUI:-0}" = 1 ] && VUE=true   # GUI=1 : fenetres Gazebo et RViz
-if [ "$SEED" = fixe ]; then
+if [ "$SEED" = finale ]; then
+  # replique approximative de l'arene de la finale (photos du 6 nov 7.23 PM) : arene_finale.py
+  VERITE="--verite $ICI/arene_finale.json"
+  MONDE="--sdf $ICI/arene_finale.sdf $VERITE"
+  MA64_GUI=${GUI:-0} MA64_MONDE=$ICI/arene_finale.sdf ros2 launch $ICI/phase2_plots.launch.py audio:=false > $D/sim.log 2>&1 &
+elif [ "$SEED" = plots ]; then
+  # replique de l'arene reelle (photo du 6 nov) : arene fixe sans tables, 3 plots ; memes tags
+  VERITE="--verite $ICI/arene_fixe.json"
+  MONDE="--sdf $ICI/arene_reelle_plots.sdf $VERITE"
+  ros2 launch $ICI/phase2_plots.launch.py audio:=false > $D/sim.log 2>&1 &
+elif [ "$SEED" = fixe ]; then
   # arene fixe nba_sim.sdf (phase2.launch.py, toujours avec fenetres) : tags au centre des murs, 3 tables
   VERITE="--verite $ICI/arene_fixe.json"
   MONDE="--sdf $(ros2 pkg prefix parc_robot_bringup)/share/parc_robot_bringup/worlds/nba_sim.sdf $VERITE"
@@ -42,7 +57,7 @@ until timeout 5 ros2 topic echo --once /clock --field clock.sec > /dev/null 2>&1
 # vraie pose du robot pour l'evaluateur (/sim/pose ne publie rien)
 ros2 run ros_gz_bridge parameter_bridge "/model/sitoe_robot/pose@geometry_msgs/msg/Pose[gz.msgs.Pose" --ros-args -r /model/sitoe_robot/pose:=/verite/robot_pose -r __node:=pont_verite > $D/pont_verite.log 2>&1 &
 echo "$(date +%T) arbitre"
-ros2 launch parc_referee referee.launch.py odom_topic:=/botwheel_explorer/odom time_limit_s:=3600.0 record:=false > $D/arbitre.log 2>&1 &
+ros2 launch parc_referee referee.launch.py odom_topic:=/botwheel_explorer/odom time_limit_s:=${LIMITE_ARBITRE:-1800.0} record:=false > $D/arbitre.log 2>&1 &
 python3 $SOL/sim_outils/evaluateur_sim.py $VERITE --rapport $D/evaluation.json > $D/evaluation.log 2>&1 &
 EVAL=$!
 # masque keepout des tables et chaises (le LiDAR ne voit que leurs pieds) ; MASQUE=0 pour s'en passer
@@ -65,9 +80,9 @@ until curl -s -X POST -H "X-Judge-Token: parc2026" -H "Content-Type: application
 until grep -q "attente du depart" $D/robot.log; do sleep 2; done
 sleep 3
 echo "$(date +%T) depart"
-until grep -q "DEPART publie" $D/robot.log; do   # un --once peut partir avant la decouverte DDS
-  timeout 20 ros2 topic pub --once -w 1 /ma64/start std_msgs/msg/String "{data: go}" > /dev/null 2>&1; sleep 5
-done
+touch $D/go
+until grep -q "DEPART publie" $D/robot.log; do sleep 2; done
+kill $DEPART_PID 2>/dev/null
 wait $EVAL
 echo "$(date +%T) fin"
 cat $D/evaluation.log | tail -8

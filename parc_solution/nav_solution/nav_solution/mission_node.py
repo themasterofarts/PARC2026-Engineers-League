@@ -139,10 +139,15 @@ class Mission(Node):
         # positions des tags notees pendant la cartographie (sauver_tags) : simples indices
         fichier = os.path.expanduser(p('indices_tags', '').value)
         self.indices = {}
+        self.ouverture = []
         if fichier:
             try:
                 with open(fichier) as f:
-                    self.indices = {int(k): v for k, v in (yaml.safe_load(f) or {}).get('tags', {}).items()}
+                    contenu = yaml.safe_load(f) or {}
+                self.indices = {int(k): v for k, v in contenu.get('tags', {}).items()}
+                # ouverture : points [x, y] (repere map = robot au depart) suivis avant le premier
+                # tag, puis un tour complet pour mesurer les tags visibles
+                self.ouverture = [tuple(map(float, pt)) for pt in contenu.get('ouverture', [])]
             except (OSError, yaml.YAMLError, AttributeError, ValueError) as e:
                 # pas de positions notees : le robot explore pour trouver chaque tag
                 self.get_logger().warn(f'indices ignores ({fichier}) : {e}')
@@ -150,6 +155,9 @@ class Mission(Node):
         scan_topic = p('scan_topic', '/scan').value
         scan_filtre_topic = p('scan_filtered_topic', '/scan_ma64').value
         self.rotation_clearance = p('rotation_clearance', 0.38).value
+        # recul avant un trajet seulement si l'obstacle est vraiment colle : entre 0.25 et 0.38 m
+        # Nav2 manoeuvre seul (tag 4 de la finale, dans une poche entre deux tables)
+        self.degagement_seuil = p('degagement_seuil', 0.25).value
         # demi-empreinte du robot (meme valeurs que la footprint Nav2)
         self.half_length = p('footprint_half_length', 0.25).value
         self.half_width = p('footprint_half_width', 0.25).value
@@ -411,7 +419,7 @@ class Mission(Node):
         """Colle a un obstacle, Nav2 se croit en collision et ne repart pas : on s'ecarte
         d'abord en ligne droite, a l'oppose de l'obstacle le plus proche."""
         o = self.obstacle_proche()
-        if o is None or o[0] >= self.rotation_clearance:
+        if o is None or o[0] >= self.degagement_seuil:
             return
         libre, a = o
         self.log(f'obstacle a {libre:.2f} m ({math.degrees(a):.0f} deg) : on se degage')
@@ -1176,7 +1184,10 @@ class Mission(Node):
         x, y, nx, ny = self.indices[i]
         connu = lambda: i in self.tags  # noqa: E731
         self.log(f'tag {i} : indice de cartographie ({x:.2f}, {y:.2f})')
-        self.naviguer(x + self.view_dist * nx, y + self.view_dist * ny, math.atan2(-ny, -nx), arret=connu,
+        # sans s'arreter a la premiere detection : arrive dans l'axe du tag, la zone devant lui est
+        # cartographiee avant de choisir la visite (finale, tag 4 : vu de loin, poche encore
+        # inconnue -> visite en biais de 50 deg et contact avec le mur)
+        self.naviguer(x + self.view_dist * nx, y + self.view_dist * ny, math.atan2(-ny, -nx),
                       timeout=min(self.nav_timeout, limite - self.t()))
         if not connu():
             # l'indice peut etre decale de quelques degres : on balaie autour
@@ -1201,16 +1212,19 @@ class Mission(Node):
             tx, ty, _, nx, ny = self.tags[i]
             # face au tag n'impose pas d'etre dans son axe : si une table bouche l'axe, on se
             # place en biais (le robot regarde quand meme le tag, cap a +-12 deg)
-            beta = self.angle_de_visite(tx, ty, nx, ny)
-            if beta is None:
+            visite = self.angle_de_visite(tx, ty, nx, ny)
+            if visite is None:
                 self.log(f'tag {i} : aucun point de vue accessible autour de ({tx:.2f}, {ty:.2f})')
                 echecs += 1
                 self.sleep(1.0)
                 continue
+            beta, dv = visite
             if beta:
                 self.log(f'tag {i} : axe encombre, visite en biais de {math.degrees(beta):.0f} deg')
+            elif dv < self.view_dist:
+                self.log(f'tag {i} : axe encombre a {self.view_dist:.1f} m, point de vue a {dv:.2f} m')
             nx, ny = tourne(nx, ny, beta)
-            for dist in (self.view_dist, 0.8 * self.view_dist):
+            for dist in (dv, max(0.75, 0.8 * dv)):
                 vx, vy = tx + dist * nx, ty + dist * ny
                 self.log(f'tag {i} : vers le point de vue ({vx:.2f}, {vy:.2f})')
                 nav = self.naviguer(vx, vy, math.atan2(-ny, -nx), timeout=min(self.nav_timeout, limite - self.t()))
@@ -1234,7 +1248,10 @@ class Mission(Node):
                 # le point de vue, le robot ne fait peut-etre pas face au tag : on reessaie d'abord.
                 absences += 1
                 etat = (f'robot ({r[0]:.2f}, {r[1]:.2f}, {math.degrees(r[2]):.0f} deg), navigation {nav}')
-                if nav != 'ok' and absences < 2:
+                # robot pas tourne vers le tag (rotation refusee pres d'une table, finale tag 4) : il
+                # n'a pas pu le voir, ce n'est pas une absence -> nouvel essai d'abord
+                face = abs(wrap(math.atan2(ty - r[1], tx - r[0]) - r[2])) < 0.35
+                if (nav != 'ok' or not face) and absences < 2:
                     self.log(f'tag {i} pas vu depuis le point de vue, {etat} : nouvel essai')
                     continue
                 self.log(f'tag {i} absent de sa position memorisee ({tx:.2f}, {ty:.2f}), {etat} : on l\'oublie')
@@ -1270,22 +1287,49 @@ class Mission(Node):
     def angle_de_visite(self, tx, ty, nx, ny):
         """Angle (rad) dont tourner la normale du tag pour que le point de visite et le point de vue
         soient libres dans la costmap globale (99 : robot en collision, 100 : obstacle ou masque).
-        0 si l'axe est libre ou si aucun angle ne l'est."""
+        Renvoie (angle, distance du point de vue), ou None si aucun point ne convient."""
         # le point doit etre atteignable depuis le robot sans traverser d'obstacle connu : jamais
         # derriere un mur (course juges seed 135 : point de vue hors de l'arene, boucle sans fin)
         accessible = self.zone_accessible(inconnu=True)
         if accessible is None:
-            return 0.0
-        for deg in (0, 25, -25, 40, -40, 50, -50):
+            return 0.0, self.view_dist
+        # d'abord dans l'axe du tag, quitte a regarder de plus pres (tag coince entre une table et un
+        # mur : finale du 7 nov) ; en biais seulement si l'axe est bouche meme de pres
+        essais = [(0, d) for d in (self.view_dist, 0.9, 0.75) if d <= self.view_dist]
+        essais += [(deg, self.view_dist) for deg in (25, -25, 40, -40, 50, -50)]
+        for deg, dv in essais:
             ux, uy = tourne(nx, ny, math.radians(deg))
-            pts = [(tx + d * ux, ty + d * uy) for d in (self.visit_dist, self.view_dist)]
-            if all(self.cout_global(x, y) < 99 and accessible(x, y) for x, y in pts):
-                return math.radians(deg)
+            (px, py), (vx, vy) = [(tx + d * ux, ty + d * uy) for d in (self.visit_dist, dv)]
+            # point de vue : assez de place pour pivoter sur place (cout < 70 ~ 0.4 m d'un obstacle ;
+            # finale, tag 9 : point de vue colle a un plot, rotation refusee, tag oublie)
+            if (self.cout_global(px, py) < 99 and self.cout_global(vx, vy) < 70
+                    and accessible(px, py) and accessible(vx, vy)):
+                return math.radians(deg), dv
         return None
+
+    def ouvrir(self, ordre):
+        """Trajet d'ouverture (points du fichier d'indices), puis tour complet : les tags vus
+        sont mesures par la camera et remplacent leurs indices."""
+        tous = lambda: all(i in self.tags for i in ordre)  # noqa: E731
+        for k, (x, y) in enumerate(self.ouverture):
+            self.verifie()
+            r = self.pose(self.map_frame)
+            cap = math.atan2(y - r[1], x - r[0]) if r else 0.0
+            self.log(f'ouverture {k + 1}/{len(self.ouverture)} : ({x:.2f}, {y:.2f})')
+            res = self.naviguer(x, y, cap, timeout=self.nav_timeout)
+            if res != 'ok':
+                self.log(f'ouverture : point non atteint ({res}), on continue')
+        self.regarder_autour(tous)
+        p = self.pose(self.map_frame)
+        if p:
+            self.viewpoints.append(p[:2])
+        self.log(f'ouverture finie, tags mesures : {sorted(self.tags)}')
 
     def courir(self):
         self.attendre_depart()
         ordre = list(self.order)
+        if self.ouverture:
+            self.ouvrir(ordre)
         signales = []
         for k, i in enumerate(ordre):
             self.verifie()

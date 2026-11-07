@@ -7,7 +7,8 @@
 #   ROBOT=utilisateur@ip ./deploy.sh              # nav_solution + outils
 #   ROBOT=utilisateur@ip ./deploy.sh --parc-msgs  # + notre copie de parc_msgs (SEULEMENT si le robot ne l'a pas)
 #
-# Variables : ROBOT (obligatoire), DOSSIER (defaut ~/teams/MA64 sur le robot),
+# Variables : ROBOT (obligatoire), RMW (couche DDS du robot, ex. rmw_cyclonedds_cpp, ecrite dans env.sh),
+#             DOSSIER (defaut ~/teams/MA64 sur le robot),
 #             BASE_SETUP (defaut ~/ros2_ws/install/setup.bash : espace de travail de base du
 #             robot, ou les organisateurs ont installe parc_msgs et l'arbitre).
 # Une seule connexion SSH est ouverte et reutilisee (un seul mot de passe).
@@ -53,9 +54,11 @@ if [ $PARC_MSGS = 1 ]; then
 fi
 
 echo "== Compilation sur le robot"
-ssh "${SSH_OPTS[@]}" "$ROBOT" bash -s -- "$DOSSIER" "$PARC_MSGS" "${BASE_SETUP:-ros2_ws/install/setup.bash}" <<'DISTANT'
+ssh "${SSH_OPTS[@]}" "$ROBOT" bash -s -- "$DOSSIER" "$PARC_MSGS" "${BASE_SETUP:-ros2_ws/install/setup.bash}" "${RMW:-}" <<'DISTANT'
 set -e
-D=$HOME/$1; PARC_MSGS=$2; BASE=$3
+D=$HOME/$1; PARC_MSGS=$2; BASE=$3; RMW=$4
+# couche DDS des pilotes du robot (organisateurs : Cyclone) : sinon nos noeuds ne les voient pas
+[ -n "$RMW" ] && export RMW_IMPLEMENTATION=$RMW
 case $BASE in /*) ;; *) BASE=$HOME/$BASE ;; esac
 source /opt/ros/jazzy/setup.bash
 [ -n "$BASE" ] && [ -f "$BASE" ] && source "$BASE"
@@ -69,6 +72,7 @@ cd "$D" && colcon build --packages-select nav_solution > build.log 2>&1 \
 echo "nav_solution compile"
 # env.sh : tout ce qu'il faut sourcer avant de lancer quoi que ce soit
 cat > "$D/env.sh" <<EOF
+${RMW:+export RMW_IMPLEMENTATION=$RMW}
 source /opt/ros/jazzy/setup.bash
 if [ -n "$BASE" ] && [ -f "$BASE" ]; then source "$BASE"; fi
 if [ -f "$D/parc_msgs_ws/install/local_setup.bash" ]; then source "$D/parc_msgs_ws/install/local_setup.bash"; fi
@@ -86,6 +90,8 @@ for p in parc_msgs nav2_bringup nav2_amcl nav2_map_server nav2_regulated_pure_pu
   ros2 pkg prefix "$p" >/dev/null 2>&1 || manque+=("$p")
 done
 python3 -c "import cv2" 2>/dev/null || manque+=("python3-opencv (module cv2, pour le JPEG des visites)")
+[ -n "$RMW" ] && { ros2 pkg prefix "$RMW" >/dev/null 2>&1 || manque+=("$RMW (couche DDS du robot)"); }
+[ -n "$RMW" ] && echo "couche DDS : $RMW" && ros2 daemon stop >/dev/null 2>&1
 python3 -c "import numpy, yaml" 2>/dev/null || manque+=("python3-numpy / python3-yaml")
 command -v tmux >/dev/null || manque+=("tmux")
 if [ ${#manque[@]} -eq 0 ]; then
