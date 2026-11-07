@@ -26,12 +26,13 @@ if [ "${SIM:-0}" != 1 ]; then
     echo "MA64 : $r ne recoit pas /scan"
   done
 fi
-# modele Vosk : dans src/ma64 ou dans le dossier de l'equipe (~/teams/MA64/vosk-model)
-modele=""; for m in "$ICI/vosk-model" "$EQ/vosk-model"; do [ -f "$m/conf/model.conf" ] && { modele=$m; break; }; done
+# modele Vosk : src/ma64, ~/teams/MA64, sinon celui de CAYTU sur le robot (garde par le nettoyage d'Evans)
+modele=""; for m in "$ICI/vosk-model" "$EQ/vosk-model" /home/sitoe/CAYTU_SitoE/sitoe_v7_complet/vosk-model-small-fr-0.22; do [ -f "$m/conf/model.conf" ] && { modele=$m; break; }; done
 # depart vocal desactive pour la finale (decision du 07/11) ; VOCAL=1 pour le reactiver
+[ "${VOCAL:-0}" = 1 ] && echo "MA64 : VOCAL=1, modele ${modele:-introuvable}, module vosk $(python3 -c "import vosk" 2>/dev/null && echo ok || echo absent)"
 vocal=""; [ "${VOCAL:-0}" = 1 ] && [ -n "$modele" ] && python3 -c "import vosk" 2>/dev/null && vocal="vocal:=true modele_vosk:=$modele"
 indices=""; [ -f "$ICI/tags.yaml" ] && indices="indices:=$ICI/tags.yaml"
-echo "MA64 : voix ${vocal:+oui}${vocal:-non (depart par depart.sh)} ; positions de tags $([ -n "$indices" ] && echo oui || echo non)"
+echo "MA64 : voix $([ -n "$vocal" ] && echo oui || echo "non (depart par depart.sh)") ; positions de tags $([ -n "$indices" ] && echo oui || echo non)"
 # une seule manoeuvre de depart : l'ouverture du fichier de positions (points + tour de 360) si elle y
 # est, sinon la manoeuvre simple (avance puis virage)
 if [ -f "$ICI/tags.yaml" ] && grep -q "^ouverture:" "$ICI/tags.yaml"; then D_AV=0.0; D_VI=0; else D_AV=3.0; D_VI=90; fi
