@@ -12,6 +12,14 @@ ok=0; ko=0
 res() { if [ "$1" = 0 ]; then echo "   OK   $2"; ok=$((ok+1)); else echo "   ECHEC $2"; ko=$((ko+1)); fi; }
 tmux kill-session -t verifnav 2>/dev/null
 for t in course nav carto; do tmux kill-session -t $t 2>/dev/null && echo "   (session $t arretee)"; done
+echo "== Robot libre ? (aucune autre navigation lancee)"
+autres=$(ps -eo args | grep -E "slam_toolbox|controller_server|bt_navigator" | grep -v grep | grep -v "teams/MA64" | grep -oE "teams/[A-Za-z0-9_-]+|/tmp/[a-z]+_course" | sort -u | tr "\n" " ")
+if ros2 node list 2>/dev/null | grep -qE "^/(slam_toolbox|controller_server|bt_navigator)$"; then
+  echo "   ARRET : une navigation tourne deja sur le robot (${autres:-origine inconnue})."
+  echo "   Une autre equipe utilise probablement le robot : on ne lance rien pour ne pas perturber sa course."
+  exit 0
+fi
+echo "   OK   aucune autre navigation"
 echo "== LiDAR du robot (pilote des organisateurs)"
 lidar=0
 for i in $(seq 1 6); do timeout 5 ros2 topic hz /scan 2>/dev/null | grep -q "average rate" && { lidar=1; break; }; echo "   /scan muet, nouvel essai ($i/6)"; done
