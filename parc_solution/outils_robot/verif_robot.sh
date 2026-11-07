@@ -52,6 +52,11 @@ echo "== Audio"
 ros2 topic list | grep -iE "audio" | sed 's/^/   /' || echo "   aucun topic audio"
 echo "== Vosk"
 python3 -c "import vosk; print('   vosk importable :', vosk.__file__)" 2>/dev/null || echo "   vosk NON importable (depart par commande)"
+# modele francais du constructeur (CAYTU) copie dans notre dossier s'il manque (jamais ceux des autres equipes)
+CAYTU=/home/sitoe/CAYTU_SitoE/sitoe_v7_complet/vosk-model-small-fr-0.22
+if [ ! -f ~/teams/MA64/vosk-model/conf/model.conf ] && [ -f $CAYTU/conf/model.conf ]; then
+  rm -rf ~/teams/MA64/vosk-model && cp -r $CAYTU ~/teams/MA64/vosk-model && echo "   modele CAYTU copie dans ~/teams/MA64/vosk-model"
+fi
 ls -d ~/teams/MA64/vosk-model >/dev/null 2>&1 && echo "   modele equipe : present" || echo "   modele equipe : absent (~/teams/MA64/vosk-model)"
 echo "   autres modeles sur le robot :"; find / -maxdepth 6 -type f -path "*conf/model.conf" 2>/dev/null | sed 's|/conf/model.conf||; s/^/     /' | head -5
 echo "== Tags vus (seulement si carto ou course tourne)"
@@ -61,3 +66,10 @@ if ros2 topic list | grep -qx /detections; then
 else echo "   detecteur non lance"; fi
 echo "== Fin"
 DISTANT
+# copie du modele sur le PC (~/parc_offline) : deploy.sh --vocal pourra le renvoyer si le robot est efface
+if [ ! -f ~/parc_offline/vosk-model-small-fr-0.22/conf/model.conf ]; then
+  mkdir -p ~/parc_offline && rm -f ~/parc_offline/vosk-model-small-fr-0.22.zip
+  scp -r -q -o ControlPath=~/.ssh/cm-%r@%h:%p "$ROBOT:teams/MA64/vosk-model" ~/parc_offline/vosk-model-small-fr-0.22 \
+    && echo "== Modele Vosk copie sur le PC : ~/parc_offline/vosk-model-small-fr-0.22" \
+    || echo "== Copie du modele sur le PC ratee"
+fi
