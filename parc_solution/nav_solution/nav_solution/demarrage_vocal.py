@@ -41,7 +41,7 @@ class DemarrageVocal(Node):
         self.rate = p('sample_rate', 16000).value
         self.channels = p('channels', 1).value
         self.channel = p('channel', 0).value       # canal garde si l'audio est multicanal
-        audio_topic = p('audio_topic', '/speech_audio').value
+        audio_topic = p('audio_topic', '/audio').value   # micro du robot (diag du 07/11 : /audio, pas /speech_audio)
         wav_file = p('wav_file', '').value
         self.min_conf = p('min_confidence', 0.6).value
         self.fin_phrase = p('fin_phrase_s', 0.4).value
