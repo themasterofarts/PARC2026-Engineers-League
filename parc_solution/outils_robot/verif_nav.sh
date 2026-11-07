@@ -48,11 +48,34 @@ if 's' in r:
          and abs(math.degrees(math.atan2(math.sin(s.angle_min + i*s.angle_increment + math.pi), math.cos(s.angle_min + i*s.angle_increment + math.pi)))) < 15]
     d = min(v) if v else 10.0
     print(f"   {'OK   ' if d > 0.6 else 'ECHEC'} place libre devant le robot : {d:.2f} m (il faut > 0.6 m)")
+    open('/tmp/verifnav_but.txt', 'w').write(f"{max(0.3, min(1.0, d - 0.5)):.2f}")
 else:
     print("   ECHEC pas de /scan_ma64")
 PY
-timeout 25 ros2 action send_goal /compute_path_to_pose nav2_msgs/action/ComputePathToPose "{goal: {header: {frame_id: map}, pose: {position: {x: 1.5, y: 0.0}, orientation: {w: 1.0}}}, use_start: false}" > /tmp/verifnav_chemin.txt 2>&1
-grep -q SUCCEEDED /tmp/verifnav_chemin.txt; res $? "Nav2 calcule un chemin 1.5 m devant le robot (sans le suivre)"
+# but devant le robot, en deca du premier obstacle (calcul seul)
+B=$(cat /tmp/verifnav_but.txt 2>/dev/null || echo 0.8)
+timeout 25 ros2 action send_goal /compute_path_to_pose nav2_msgs/action/ComputePathToPose "{goal: {header: {frame_id: map}, pose: {position: {x: $B, y: 0.0}, orientation: {w: 1.0}}}, use_start: false}" > /tmp/verifnav_chemin.txt 2>&1
+grep -q SUCCEEDED /tmp/verifnav_chemin.txt; res $? "Nav2 calcule un chemin $B m devant le robot (sans le suivre)"
+grep -q SUCCEEDED /tmp/verifnav_chemin.txt || grep -E "planner_server\].*(ERROR|WARN)" /tmp/verifnav.log | grep -v "Inflation layer" | tail -3 | cut -c1-170 | sed 's/^/     planificateur : /'
+# place sur les cotes : le robot doit pouvoir s'ecarter du mur
+python3 - <<'PY2'
+import math, rclpy
+from sensor_msgs.msg import LaserScan
+from rclpy.qos import qos_profile_sensor_data
+rclpy.init(); n = rclpy.create_node('verif_cotes'); r = {}
+n.create_subscription(LaserScan, '/scan_ma64', lambda m: r.setdefault('s', m), qos_profile_sensor_data)
+t = 0
+while 's' not in r and t < 10: rclpy.spin_once(n, timeout_sec=1); t += 1
+if 's' in r:
+    s = r['s']; lat = []
+    for i, d in enumerate(s.ranges):
+        a = s.angle_min + i * s.angle_increment + math.pi
+        x, y = d * math.cos(a), d * math.sin(a)
+        if math.isfinite(d) and -0.25 < x < 0.25: lat.append(abs(y) - 0.25)
+    m = min(lat) if lat else 9
+    print(f"   {'OK   ' if m > 0.08 else 'ATTENTION'} ecart flanc du robot / obstacle le plus proche sur le cote : {m:.2f} m"
+          + ("" if m > 0.08 else " -> robot presque colle : Nav2 risque de ne pas demarrer, l'ecarter de 10 cm"))
+PY2
 echo "== Bilan : $ok OK, $ko ECHEC"
 [ $ko -gt 0 ] && { echo "   erreurs du lancement :"; grep -E "ERROR|FATAL|died" /tmp/verifnav.log | grep -v Error_code | tail -5 | cut -c1-160 | sed 's/^/     /'; }
 echo "== Arret de la navigation"
