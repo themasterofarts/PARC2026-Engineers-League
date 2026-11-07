@@ -19,6 +19,7 @@ nettoie() {
   for p in $(pgrep -f "^gz sim"); do kill $p; done
   for p in $(ps -eo pid,args | grep -E "^ *[0-9]+ (/opt/ros/jazzy/lib/|python3 /home/peace-fiacre/parc2026_ws/install|/usr/bin/python3 /home/peace-fiacre/parc2026_ws/install)" | grep -v grep | awk '{print $1}'); do kill $p 2>/dev/null; done
   pkill -f "evaluateur_sim.py" 2>/dev/null
+  pkill -f "depart_ma64\.py" 2>/dev/null   # envoyeur du go reste d'une course coupee
   for p in $(pgrep -f "^rviz2 -d "); do kill $p 2>/dev/null; done   # notre vue (RVIZ=1)
   sleep 3
   for p in $(ps -eo pid,args | grep -E "^ *[0-9]+ (/opt/ros/jazzy/lib/|gz sim|/bin/sh -c ruby|python3 /home/peace-fiacre/parc2026_ws/install|/usr/bin/python3 /home/peace-fiacre/parc2026_ws/install|/usr/bin/python3 /opt/ros/jazzy/bin/ros2 (launch|run))" | grep -v grep | awk '{print $1}'); do kill -9 $p 2>/dev/null; done
