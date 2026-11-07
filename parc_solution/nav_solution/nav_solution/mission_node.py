@@ -1355,6 +1355,18 @@ class Mission(Node):
             self.viewpoints.append(p[:2])
         self.log(f'ouverture finie, tags mesures : {sorted(self.tags)}')
 
+    def degagement_derriere(self):
+        """Distance mediane derriere le robot (+-15 deg, scan brut) : grandit quand il avance."""
+        s = self.scan
+        if s is None or self.laser_yaw is None:
+            self.devant()
+            return None
+        r = np.asarray(s.ranges, dtype=np.float32)
+        a = s.angle_min + np.arange(r.size) * s.angle_increment + self.laser_yaw - math.pi
+        a = np.arctan2(np.sin(a), np.cos(a))
+        ok = np.isfinite(r) & (r > max(s.range_min, 0.12)) & (np.abs(a) < math.radians(15))
+        return float(np.median(r[ok])) if ok.any() else None
+
     def ouverture(self):
         """Avance tout droit de ouverture_avance (seul le scan devant arrete), puis tourne."""
         d = self.ouverture_avance
@@ -1365,10 +1377,18 @@ class Mission(Node):
             return
         t0, mur = self.t(), time.time()
         duree = d / 0.10 + 5.0
+        scan0 = self.degagement_derriere()
         while self.t() - t0 < duree and time.time() - mur < 3 * duree:
             self.verifie()
             p = self.pose(self.odom_frame)
             if p is None or math.hypot(p[0] - p0[0], p[1] - p0[1]) >= d:
+                break
+            # 07/11 : odometrie +4 m, LiDAR fige (moteurs coupes ?). Derriere doit s'eloigner.
+            fait = math.hypot(p[0] - p0[0], p[1] - p0[1])
+            scan1 = self.degagement_derriere()
+            if fait > 0.5 and scan0 and scan1 and abs(scan1 - scan0) < 0.10:
+                self.get_logger().error(f'ROBOT IMMOBILE : odometrie +{fait:.2f} m mais le LiDAR ne voit aucun '
+                                        f'deplacement ({scan0:.2f} -> {scan1:.2f} m). Moteurs ? arret d\'urgence ?')
                 break
             libre = self.devant() or 10.0
             if libre < self.front_stop + 0.05:

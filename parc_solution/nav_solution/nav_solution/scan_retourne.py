@@ -20,11 +20,21 @@ class ScanRetourne(Node):
         super().__init__('scan_retourne')
         entree = self.declare_parameter('entree', '/scan').value
         sortie = self.declare_parameter('sortie', '/scan_corrige').value
+        # /scan du robot a 2 publieurs (07/11) : scan_filter (frame laser, 720 mesures, heure
+        # normale) et rplidar_node (frame lidar_link, 360 mesures, horloge de demarrage).
+        # On ne garde que 'laser' : c'est sur lui que la correction a ete validee. '' = tout.
+        self.frame = self.declare_parameter('frame_accepte', 'laser').value
+        self.rejets = 0
         self.pub = self.create_publisher(LaserScan, sortie, 10)
         self.create_subscription(LaserScan, entree, self.on_scan, qos_profile_sensor_data)
         self.get_logger().info(f'{entree} -> {sortie} : mesures dans l\'ordre inverse (LiDAR monte a l\'envers)')
 
     def on_scan(self, s):
+        if self.frame and s.header.frame_id != self.frame:
+            self.rejets += 1
+            if self.rejets in (1, 100, 1000):
+                self.get_logger().warn(f'scan ignore : frame {s.header.frame_id} (attendu {self.frame}), {self.rejets} ignores')
+            return
         n = len(s.ranges)
         angle_max = s.angle_min + (n - 1) * s.angle_increment
         s.angle_min, s.angle_max = -angle_max, -s.angle_min

@@ -39,6 +39,7 @@ setup(
             'demarrage_vocal = nav_solution.demarrage_vocal:main',
             'odom_gyro = nav_solution.odom_gyro:main',
             'scan_retourne = nav_solution.scan_retourne:main',
+            'camera_info_fixe = nav_solution.camera_info_fixe:main',
         ],
     },
 )

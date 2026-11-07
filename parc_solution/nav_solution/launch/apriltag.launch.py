@@ -26,6 +26,7 @@ def generate_launch_description():
             {
                 "use_sim_time": use_sim_time,
                 "size": ParameterValue(LaunchConfiguration("tag_size"), value_type=float),
+                "image_transport": LaunchConfiguration("transport"),
             },
         ],
         remappings=[
@@ -50,6 +51,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument("transport", default_value="raw",
+                              description="raw ou compressed (image compressee : robot du 07/11, images brutes perdues)"),
         DeclareLaunchArgument(
             "use_sim_time", default_value="true", description="Utiliser le temps de simulation"
         ),

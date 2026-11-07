@@ -51,6 +51,10 @@ def generate_launch_description():
                               description="Fichier YAML des tags notes a la cartographie (sauver_tags)"),
         DeclareLaunchArgument("slam_params", default_value="",
                               description="Parametres slam_toolbox (defaut : slam_toolbox_robot[_sim].yaml)"),
+        DeclareLaunchArgument("transport", default_value="raw",
+                              description="Image lue par le detecteur : raw ou compressed"),
+        DeclareLaunchArgument("info_fixe", default_value="false",
+                              description="true : camera_info de secours (etalonnage du 05/11) pour le detecteur"),
         DeclareLaunchArgument("arbitre", default_value="true",
                               description="false : mission debranchee de l'arbitre (/parc/* -> /ma64/*), ordre donne a la main"),
         DeclareLaunchArgument("ouverture_avance", default_value="0.0",
@@ -130,13 +134,26 @@ def generate_launch_description():
             condition=IfCondition(PythonExpression(["'", carte, "' != ''"])),
         )
 
+        info_fixe = LaunchConfiguration("info_fixe").perform(context) == "true"
+        info_secours = Node(
+            package=package_name,
+            executable="camera_info_fixe",
+            name="camera_info_fixe",
+            output="screen",
+            parameters=[{"image_topic": PathJoinSubstitution([camera_prefix, "image_raw"]),
+                         "sortie": "/ma64/camera2", "use_sim_time": sim,
+                         "compresse": LaunchConfiguration("transport").perform(context) == "compressed"}],
+            condition=IfCondition("true" if info_fixe else "false"),
+        )
+
         apriltag = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(nav_solution_dir, "launch", "apriltag.launch.py")),
             launch_arguments={
                 "use_sim_time": use_sim_time,
-                "camera_image": PathJoinSubstitution([camera_prefix, "image_raw"]),
-                "camera_info": PathJoinSubstitution([camera_prefix, "camera_info"]),
+                "camera_image": "/ma64/camera2/image_raw" if info_fixe else PathJoinSubstitution([camera_prefix, "image_raw"]),
+                "camera_info": "/ma64/camera2/camera_info" if info_fixe else PathJoinSubstitution([camera_prefix, "camera_info"]),
                 "tag_size": LaunchConfiguration("tag_size"),
+                "transport": LaunchConfiguration("transport"),
             }.items(),
         )
 
@@ -188,6 +205,7 @@ def generate_launch_description():
         )
 
         noeuds_ma64 = [
+            info_secours,
             retourne,
             laser_filter,
             slam,
