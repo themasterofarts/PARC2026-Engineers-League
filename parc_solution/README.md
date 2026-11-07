@@ -1,95 +1,69 @@
-# EQUIPE : MA64 ROBOTICS
+# EQUIPE : MA64 ROBOTICS (Bénin)
 
-## Introduction
-Pour cette tâche, nous avons d’abord construit une carte de la salle avec `SLAM Toolbox`, puis nous naviguons dessus avec `Nav2` et `AMCL`. 
-Comme le LiDAR est monté très bas et ne voit pas les plateaux de table, nous avons complété la carte avec leur surface réelle, tirée du fichier du monde. 
-Le robot se localise avec le scan du LiDAR, filtré pour enlever les points qui tombent sur le robot lui-même, et avec l’odométrie fusionnée à l’IMU par un filtre de Kalman. 
-Pour les obstacles qui apparaissent pendant le trajet, les `costmaps` de `Nav2` utilisent le LiDAR et le `nuage de points de la caméra de profondeur` du haut. 
-Un script Python lit le point de départ et l’objectif dans `task_params.yaml`, convertit l’objectif du repère Gazebo vers le repère de la carte(`map`), l’envoie à Nav2 et le renvoie si Nav2 abandonne. 
+**Membres :** KPOKPO Sunday (chef d'équipe), EGOUDJOBI Peace Fiacre, SIRADJO SY, GBAGUIDI Freednel, THOUKAM Yves, KOCOU.
 
-**Pays de l'équipe:** 
-* BENIN
+## La solution (phase réelle, robot CAYTU Sito-É)
+Le robot construit sa carte en direct (`slam_toolbox`), détecte les AprilTags 36h11 avec la caméra du haut (`apriltag_ros`), et visite les tags 1, 4, 7, 9 dans l'ordre publié par l'arbitre :
+- navigation avec Nav2 ;
+- approche finale guidée par la caméra : arrêt à environ 0,5 m de l'avant du robot, face au tag à moins de ±12° ;
+- envoi de `TagVisit` avec l'image JPEG, puis immobilité pendant 3 s.
 
-**Noms des membres de l'équipe:**
+Départ par commande, ou **à la voix (« allez »)**, avec Vosk hors ligne.
 
-* KPOKPO Sunday (chef d'équipe)
-* EGOUDJOBI Peace Fiacre
-* SIRADJO SY
-* GBAGUIDI Freednel
-* THOUKAM Yves
-* KOCOU
+Code : paquet `nav_solution`. Lancement robot : `launch/robot.launch.py`. Mission : `nav_solution/mission_node.py`.
+
+## Corrections indispensables pour le vrai robot (mesurées sur un rosbag du robot, 05/11)
+| Problème | Correction | Effet mesuré |
+|---|---|---|
+| `camera1` regarde le sol (0,53 m, inclinée de 67°) ; la caméra du haut est **`camera2`** (0,92 m) | `camera2` par défaut (`robot.launch.py`, `robot.conf`, `lancer.sh`) | 0 tag détecté → 3 tags jusqu'à 5,7 m |
+| La TF `base_link → laser` du robot ne correspond pas au LiDAR, dont les angles tournent à l'envers | nœud `scan_retourne` : `/scan` → `/scan_corrige` (mesures dans l'ordre inverse), lu par le filtre, le SLAM, Nav2 et la mission | carte cassée (11,9 × 7,9 m) → arène nette (6,96 × 6,03 m) |
+| L'odométrie sous-estime la rotation d'environ 6,5 % | pas de correction : le SLAM l'absorbe avec le LiDAR corrigé | — |
+
+## Départ vocal
+- `demarrage_vocal.py` : Vosk, modèle français, **la phrase entière doit être « allez »**, dite seule.
+  - Avec l'ancienne grammaire go/allez/vai : 10 faux départs en 60 s de parole. Avec cette règle : 0.
+  - Sur 3 min du vrai micro du robot : 0 faux départ.
+- La mission **ignore un mot entendu avant l'armement** de la course.
 
 ## Dépendances
+Sur le robot (Jazzy) : Nav2, `slam_toolbox`, `laser_filters`, `apriltag_ros`, `nav2_map_server`, `teleop_twist_keyboard`, OpenCV. `deploy.sh` vérifie leur présence et affiche ce qui manque.
 
-**Les packages nécessaires sont:**
+**Vosk** s'installe **hors ligne**, uniquement dans le dossier de l'équipe :
+```bash
+ROBOT=sitoe@192.168.1.126 ./deploy.sh --vocal
+```
+Cette commande copie depuis le PC :
+- les paquets aarch64 de `~/parc_offline/wheels_jetson` ;
+- le modèle `~/parc_offline/vosk-model-small-fr-0.22`.
 
-* `nav2_simple_commander`: API Python pour la pile Nav2, permettant d'envoyer facilement des objectifs de navigation et de récupérer le statut de la mission.
+Ils sont installés dans `~/MA64/pylib` : sans `sudo`, sans internet, rien dans le système.
 
-  * `$ sudo apt-get install ros-jazzy-nav2-simple-commander`
+## Utilisation sur le robot
+Depuis le PC, dans `parc_solution/outils_robot` :
+```bash
+ROBOT=sitoe@192.168.1.126 ./deploy.sh --vocal     # copie, compile, vérifie
+```
+Puis, sur le robot (`ssh sitoe@192.168.1.126`) :
 
-* `slam_toolbox` : Package utilisé pour construire la carte de l'environnement à partir des données du LiDAR et de l'odométrie.
+| Étape | Commande |
+|---|---|
+| Tester le micro | `~/MA64/lancer.sh vocal` (« allez » seul → `DEPART VOCAL`) |
+| Cartographier (robot sur la marque de départ) | `~/MA64/lancer.sh carto` + `~/MA64/lancer.sh teleop` |
+| Sauvegarder la carte et la position des tags | `~/MA64/lancer.sh sauver` (doit annoncer `4 tag(s) sauves`) |
+| **Course** | `~/MA64/lancer.sh course` (voix activée automatiquement si Vosk est installé) |
+| Suivre l'arbitre | `~/MA64/lancer.sh etat` et `~/MA64/lancer.sh ordre` |
+| **Départ par commande** (secours), une fois l'état `ARMED` | `ros2 topic pub --once -w 1 /ma64/start std_msgs/msg/String "{data: go}"` |
+| **Départ à la voix**, une fois l'état `ARMED` | dire **« allez »**, seul |
 
-  * `$ sudo apt-get install ros-jazzy-slam-toolbox`
+**Si Nav2 n'affiche pas `Managed nodes are active` après environ 1 min** (raté de démarrage DDS, vu en simulation), Ctrl+C et relancer, **avant** le départ.
 
+Détails des créneaux : `Ressources/GUIDE_ROBOT_JEUDI.md`. Marche à suivre du créneau du 06/11 : `~/parc_offline/creneau_12h.md`.
 
-* `robot_localization` : Fusion des données(EKF) de l'odométrie et de l'IMU pour une estimation d'état plus précise.
+## Simulation (simulateur officiel PARC)
+`sim_outils/simu_officielle/course.sh SEED NOM` lance une course complète, avec l'arbitre et l'évaluateur.
+- Dans le simulateur officiel non modifié, l'odométrie surestime les rotations de 31 % (`wheel_separation` 0,3409). Sur la seed 7, cela donne 1/4 tags et un robot renversé.
+- En donnant au SLAM le cap du gyroscope (outil de test `~/ma64_verif/odom_imu_pont.py`), on obtient 4/4 en 281 s simulées, sans contact.
 
-  * `$ sudo apt-get install ros-jazzy-robot-localization`
-
-* `laser_filters` : Noeud ROS permet de filtrer, nettoyer les données brutes du Lidar avant leur traitement.
-
-   * `$ sudo apt-get install ros-jazzy-laser-filters`
-
-* `navigation2 et nav2_bringup` : Utilisé pour la navigation autonome sous ROS2, comprenant les algorithmes, d'évitement d'obstacles, les planificateurs locaux/globaux et le système de localisation d'AMCL etc.
-
-   * `$ sudo apt-get install ros-jazzy-navigation2 ros-jazzy-nav2-bringup`
-
-* `nav2_map_server` : Noeud de Nav2 responsable du chargement des cartes, de leur publication pour AMCL et de la sauvegarde des nouvelles cartes.
-
-   * `$ sudo apt-get install ros-jazzy-nav2-map-server`
-
-
-
-## Tâche
-
- Pour répondre au cahier de charge, notre solution, dévéloppée sur l'environnement ROS2 JAZZY s'apppuie sur plusieurs critères.
-
- Pour se repérer, le robot utilise l'algorithme AMCL, qui croise les données de son LiDAR (filtrées pour retirer le corps du robot) avec l'odométrie, elle-même fusionnée avec l'IMU par un filtre de Kalman étendu.
-
- Une fois la localisation du robot établie,le cerveau du système est un script Python (`task_solution.py`) qui pilote le robot avec `nav2_simple_commander`. 
- 
- Ce programme commence par lire automatiquement le point de départ et l'objectif final à partir du fichier yaml `task_params`, ensuite nous appliquons une formule mathématique, afin d'effectuer un `changement de rèpere` des coordonnées de l'objectif défini dans le `monde gazebo` vers le repère de la `carte Map`.
-
- Ces nouvelles coordonnées de l'objectif converti est envoyé à Nav2, qui calcule un chemin sûr et évite les obstacles en temps réel.
- 
- Enfin une boucle de notre code surveille le déplacement du robot en continu pour estimer son temps d'arrivée, de s'assurer de la limite du temps defini dans le cahier de charge, de permettre un recalcul de trajectoire s'il se retrouve bloqué.
-
-
- Pour lancer notre solution:
-
- * `ros2 run nav_solution task_solution`
- 
-
-
-
-## Défis rencontrés
-
-* **Le LiDar qui capte les roues du robot :** 
-Le capteur lisait les roues de notre propre robot et croyait qu'il y avait un obstacle collé à lui. On a utilisé le package `laser_filters` pour nettoyer les données, ce qui nous a demandé de bien remapper nos topics  pour obliger Nav2 à lire le nouveau topic `/scan_filtered` au lieu des données brutes qui provient du `/scan`. 
-
-* **Marcage des zones interdit au robot :**
-Comme notre LiDAR balaie au ras du sol, il ne détectait pas le plateau des tables du restaurant, et le robot et le robot se rapprochait trop de la table. Pour corriger ça, on a mis en place un `keepout_filter`. 
-On a marqué sur la carte des zones interdites et configuré les serveurs `filter_mask_server` et `costmap_filter_info_server` pour forcer le robot à les contourner.
-
-* **Détection des tables en hauteur :**
-Pendant notre développement, on s'est d'abord servi uniquement du scan LiDAR pour la détection d'obstacles. On s'est vite rendu compte que le robot heurtait le plateau des tables par en dessous. 
-Pour éviter cela, on s'est servi du plugin voxel_layer pour permettre à Nav2 d'écouter les nuages de points qui proviennent du topic `/top_camera_depth/points`afin de détecter les obstacles en hauteur.
-
-* **Confusion entre repère Gazebo et repère map :** 
-Les coordonnées de `task_params.yaml` sont dans le monde Gazebo, pas dans le repère `map`. Comme map coïncide avec la position de spawn pendant la cartographie, la pose initiale d'`AMCL` est (0, 0) (nous l'avons vérifié avec /odom), et l'objectif est converti avec changement de repère enfant( une translation et une rotation).
-
-* **Dérive de l'odomérie des roues :**
-L'odométrie des roues dérivait, nous donc l'avons fusionnée avec l'IMU grâce à `EKF` et`robot_localization`
-
-* **Le robot qui recalculait sa trajectoir en permanence :**
-Au début, on n'avait pas défini d'arbre de comportement (`Behavior Tree`) spécifique dans nos paramètres. Nav2 chargeait donc son arbre par défaut, ce qui poussait le robot à recalculer sa trajectoire en boucle pour rien. Pour corriger ça on a changé la valeur de `default_nav_to_pose_bt_xml` pour utiliser le fichier `navigate_w_recovery_and_replanning_only_if_path_becomes_invalid.xml`. Grâce à cette modification, le robot garde sa trajectoire et ne cherche un nouveau chemin que si l'ancien devient vraiment invalide.
+## À confirmer avec les organisateurs
+- La distance de visite : 0,5 m depuis le **centre** du robot (texte du brief) ou depuis son **avant** (consigne orale du 05/11, suivie par la mission) ?
+- L'heure et la forme du gel du code.

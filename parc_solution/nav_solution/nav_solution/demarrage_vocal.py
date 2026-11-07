@@ -2,8 +2,10 @@
 
 ##### Demarrage vocal hors ligne (bonus +5 points).
 #    Ecoute le micro ReSpeaker du robot (/speech_audio, audio_common_msgs/AudioData,
-#    16 kHz, 16 bits signes, mono) et reconnait les mots de depart avec Vosk, limite a
-#    une petite grammaire (go, allez, vai) pour eviter les faux declenchements.
+#    16 kHz, 16 bits signes, mono) et reconnait le mot de depart avec Vosk (modele francais).
+#    Vocabulaire libre, et le depart n'est accepte que si la phrase entiere est le mot seul
+#    ("allez"). Mesure du 05/11 sur 60 s de parole sans le mot : une grammaire limitee a
+#    go/allez/vai donnait 10 faux departs ("allons", "alors"...), cette regle 0.
 #    Publie le mot reconnu sur /ma64/start_vocal : le noeud de mission publie alors le
 #    StartSignal avec method = METHOD_VOICE et heard = le mot. Le depart par commande
 #    (/ma64/start) reste possible en secours.
@@ -34,7 +36,7 @@ class DemarrageVocal(Node):
     def __init__(self):
         super().__init__('demarrage_vocal')
         p = self.declare_parameter
-        self.words = [w.lower() for w in p('words', ['go', 'allez', 'vai']).value]
+        self.words = [w.lower() for w in p('words', ['allez']).value]
         model_path = os.path.expanduser(p('model_path', '~/teams/MA64/vosk-model').value)
         self.rate = p('sample_rate', 16000).value
         self.channels = p('channels', 1).value
@@ -67,7 +69,8 @@ class DemarrageVocal(Node):
         self.create_timer(0.1, self.verifie_fin_phrase)
 
     def nouveau_recognizer(self):
-        rec = KaldiRecognizer(self.model, self.rate, json.dumps(self.words + ['[unk]']))
+        # vocabulaire libre : une grammaire limitee force les mots proches sur le mot de depart
+        rec = KaldiRecognizer(self.model, self.rate)
         rec.SetWords(True)
         return rec
 
@@ -98,17 +101,19 @@ class DemarrageVocal(Node):
         self.resultat(json.loads(self.rec.FinalResult()))
 
     def resultat(self, res):
-        if res.get('text'):
-            self.get_logger().info(f'entendu : "{res["text"]}"')
-        for mot in res.get('result', []):
-            w, conf = mot.get('word', ''), mot.get('conf', 0.0)
-            if w not in self.words:
-                continue
-            if conf >= self.min_conf:
-                self.get_logger().info(f'DEPART VOCAL : "{w}" (confiance {conf:.2f})')
-                self.pub.publish(String(data=w))
-            else:
-                self.get_logger().info(f'"{w}" ignore : confiance {conf:.2f} < {self.min_conf}')
+        texte = res.get('text', '')
+        if not texte:
+            return
+        self.get_logger().info(f'entendu : "{texte}"')
+        # la phrase entiere doit etre le mot seul ("allons-y", "alors allez" ne comptent pas)
+        if texte not in self.words:
+            return
+        conf = min((m.get('conf', 0.0) for m in res.get('result', [])), default=0.0)
+        if conf >= self.min_conf:
+            self.get_logger().info(f'DEPART VOCAL : "{texte}" (confiance {conf:.2f})')
+            self.pub.publish(String(data=texte))
+        else:
+            self.get_logger().info(f'"{texte}" ignore : confiance {conf:.2f} < {self.min_conf}')
 
 
 def main():

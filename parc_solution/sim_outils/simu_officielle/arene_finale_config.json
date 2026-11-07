@@ -1,12 +1,12 @@
 {
- "_aide": "repere local : x vers l'est (pied Spalding), y vers le nord (mur du fond), origine coin sud-ouest (affiche PARC / gazon). Caps en radians : 0 est, 1.571 nord, 3.142 ouest, -1.571 sud. tags : [x, y, sens de la face] ; tables : [x, y, cap] ; plots : [x, y, rayon, hauteur]. Source : croquis a l'echelle annote du 7 nov 00.03 (vert robot vers le gazon, rouge plots, jaune tags 4 puis sens horaire, bleu tables). Sens des tags et des tables : suppose. ouverture : points [x, y] suivis apres le depart (tout droit vers le gazon, puis a gauche vers le centre), puis tour de 360. Tag 7 : face tournee vers le grand plot, vers le gazon (precision du 7 nov) ; tag 4 vers l'ouest.",
+ "_aide": "repere local : x vers l'est (pied Spalding), y vers le nord (mur du fond), origine coin sud-ouest (affiche PARC / gazon). Caps en radians : 0 est, 1.571 nord, 3.142 ouest, -1.571 sud. tags : [x, y, sens de la face] ; tables : [x, y, cap] ; plots : [x, y, rayon, hauteur]. Source : croquis a l'echelle annote du 7 nov 00.03 (vert robot vers le gazon, rouge plots, jaune tags 4 puis sens horaire, bleu tables). Sens des tags et des tables : suppose. ouverture : points [x, y] suivis apres le depart (tout droit vers le gazon, puis a gauche vers le centre), puis tour de 360. Tag 7 : face tournee vers le grand plot, vers le gazon (precision du 7 nov) ; tag 4 vers l'ouest. Depart mesure sur le rosbag du 06/11 (sun) : mur a droite 0.29 m, derriere 0.57 m.",
  "dimensions": [
   7.0,
   6.1
  ],
  "depart": [
-  6.5,
-  5.5,
+  6.43,
+  5.81,
   3.142
  ],
  "tags": {

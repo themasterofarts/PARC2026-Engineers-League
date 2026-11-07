@@ -26,7 +26,12 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'nav_solution'))
 from nav_solution.generer_masque import ecrire_masque  # noqa: E402
 
-MODELES = os.path.expanduser('~/parc2026_ws/src/PARC2026-Engineers-League/parc_robot_bringup/models')
+# modeles du simulateur officiel installe (le chemin ~/parc2026_ws n'existe que sur un PC)
+try:
+    from ament_index_python.packages import get_package_share_directory
+    MODELES = os.path.join(get_package_share_directory('parc_robot_bringup'), 'models')
+except Exception:
+    MODELES = os.path.expanduser('~/parc2026_ws/src/PARC2026-Engineers-League/parc_robot_bringup/models')
 DEMI_TABLE = 0.913 / 2
 RESOLUTION = 0.05
 

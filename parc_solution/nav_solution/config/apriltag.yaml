@@ -6,7 +6,7 @@ apriltag:
     family: 36h11
     size: 0.165
     max_hamming: 0
-    qos_profile: default
+    qos_profile: sensor_data   # recoit aussi une camera BEST_EFFORT (teste sur le bag du 05/11)
 
     detector:
       threads: 2

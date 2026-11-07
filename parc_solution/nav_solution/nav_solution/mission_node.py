@@ -25,6 +25,7 @@ import time
 
 import numpy as np
 import rclpy
+from rcl_interfaces.msg import ParameterDescriptor
 import yaml
 from action_msgs.msg import GoalStatus
 from apriltag_msgs.msg import AprilTagDetectionArray
@@ -109,6 +110,11 @@ class Mission(Node):
         self.spin_speed = p('spin_speed', 0.45).value
         self.look_pause = p('look_pause', 1.2).value
         self.front_stop = p('front_stop_distance', 0.25).value
+        # ouverture : au depart, avance tout droit (m) puis tourne (deg, + = gauche), avant
+        # d'explorer. Pour une marque de depart dans un coin. 0 = pas d'ouverture.
+        dyn = ParameterDescriptor(dynamic_typing=True)
+        self.ouverture_avance = float(self.declare_parameter('ouverture_avance', 0.0, dyn).value)
+        self.ouverture_virage = float(self.declare_parameter('ouverture_virage', 0.0, dyn).value)
         self.front_sector = math.radians(p('front_sector_deg', 20.0).value)
         self.pos_tol = p('approach_position_tolerance', 0.04).value
         self.dist_tol = p('visit_distance_tolerance', 0.05).value
@@ -238,6 +244,14 @@ class Mission(Node):
             self.commande(0.0, 0.0)
 
     def on_start_word(self, msg, vocal=False):
+        # un mot entendu avant l'armement ne doit pas faire partir le robot a l'armement
+        if self.status is None:
+            armee = self.order is not None     # essai sans arbitre : seulement apres l'ordre
+        else:
+            armee = self.status.state == RunStatus.ARMED
+        if not armee:
+            self.log(f'mot de depart ignore : course pas armee ("{msg.data.strip()}")')
+            return
         if self.start_word is None:
             self.start_vocal = vocal
             self.start_word = msg.data.strip().lower()
@@ -417,16 +431,19 @@ class Mission(Node):
 
     def degager(self, seuil=None):
         """Colle a un obstacle, Nav2 se croit en collision et ne repart pas : on s'ecarte
-        d'abord en ligne droite, a l'oppose de l'obstacle le plus proche."""
+        d'abord en ligne droite, a l'oppose de l'obstacle le plus proche ; si ce sens est
+        bloque dans la costmap, dans l'autre sens (sinon le robot reste coince : seed 7, 06/11)."""
         o = self.obstacle_proche()
         if o is None or o[0] >= (seuil or self.degagement_seuil):
             return
         libre, a = o
         self.log(f'obstacle a {libre:.2f} m ({math.degrees(a):.0f} deg) : on se degage')
-        if abs(a) < math.pi / 2:
-            self.reculer(0.25)
-        else:
-            self.avancer(0.2)
+        essais = [(self.reculer, 0.25), (self.avancer, 0.2)]
+        if abs(a) >= math.pi / 2:
+            essais.reverse()
+        for bouger, distance in essais:
+            if bouger(distance):
+                return
 
     def trajet_libre(self, distance):
         """Distance (m, signee : < 0 en marche arriere) que le robot peut parcourir en ligne
@@ -484,10 +501,10 @@ class Mission(Node):
         distance = self.trajet_libre(distance)
         if distance < 0.05:
             self.log('avance annulee : pas de place dans la costmap')
-            return
+            return False
         p0 = self.pose(self.odom_frame)
         if p0 is None:
-            return
+            return False
         t0, mur = self.t(), time.time()
         duree = distance / 0.08 + 3.0
         while self.t() - t0 < duree:
@@ -504,6 +521,7 @@ class Mission(Node):
             self.commande(0.08, 0.0)
             time.sleep(0.05)
         self.stop()
+        return True
 
     def reculer(self, distance):
         """Recule en ligne droite (odometrie), si le scan filtre ne voit rien derriere et que
@@ -511,10 +529,10 @@ class Mission(Node):
         distance = -self.trajet_libre(-distance)
         if distance < 0.05:
             self.log('recul annule : pas de place dans la costmap')
-            return
+            return False
         p0 = self.pose(self.odom_frame)
         if p0 is None:
-            return
+            return False
         t0, mur = self.t(), time.time()
         duree = distance / 0.08 + 3.0
         while self.t() - t0 < duree:
@@ -533,6 +551,7 @@ class Mission(Node):
             self.commande(-0.08, 0.0)
             time.sleep(0.05)
         self.stop()
+        return True
 
     # ---------- Nav2 ----------
     def relancer_nav2(self):
@@ -1336,8 +1355,39 @@ class Mission(Node):
             self.viewpoints.append(p[:2])
         self.log(f'ouverture finie, tags mesures : {sorted(self.tags)}')
 
+    def ouverture(self):
+        """Avance tout droit de ouverture_avance (seul le scan devant arrete), puis tourne."""
+        d = self.ouverture_avance
+        self.log(f'ouverture : avance de {d:.2f} m puis virage de {self.ouverture_virage:.0f} deg')
+        p0 = self.pose(self.odom_frame)
+        if p0 is None:
+            self.log('ouverture annulee : pas de pose odom')
+            return
+        t0, mur = self.t(), time.time()
+        duree = d / 0.10 + 5.0
+        while self.t() - t0 < duree and time.time() - mur < 3 * duree:
+            self.verifie()
+            p = self.pose(self.odom_frame)
+            if p is None or math.hypot(p[0] - p0[0], p[1] - p0[1]) >= d:
+                break
+            libre = self.devant() or 10.0
+            if libre < self.front_stop + 0.05:
+                self.log(f'ouverture : obstacle devant a {libre:.2f} m, on s\'arrete')
+                break
+            self.commande(0.10, 0.0)
+            time.sleep(0.05)
+        self.stop()
+        p = self.pose(self.odom_frame)
+        if p:
+            self.log(f'ouverture : avance faite {math.hypot(p[0] - p0[0], p[1] - p0[1]):.2f} m')
+        if abs(self.ouverture_virage) > 1:
+            self.tourner(math.radians(self.ouverture_virage), self.spin_speed)
+            self.stop()
+
     def courir(self):
         self.attendre_depart()
+        if self.ouverture_avance > 0:
+            self.ouverture()
         ordre = list(self.order)
         if self.ouverture:
             self.ouvrir(ordre)
