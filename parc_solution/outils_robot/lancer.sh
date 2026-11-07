@@ -19,8 +19,12 @@ case "$1" in
              vocal=""    # depart vocal (Vosk) si le module et le modele sont installes ; sinon depart par commande
              [ -d ~/teams/MA64/vosk-model ] && python3 -c "import vosk" 2>/dev/null && vocal="vocal:=true"
              echo "depart vocal : ${vocal:-non (depart par commande seulement)}"
+             # finale : positions approximatives + ouverture (deploy.sh) ; sinon tags notes a la cartographie
+             indices=$HOME/teams/MA64/cartes/finale_indices.yaml
+             [ -f "$indices" ] || indices=$HOME/teams/MA64/cartes/tags.yaml
+             echo "indices : $indices  |  couche DDS : ${RMW_IMPLEMENTATION:-defaut}"
              ros2 launch nav_solution robot.launch.py camera:="${2:-camera2}" tag_size:="${3:-0.165}" \
-               indices:="$HOME/teams/MA64/cartes/tags.yaml" $masque $vocal ;;
+               indices:="$indices" $masque $vocal ;;
   bag)       mkdir -p ~/teams/MA64/bags && ros2 bag record -o ~/teams/MA64/bags/essai_$(date +%H%M) \
                /scan /botwheel_explorer/odom /botwheel_explorer/cmd_vel /tf /tf_static \
                /camera2/camera2/imu /camera1/camera1/imu /camera2/scan /camera2/camera2/depth/camera_info \

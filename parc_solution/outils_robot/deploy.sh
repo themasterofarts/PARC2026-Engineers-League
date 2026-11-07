@@ -48,6 +48,9 @@ copie "$E/LISEZMOI.txt" "$DOSSIER/LISEZMOI.txt"
 copie "$E/VERSION.txt" "$DOSSIER/VERSION.txt"
 copie "$E/outils/distance_tag.py" "$DOSSIER/outils/distance_tag.py"
 copie "$E/lancer.sh" "$DOSSIER/lancer.sh"
+# finale : positions approximatives des tags + trajet d'ouverture (repere du robot au depart,
+# coin sous le panier, tourne vers le gazon), genere par sim_outils/simu_officielle/arene_finale.py
+copie "$SOLUTION/sim_outils/simu_officielle/arene_finale_indices.yaml" "$DOSSIER/cartes/finale_indices.yaml"
 if [ $PARC_MSGS = 1 ]; then
   ssh "${SSH_OPTS[@]}" "$ROBOT" "mkdir -p $DOSSIER/parc_msgs_ws/src"
   copie "$SOLUTION/sim_outils/parc_msgs/" "$DOSSIER/parc_msgs_ws/src/parc_msgs/"
