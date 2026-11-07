@@ -10,7 +10,9 @@ export ROS_DOMAIN_ID=64 ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST GZ_IP=127.0.0.1 
 # participant, limite par defaut trop basse pour ~40 processus (masque + RViz, 7 nov : mission
 # non creee, "Failed to find a free participant index") -> limite relevee a 120
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
-export CYCLONEDDS_URI='<CycloneDDS><Domain><Discovery><ParticipantIndex>auto</ParticipantIndex><MaxAutoParticipantIndex>120</MaxAutoParticipantIndex></Discovery></Domain></CycloneDDS>'
+# interface reseau = boucle locale uniquement : un changement de Wi-Fi en pleine course (7 nov, 02h41 :
+# 10.228.x -> 192.168.1.x) coupait DDS et figeait la mission
+export CYCLONEDDS_URI='<CycloneDDS><Domain><General><Interfaces><NetworkInterface name="lo"/></Interfaces><AllowMulticast>false</AllowMulticast></General><Discovery><ParticipantIndex>auto</ParticipantIndex><MaxAutoParticipantIndex>120</MaxAutoParticipantIndex><Peers><Peer address="127.0.0.1"/></Peers></Discovery></Domain></CycloneDDS>'
 source /opt/ros/jazzy/setup.bash
 [ -f ~/parc2026_ws/install/setup.bash ] && source ~/parc2026_ws/install/setup.bash
 cd ~/parc2026_ws
