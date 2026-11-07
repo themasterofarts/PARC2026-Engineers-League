@@ -21,4 +21,4 @@ mission:
     spin_speed: 0.4
     front_stop_distance: 0.25
     tag_budget_min: 60.0
-    journal_dir: ~/MA64/journaux
+    journal_dir: ~/teams/MA64/journaux
