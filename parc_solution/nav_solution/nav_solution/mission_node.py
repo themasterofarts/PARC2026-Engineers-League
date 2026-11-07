@@ -415,11 +415,11 @@ class Mission(Node):
         cm = self.obstacle_costmap()
         return cm if cm is not None and cm[0] < lidar[0] else lidar
 
-    def degager(self):
+    def degager(self, seuil=None):
         """Colle a un obstacle, Nav2 se croit en collision et ne repart pas : on s'ecarte
         d'abord en ligne droite, a l'oppose de l'obstacle le plus proche."""
         o = self.obstacle_proche()
-        if o is None or o[0] >= self.degagement_seuil:
+        if o is None or o[0] >= (seuil or self.degagement_seuil):
             return
         libre, a = o
         self.log(f'obstacle a {libre:.2f} m ({math.degrees(a):.0f} deg) : on se degage')
@@ -554,6 +554,17 @@ class Mission(Node):
 
     def naviguer(self, x, y, yaw, arret=None, timeout=None):
         """Va a (x, y, yaw) dans map. arret() -> True interrompt le trajet. Renvoie 'ok', 'echec' ou 'arret'."""
+        res = self.naviguer_une_fois(x, y, yaw, arret, timeout)
+        o = self.obstacle_proche() if res == 'echec' and not self.fini() else None
+        if o is not None and o[0] < self.rotation_clearance:
+            # Nav2 ne repart pas, robot colle a un obstacle (finale : sortie de la poche du tag 4,
+            # pied de table a 0.28 m) : on s'ecarte comme avant (seuil 0.38 m) et on reessaie une fois
+            self.log(f'navigation en echec pres d\'un obstacle ({o[0]:.2f} m) : degagement puis nouvel essai')
+            self.degager(self.rotation_clearance)
+            res = self.naviguer_une_fois(x, y, yaw, arret, timeout)
+        return res
+
+    def naviguer_une_fois(self, x, y, yaw, arret=None, timeout=None):
         self.degager()
         if not self.nav.wait_for_server(timeout_sec=5.0):
             self.log('Nav2 indisponible')

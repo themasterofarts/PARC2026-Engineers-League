@@ -14,7 +14,7 @@ for s in $SEEDS; do
   n=${NOM}_${seed}$([ $simple = 1 ] && echo simple)
   echo "$(date +%T) course $n"
   # demon ROS fige apres un changement de reseau : la course attendait /clock sans fin
-  (source "$ICI/env.sh" > /dev/null 2>&1; ros2 daemon stop > /dev/null 2>&1)
+  (source "$ICI/env.sh" > /dev/null 2>&1; timeout 10 ros2 daemon stop > /dev/null 2>&1)
   SIMPLE=$simple "$ICI/course.sh" "$seed" "$n" "$@" > "$R/$n.out" 2>&1 &
   pid=$!
   progres=$(date +%s); visites=0; coupe=0
